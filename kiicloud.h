@@ -2,7 +2,7 @@
 #define KIICLOUD_INCLUDED
 
 /* JSON library: http://www.digip.org/jansson/ */
-#include <jansson.h>
+#include <jansson/jansson.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -73,7 +73,7 @@ kii_app_load(
 kii_err_t
 kii_app_save(
         kii_app_t           *app,
-        const kii_char_t    **out_data_ptr,
+        kii_char_t          **out_data_ptr,
         kii_int_t           *out_data_len);
 
 /**

@@ -6,6 +6,7 @@
 #define MY_APP_ID       "{your application ID}"
 #define MY_APP_KEY      "{your application Key}"
 #define MY_DEVICE_ID    "{your device ID}"
+#define MY_APP_FILE     "/path/to/app/state_file"
 
 kii_app_t *
 first_setup() {
@@ -14,6 +15,7 @@ first_setup() {
     kii_char_t  *data_ptr = NULL;
     kii_int_t   data_len;
     FILE        *fp = NULL;
+    size_t      written;
 
     /* Open an app struture (allocate memory). */
     app = kii_app_open();
