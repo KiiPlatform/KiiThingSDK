@@ -26,8 +26,10 @@ extern "C" {
  * Types abstraction
  */
 
-typedef int     kii_err_t;
+typedef int     kii_int_t;
 typedef char    kii_char_t;
+
+typedef int     kii_err_t;
 typedef json_t  kii_json_t;
 typedef int     kii_scope_t;
 typedef void *  kii_app_t;
@@ -49,7 +51,8 @@ kii_app_t* kii_app_open(void);
  * \param app_id App ID.
  * \param app_key App key.
  */
-kii_err_t kii_app_init(
+kii_err_t
+kii_app_init(
         kii_app_t *app,
         const kii_char_t    *endpoint,
         const kii_char_t    *app_id,
@@ -58,32 +61,36 @@ kii_err_t kii_app_init(
 /**
  * Load (deserialize) app info.
  */
-kii_err_t kii_app_load(
+kii_err_t
+kii_app_load(
         kii_app_t           *app,
         const kii_char_t    *data_ptr,
-        int                 data_len);
+        kii_int_t           data_len);
 
 /**
  * Save (serialize) app info.
  */
-kii_err_t kii_app_save(
+kii_err_t
+kii_app_save(
         kii_app_t           *app,
         const kii_char_t    **out_data_ptr,
-        int                 *out_data_len);
+        kii_int_t           *out_data_len);
 
 /**
  * Close an app.
  *
  * \param app Pointer to app.
  */
-void kii_app_close(
+void
+kii_app_close(
         kii_app_t *app);
 
 /***************************************************************************
  * Device
  */
 
-kii_err_t kii_device_register(
+kii_err_t
+kii_device_register(
         kii_app_t           *app,
         const kii_char_t    *dev_id,
         kii_json_t          *user_data);
@@ -95,7 +102,8 @@ kii_err_t kii_device_register(
 /**
  * Add or replace an object.
  */
-kii_err_t kii_object_put(
+kii_err_t
+kii_object_put(
         kii_app_t           *app,
         kii_scope_t         scope,
         const kii_char_t    *bucket_name,
@@ -105,7 +113,8 @@ kii_err_t kii_object_put(
 /**
  * Get an object from KiiCloud.
  */
-kii_err_t kii_object_get(
+kii_err_t
+kii_object_get(
         kii_app_t           *app,
         kii_scope_t         scope,
         const kii_char_t    *bucket_name,
@@ -115,7 +124,8 @@ kii_err_t kii_object_get(
 /**
  * Remove an object from KiiCloud.
  */
-kii_err_t kii_object_delete(
+kii_err_t
+kii_object_delete(
         kii_app_t           *app,
         kii_scope_t         scope,
         const kii_char_t    *bucket_name,
