@@ -1,0 +1,350 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		7410AC9819E27F7B002C9DF1 /* KiiThingSDK.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7410AC9719E27F7B002C9DF1 /* KiiThingSDK.h */; };
+		7410AC9A19E27F7B002C9DF1 /* KiiThingSDK.m in Sources */ = {isa = PBXBuildFile; fileRef = 7410AC9919E27F7B002C9DF1 /* KiiThingSDK.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		7410AC9219E27F7B002C9DF1 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+				7410AC9819E27F7B002C9DF1 /* KiiThingSDK.h in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		7410AC9419E27F7B002C9DF1 /* libKiiThingSDK.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libKiiThingSDK.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		7410AC9719E27F7B002C9DF1 /* KiiThingSDK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KiiThingSDK.h; sourceTree = "<group>"; };
+		7410AC9919E27F7B002C9DF1 /* KiiThingSDK.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KiiThingSDK.m; sourceTree = "<group>"; };
+		7410AC9F19E27F7B002C9DF1 /* KiiThingSDKTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KiiThingSDKTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		7410ACA219E27F7B002C9DF1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		7410AC9119E27F7B002C9DF1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7410AC9C19E27F7B002C9DF1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		7410AC8B19E27F7B002C9DF1 = {
+			isa = PBXGroup;
+			children = (
+				7410AC9619E27F7B002C9DF1 /* KiiThingSDK */,
+				7410ACA019E27F7B002C9DF1 /* KiiThingSDKTests */,
+				7410AC9519E27F7B002C9DF1 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		7410AC9519E27F7B002C9DF1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7410AC9419E27F7B002C9DF1 /* libKiiThingSDK.a */,
+				7410AC9F19E27F7B002C9DF1 /* KiiThingSDKTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7410AC9619E27F7B002C9DF1 /* KiiThingSDK */ = {
+			isa = PBXGroup;
+			children = (
+				7410AC9719E27F7B002C9DF1 /* KiiThingSDK.h */,
+				7410AC9919E27F7B002C9DF1 /* KiiThingSDK.m */,
+			);
+			path = KiiThingSDK;
+			sourceTree = "<group>";
+		};
+		7410ACA019E27F7B002C9DF1 /* KiiThingSDKTests */ = {
+			isa = PBXGroup;
+			children = (
+				7410ACA119E27F7B002C9DF1 /* Supporting Files */,
+			);
+			path = KiiThingSDKTests;
+			sourceTree = "<group>";
+		};
+		7410ACA119E27F7B002C9DF1 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				7410ACA219E27F7B002C9DF1 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		7410AC9319E27F7B002C9DF1 /* KiiThingSDK */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7410ACA519E27F7B002C9DF1 /* Build configuration list for PBXNativeTarget "KiiThingSDK" */;
+			buildPhases = (
+				7410AC9019E27F7B002C9DF1 /* Sources */,
+				7410AC9119E27F7B002C9DF1 /* Frameworks */,
+				7410AC9219E27F7B002C9DF1 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = KiiThingSDK;
+			productName = KiiThingSDK;
+			productReference = 7410AC9419E27F7B002C9DF1 /* libKiiThingSDK.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		7410AC9E19E27F7B002C9DF1 /* KiiThingSDKTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7410ACA819E27F7B002C9DF1 /* Build configuration list for PBXNativeTarget "KiiThingSDKTests" */;
+			buildPhases = (
+				7410AC9B19E27F7B002C9DF1 /* Sources */,
+				7410AC9C19E27F7B002C9DF1 /* Frameworks */,
+				7410AC9D19E27F7B002C9DF1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = KiiThingSDKTests;
+			productName = KiiThingSDKTests;
+			productReference = 7410AC9F19E27F7B002C9DF1 /* KiiThingSDKTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		7410AC8C19E27F7B002C9DF1 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0600;
+				ORGANIZATIONNAME = Kii;
+				TargetAttributes = {
+					7410AC9319E27F7B002C9DF1 = {
+						CreatedOnToolsVersion = 6.0.1;
+					};
+					7410AC9E19E27F7B002C9DF1 = {
+						CreatedOnToolsVersion = 6.0.1;
+					};
+				};
+			};
+			buildConfigurationList = 7410AC8F19E27F7B002C9DF1 /* Build configuration list for PBXProject "KiiThingSDK" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 7410AC8B19E27F7B002C9DF1;
+			productRefGroup = 7410AC9519E27F7B002C9DF1 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				7410AC9319E27F7B002C9DF1 /* KiiThingSDK */,
+				7410AC9E19E27F7B002C9DF1 /* KiiThingSDKTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		7410AC9D19E27F7B002C9DF1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		7410AC9019E27F7B002C9DF1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7410AC9A19E27F7B002C9DF1 /* KiiThingSDK.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7410AC9B19E27F7B002C9DF1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		7410ACA319E27F7B002C9DF1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		7410ACA419E27F7B002C9DF1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		7410ACA619E27F7B002C9DF1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		7410ACA719E27F7B002C9DF1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		7410ACA919E27F7B002C9DF1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = KiiThingSDKTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		7410ACAA19E27F7B002C9DF1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = KiiThingSDKTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		7410AC8F19E27F7B002C9DF1 /* Build configuration list for PBXProject "KiiThingSDK" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7410ACA319E27F7B002C9DF1 /* Debug */,
+				7410ACA419E27F7B002C9DF1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7410ACA519E27F7B002C9DF1 /* Build configuration list for PBXNativeTarget "KiiThingSDK" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7410ACA619E27F7B002C9DF1 /* Debug */,
+				7410ACA719E27F7B002C9DF1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		7410ACA819E27F7B002C9DF1 /* Build configuration list for PBXNativeTarget "KiiThingSDKTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7410ACA919E27F7B002C9DF1 /* Debug */,
+				7410ACAA19E27F7B002C9DF1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 7410AC8C19E27F7B002C9DF1 /* Project object */;
+}
