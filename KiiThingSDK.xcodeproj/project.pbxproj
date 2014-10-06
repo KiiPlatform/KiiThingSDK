@@ -9,7 +9,40 @@
 /* Begin PBXBuildFile section */
 		7410AC9819E27F7B002C9DF1 /* KiiThingSDK.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7410AC9719E27F7B002C9DF1 /* KiiThingSDK.h */; };
 		7410AC9A19E27F7B002C9DF1 /* KiiThingSDK.m in Sources */ = {isa = PBXBuildFile; fileRef = 7410AC9919E27F7B002C9DF1 /* KiiThingSDK.m */; };
+		7410ACBC19E28845002C9DF1 /* KiiThingSDKTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7410ACBB19E28845002C9DF1 /* KiiThingSDKTests.mm */; };
+		7410ACDB19E29420002C9DF1 /* dump.c in Sources */ = {isa = PBXBuildFile; fileRef = 7410ACCA19E29420002C9DF1 /* dump.c */; };
+		7410ACDC19E29420002C9DF1 /* error.c in Sources */ = {isa = PBXBuildFile; fileRef = 7410ACCB19E29420002C9DF1 /* error.c */; };
+		7410ACDD19E29420002C9DF1 /* hashtable_seed.c in Sources */ = {isa = PBXBuildFile; fileRef = 7410ACCC19E29420002C9DF1 /* hashtable_seed.c */; };
+		7410ACDE19E29420002C9DF1 /* hashtable.c in Sources */ = {isa = PBXBuildFile; fileRef = 7410ACCD19E29420002C9DF1 /* hashtable.c */; };
+		7410ACDF19E29420002C9DF1 /* load.c in Sources */ = {isa = PBXBuildFile; fileRef = 7410ACD119E29420002C9DF1 /* load.c */; };
+		7410ACE019E29420002C9DF1 /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 7410ACD319E29420002C9DF1 /* memory.c */; };
+		7410ACE119E29420002C9DF1 /* pack_unpack.c in Sources */ = {isa = PBXBuildFile; fileRef = 7410ACD419E29420002C9DF1 /* pack_unpack.c */; };
+		7410ACE219E29420002C9DF1 /* strbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 7410ACD519E29420002C9DF1 /* strbuffer.c */; };
+		7410ACE319E29420002C9DF1 /* strconv.c in Sources */ = {isa = PBXBuildFile; fileRef = 7410ACD719E29420002C9DF1 /* strconv.c */; };
+		7410ACE419E29420002C9DF1 /* utf.c in Sources */ = {isa = PBXBuildFile; fileRef = 7410ACD819E29420002C9DF1 /* utf.c */; };
+		7410ACE519E29420002C9DF1 /* value.c in Sources */ = {isa = PBXBuildFile; fileRef = 7410ACDA19E29420002C9DF1 /* value.c */; };
+		7410ACE919E2951C002C9DF1 /* dump.c in Sources */ = {isa = PBXBuildFile; fileRef = 7410ACCA19E29420002C9DF1 /* dump.c */; };
+		7410ACEA19E2951C002C9DF1 /* error.c in Sources */ = {isa = PBXBuildFile; fileRef = 7410ACCB19E29420002C9DF1 /* error.c */; };
+		7410ACEB19E2951C002C9DF1 /* hashtable_seed.c in Sources */ = {isa = PBXBuildFile; fileRef = 7410ACCC19E29420002C9DF1 /* hashtable_seed.c */; };
+		7410ACEC19E2951C002C9DF1 /* hashtable.c in Sources */ = {isa = PBXBuildFile; fileRef = 7410ACCD19E29420002C9DF1 /* hashtable.c */; };
+		7410ACED19E29526002C9DF1 /* load.c in Sources */ = {isa = PBXBuildFile; fileRef = 7410ACD119E29420002C9DF1 /* load.c */; };
+		7410ACEE19E2952D002C9DF1 /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 7410ACD319E29420002C9DF1 /* memory.c */; };
+		7410ACEF19E2952D002C9DF1 /* pack_unpack.c in Sources */ = {isa = PBXBuildFile; fileRef = 7410ACD419E29420002C9DF1 /* pack_unpack.c */; };
+		7410ACF019E2952D002C9DF1 /* strbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 7410ACD519E29420002C9DF1 /* strbuffer.c */; };
+		7410ACF119E29534002C9DF1 /* strconv.c in Sources */ = {isa = PBXBuildFile; fileRef = 7410ACD719E29420002C9DF1 /* strconv.c */; };
+		7410ACF219E29534002C9DF1 /* utf.c in Sources */ = {isa = PBXBuildFile; fileRef = 7410ACD819E29420002C9DF1 /* utf.c */; };
+		7410ACF319E29539002C9DF1 /* value.c in Sources */ = {isa = PBXBuildFile; fileRef = 7410ACDA19E29420002C9DF1 /* value.c */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		7410ACE719E294AF002C9DF1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7410AC8C19E27F7B002C9DF1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7410AC9319E27F7B002C9DF1;
+			remoteInfo = KiiThingSDK;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		7410AC9219E27F7B002C9DF1 /* CopyFiles */ = {
@@ -28,8 +61,27 @@
 		7410AC9419E27F7B002C9DF1 /* libKiiThingSDK.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libKiiThingSDK.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		7410AC9719E27F7B002C9DF1 /* KiiThingSDK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KiiThingSDK.h; sourceTree = "<group>"; };
 		7410AC9919E27F7B002C9DF1 /* KiiThingSDK.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KiiThingSDK.m; sourceTree = "<group>"; };
-		7410AC9F19E27F7B002C9DF1 /* KiiThingSDKTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KiiThingSDKTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		7410ACA219E27F7B002C9DF1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		7410ACB719E28845002C9DF1 /* KiiThingSDKTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KiiThingSDKTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		7410ACBA19E28845002C9DF1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		7410ACBB19E28845002C9DF1 /* KiiThingSDKTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = KiiThingSDKTests.mm; sourceTree = "<group>"; };
+		7410ACCA19E29420002C9DF1 /* dump.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dump.c; sourceTree = "<group>"; };
+		7410ACCB19E29420002C9DF1 /* error.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = error.c; sourceTree = "<group>"; };
+		7410ACCC19E29420002C9DF1 /* hashtable_seed.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hashtable_seed.c; sourceTree = "<group>"; };
+		7410ACCD19E29420002C9DF1 /* hashtable.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hashtable.c; sourceTree = "<group>"; };
+		7410ACCE19E29420002C9DF1 /* hashtable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hashtable.h; sourceTree = "<group>"; };
+		7410ACCF19E29420002C9DF1 /* jansson_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jansson_private.h; sourceTree = "<group>"; };
+		7410ACD019E29420002C9DF1 /* jansson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jansson.h; sourceTree = "<group>"; };
+		7410ACD119E29420002C9DF1 /* load.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = load.c; sourceTree = "<group>"; };
+		7410ACD219E29420002C9DF1 /* lookup3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lookup3.h; sourceTree = "<group>"; };
+		7410ACD319E29420002C9DF1 /* memory.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = memory.c; sourceTree = "<group>"; };
+		7410ACD419E29420002C9DF1 /* pack_unpack.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pack_unpack.c; sourceTree = "<group>"; };
+		7410ACD519E29420002C9DF1 /* strbuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = strbuffer.c; sourceTree = "<group>"; };
+		7410ACD619E29420002C9DF1 /* strbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = strbuffer.h; sourceTree = "<group>"; };
+		7410ACD719E29420002C9DF1 /* strconv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = strconv.c; sourceTree = "<group>"; };
+		7410ACD819E29420002C9DF1 /* utf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = utf.c; sourceTree = "<group>"; };
+		7410ACD919E29420002C9DF1 /* utf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utf.h; sourceTree = "<group>"; };
+		7410ACDA19E29420002C9DF1 /* value.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = value.c; sourceTree = "<group>"; };
+		7410ACE619E2946F002C9DF1 /* jansson_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jansson_config.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -40,7 +92,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		7410AC9C19E27F7B002C9DF1 /* Frameworks */ = {
+		7410ACB419E28845002C9DF1 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -54,7 +106,7 @@
 			isa = PBXGroup;
 			children = (
 				7410AC9619E27F7B002C9DF1 /* KiiThingSDK */,
-				7410ACA019E27F7B002C9DF1 /* KiiThingSDKTests */,
+				7410ACB819E28845002C9DF1 /* KiiThingSDKTests */,
 				7410AC9519E27F7B002C9DF1 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -63,7 +115,7 @@
 			isa = PBXGroup;
 			children = (
 				7410AC9419E27F7B002C9DF1 /* libKiiThingSDK.a */,
-				7410AC9F19E27F7B002C9DF1 /* KiiThingSDKTests.xctest */,
+				7410ACB719E28845002C9DF1 /* KiiThingSDKTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -71,24 +123,52 @@
 		7410AC9619E27F7B002C9DF1 /* KiiThingSDK */ = {
 			isa = PBXGroup;
 			children = (
+				7410ACAC19E280D9002C9DF1 /* jannson */,
 				7410AC9719E27F7B002C9DF1 /* KiiThingSDK.h */,
 				7410AC9919E27F7B002C9DF1 /* KiiThingSDK.m */,
 			);
 			path = KiiThingSDK;
 			sourceTree = "<group>";
 		};
-		7410ACA019E27F7B002C9DF1 /* KiiThingSDKTests */ = {
+		7410ACAC19E280D9002C9DF1 /* jannson */ = {
 			isa = PBXGroup;
 			children = (
-				7410ACA119E27F7B002C9DF1 /* Supporting Files */,
+				7410ACE619E2946F002C9DF1 /* jansson_config.h */,
+				7410ACCA19E29420002C9DF1 /* dump.c */,
+				7410ACCB19E29420002C9DF1 /* error.c */,
+				7410ACCC19E29420002C9DF1 /* hashtable_seed.c */,
+				7410ACCD19E29420002C9DF1 /* hashtable.c */,
+				7410ACCE19E29420002C9DF1 /* hashtable.h */,
+				7410ACCF19E29420002C9DF1 /* jansson_private.h */,
+				7410ACD019E29420002C9DF1 /* jansson.h */,
+				7410ACD119E29420002C9DF1 /* load.c */,
+				7410ACD219E29420002C9DF1 /* lookup3.h */,
+				7410ACD319E29420002C9DF1 /* memory.c */,
+				7410ACD419E29420002C9DF1 /* pack_unpack.c */,
+				7410ACD519E29420002C9DF1 /* strbuffer.c */,
+				7410ACD619E29420002C9DF1 /* strbuffer.h */,
+				7410ACD719E29420002C9DF1 /* strconv.c */,
+				7410ACD819E29420002C9DF1 /* utf.c */,
+				7410ACD919E29420002C9DF1 /* utf.h */,
+				7410ACDA19E29420002C9DF1 /* value.c */,
+			);
+			name = jannson;
+			path = extlibs;
+			sourceTree = "<group>";
+		};
+		7410ACB819E28845002C9DF1 /* KiiThingSDKTests */ = {
+			isa = PBXGroup;
+			children = (
+				7410ACBB19E28845002C9DF1 /* KiiThingSDKTests.mm */,
+				7410ACB919E28845002C9DF1 /* Supporting Files */,
 			);
 			path = KiiThingSDKTests;
 			sourceTree = "<group>";
 		};
-		7410ACA119E27F7B002C9DF1 /* Supporting Files */ = {
+		7410ACB919E28845002C9DF1 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				7410ACA219E27F7B002C9DF1 /* Info.plist */,
+				7410ACBA19E28845002C9DF1 /* Info.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -113,21 +193,22 @@
 			productReference = 7410AC9419E27F7B002C9DF1 /* libKiiThingSDK.a */;
 			productType = "com.apple.product-type.library.static";
 		};
-		7410AC9E19E27F7B002C9DF1 /* KiiThingSDKTests */ = {
+		7410ACB619E28845002C9DF1 /* KiiThingSDKTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 7410ACA819E27F7B002C9DF1 /* Build configuration list for PBXNativeTarget "KiiThingSDKTests" */;
+			buildConfigurationList = 7410ACBD19E28845002C9DF1 /* Build configuration list for PBXNativeTarget "KiiThingSDKTests" */;
 			buildPhases = (
-				7410AC9B19E27F7B002C9DF1 /* Sources */,
-				7410AC9C19E27F7B002C9DF1 /* Frameworks */,
-				7410AC9D19E27F7B002C9DF1 /* Resources */,
+				7410ACB319E28845002C9DF1 /* Sources */,
+				7410ACB419E28845002C9DF1 /* Frameworks */,
+				7410ACB519E28845002C9DF1 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				7410ACE819E294AF002C9DF1 /* PBXTargetDependency */,
 			);
 			name = KiiThingSDKTests;
 			productName = KiiThingSDKTests;
-			productReference = 7410AC9F19E27F7B002C9DF1 /* KiiThingSDKTests.xctest */;
+			productReference = 7410ACB719E28845002C9DF1 /* KiiThingSDKTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -142,7 +223,7 @@
 					7410AC9319E27F7B002C9DF1 = {
 						CreatedOnToolsVersion = 6.0.1;
 					};
-					7410AC9E19E27F7B002C9DF1 = {
+					7410ACB619E28845002C9DF1 = {
 						CreatedOnToolsVersion = 6.0.1;
 					};
 				};
@@ -160,13 +241,13 @@
 			projectRoot = "";
 			targets = (
 				7410AC9319E27F7B002C9DF1 /* KiiThingSDK */,
-				7410AC9E19E27F7B002C9DF1 /* KiiThingSDKTests */,
+				7410ACB619E28845002C9DF1 /* KiiThingSDKTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		7410AC9D19E27F7B002C9DF1 /* Resources */ = {
+		7410ACB519E28845002C9DF1 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -180,18 +261,49 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7410ACE419E29420002C9DF1 /* utf.c in Sources */,
+				7410ACE019E29420002C9DF1 /* memory.c in Sources */,
+				7410ACDC19E29420002C9DF1 /* error.c in Sources */,
+				7410ACDF19E29420002C9DF1 /* load.c in Sources */,
+				7410ACE219E29420002C9DF1 /* strbuffer.c in Sources */,
+				7410ACDD19E29420002C9DF1 /* hashtable_seed.c in Sources */,
+				7410ACDE19E29420002C9DF1 /* hashtable.c in Sources */,
 				7410AC9A19E27F7B002C9DF1 /* KiiThingSDK.m in Sources */,
+				7410ACE119E29420002C9DF1 /* pack_unpack.c in Sources */,
+				7410ACE519E29420002C9DF1 /* value.c in Sources */,
+				7410ACDB19E29420002C9DF1 /* dump.c in Sources */,
+				7410ACE319E29420002C9DF1 /* strconv.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		7410AC9B19E27F7B002C9DF1 /* Sources */ = {
+		7410ACB319E28845002C9DF1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7410ACF319E29539002C9DF1 /* value.c in Sources */,
+				7410ACF119E29534002C9DF1 /* strconv.c in Sources */,
+				7410ACF219E29534002C9DF1 /* utf.c in Sources */,
+				7410ACEE19E2952D002C9DF1 /* memory.c in Sources */,
+				7410ACEF19E2952D002C9DF1 /* pack_unpack.c in Sources */,
+				7410ACF019E2952D002C9DF1 /* strbuffer.c in Sources */,
+				7410ACED19E29526002C9DF1 /* load.c in Sources */,
+				7410ACE919E2951C002C9DF1 /* dump.c in Sources */,
+				7410ACEA19E2951C002C9DF1 /* error.c in Sources */,
+				7410ACEB19E2951C002C9DF1 /* hashtable_seed.c in Sources */,
+				7410ACEC19E2951C002C9DF1 /* hashtable.c in Sources */,
+				7410ACBC19E28845002C9DF1 /* KiiThingSDKTests.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		7410ACE819E294AF002C9DF1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7410AC9319E27F7B002C9DF1 /* KiiThingSDK */;
+			targetProxy = 7410ACE719E294AF002C9DF1 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		7410ACA319E27F7B002C9DF1 /* Debug */ = {
@@ -271,6 +383,10 @@
 		7410ACA619E27F7B002C9DF1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/KiiThingSDK/extlibs",
+				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -280,13 +396,17 @@
 		7410ACA719E27F7B002C9DF1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/KiiThingSDK/extlibs",
+				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
 			name = Release;
 		};
-		7410ACA919E27F7B002C9DF1 /* Debug */ = {
+		7410ACBE19E28845002C9DF1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
@@ -303,7 +423,7 @@
 			};
 			name = Debug;
 		};
-		7410ACAA19E27F7B002C9DF1 /* Release */ = {
+		7410ACBF19E28845002C9DF1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
@@ -335,12 +455,13 @@
 				7410ACA719E27F7B002C9DF1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
-		7410ACA819E27F7B002C9DF1 /* Build configuration list for PBXNativeTarget "KiiThingSDKTests" */ = {
+		7410ACBD19E28845002C9DF1 /* Build configuration list for PBXNativeTarget "KiiThingSDKTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				7410ACA919E27F7B002C9DF1 /* Debug */,
-				7410ACAA19E27F7B002C9DF1 /* Release */,
+				7410ACBE19E28845002C9DF1 /* Debug */,
+				7410ACBF19E28845002C9DF1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 		};
