@@ -1,3 +1,6 @@
+xcuserdata
+html
+latex
 *.o
 /deps/
 /tmp/
