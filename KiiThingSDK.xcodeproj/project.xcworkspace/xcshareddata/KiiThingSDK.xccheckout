@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>D18F557F-88CB-46C1-9C58-5502F2762E21</string>
+	<key>IDESourceControlProjectName</key>
+	<string>KiiThingSDK</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>0872E3FD0E34AB773A605B5E97202D48DA300894</key>
+		<string>github.com:KiiCorp/libkii.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>KiiThingSDK.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>0872E3FD0E34AB773A605B5E97202D48DA300894</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>github.com:KiiCorp/libkii.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>0872E3FD0E34AB773A605B5E97202D48DA300894</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>0872E3FD0E34AB773A605B5E97202D48DA300894</string>
+			<key>IDESourceControlWCCName</key>
+			<string>KiiThingSDK</string>
+		</dict>
+	</array>
+</dict>
+</plist>
