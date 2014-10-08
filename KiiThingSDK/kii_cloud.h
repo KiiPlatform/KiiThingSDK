@@ -25,12 +25,12 @@ enum kii_bool {
 } kii_bool_t;
 
 /** Represents application.
- * should be disposed by kii_dispose_app(kii_app_t*)
+ * should be disposed by kii_dispose_app(kii_app_t)
  */
 typedef void* kii_app_t;
 
 /** Represents scope.
- * should be disposed by kii_dispose_scope(kii_scope_t*)
+ * should be disposed by kii_dispose_scope(kii_scope_t)
  */
 typedef void* kii_scope_t;
 typedef int kii_int_t;
@@ -38,7 +38,7 @@ typedef char kii_char_t;
 typedef json_t kii_json_t;
 
 /** Represents error.
- * should be disposed by kii_dispose_error(kii_error_t*)
+ * should be disposed by kii_dispose_error(kii_error_t)
  */
 struct kii_error {
     int status_code; /**< HTTP status code */
@@ -51,9 +51,9 @@ struct kii_error {
  * @param [in] app_key application key
  * @param [in] site application site
  * @return kii_app_t instance.
- * @see kii_dispose_app(kii_app_t*)
+ * @see kii_dispose_app(kii_app_t)
  */
-kii_app_t* kii_init_app(const char* app_id,
+kii_app_t kii_init_app(const char* app_id,
                         const char* app_key,
                         kii_site_t site);
 
@@ -61,17 +61,17 @@ kii_app_t* kii_init_app(const char* app_id,
 /** Dispose kii_app_t instance.
  * @param [in] app kii_app_t instance should be disposed.
  */
-void kii_dispose_app(kii_app_t* app);
+void kii_dispose_app(kii_app_t app);
 
 /** Dispose kii_error_t instance.
  * @param [in] error kii_error_t instance should be disposed.
  */
-void kii_dispose_error(kii_error_t* error);
+void kii_dispose_error(kii_error_t error);
 
 /** Dispose kii_scope_t instance.
  * @param [in] scope kii_scope_t instance should be disposed.
  */
-void kii_dispose_scope(kii_scope_t* scope);
+void kii_dispose_scope(kii_scope_t scope);
 
 /** Register thing to Kii Cloud.
  * @param [in] app kii application uses this thing.
@@ -86,18 +86,18 @@ void kii_dispose_scope(kii_scope_t* scope);
  * @param [out] error represents error if not succeeded.
  * NULL if succeeded.
  */
-void kii_register_thing(const kii_app_t* app,
+void kii_register_thing(const kii_app_t app,
                         const kii_char_t* thing_vendor_id,
                         const kii_char_t* thing_password,
                         const kii_json_t* user_data,
                         kii_char_t** out_access_token,
-                        kii_error_t** out_error);
+                        kii_error_t* out_error);
 /** Init thing scope.
  * @param [in] thing_vendor_id identifier of the thing
  * @return kii scope instance. Should be disposed by
- * kii_dispose_scope(kii_scope_t*)
+ * kii_dispose_scope(kii_scope_t)
  */
-kii_scope_t* kii_init_thing_scope(kii_char_t* thing_vendor_id);
+kii_scope_t kii_init_thing_scope(kii_char_t* thing_vendor_id);
 
 /** Create new object.
  * @param [in] app kii application uses this thing.
@@ -112,14 +112,14 @@ kii_scope_t* kii_init_thing_scope(kii_char_t* thing_vendor_id);
  * @param [out] out_error represents error if not succeeded.
  * NULL if succeeded.
  */
-void kii_create_new_object(const kii_app_t* app,
-                           const kii_scope_t* scope,
+void kii_create_new_object(const kii_app_t app,
+                           const kii_scope_t scope,
                            const kii_char_t* bucket_name,
                            const kii_json_t* contents,
                            const kii_char_t* access_token,
                            kii_char_t** out_object_id,
                            kii_char_t** out_etag,
-                           kii_error_t** out_error);
+                           kii_error_t* out_error);
 
 /** Create new object with specified ID.
  * @param [in] app kii application uses this thing.
@@ -133,14 +133,14 @@ void kii_create_new_object(const kii_app_t* app,
  * @param [out] out_error represents error if not succeeded.
  * NULL if succeeded.
  */
-void kii_create_new_object_with_id(const kii_app_t* app,
-                                   const kii_scope_t* scope,
+void kii_create_new_object_with_id(const kii_app_t app,
+                                   const kii_scope_t scope,
                                    const kii_char_t* bucket_name,
                                    const kii_char_t* object_id,
                                    const kii_json_t* contents,
                                    const kii_char_t* access_token,
                                    kii_char_t** out_etag,
-                                   kii_error_t** out_error);
+                                   kii_error_t* out_error);
 
 /** Update object with patch.
  * Key-Value pair which contained in patch would be update object partially.
@@ -161,8 +161,8 @@ void kii_create_new_object_with_id(const kii_app_t* app,
  * @param [out] out_error represents error if not succeeded.
  * NULL if succeeded.
  */
-void kii_patch_object(const kii_app_t* app,
-                      const kii_scope_t* scope,
+void kii_patch_object(const kii_app_t app,
+                      const kii_scope_t scope,
                       const kii_chart_t* bucket_name,
                       const kii_char_t* object_id,
                       const kii_json_t* patch,
@@ -170,7 +170,7 @@ void kii_patch_object(const kii_app_t* app,
                       const kii_char_t* opt_etag,
                       const kii_char_t* access_token,
                       kii_char_t** out_etag,
-                      kii_error_t** out_error);
+                      kii_error_t* out_error);
 
 /** Replace object contents with specified object.
  * Key-Value pair which contained in the request replaces whole contents of
@@ -192,8 +192,8 @@ void kii_patch_object(const kii_app_t* app,
  * @param [out] out_error represents error if not succeeded.
  * NULL if succeeded.
  */
-void kii_replace_object(const kii_app_t* app
-                        const kii_scope_t* scope,
+void kii_replace_object(const kii_app_t app
+                        const kii_scope_t scope,
                         const kii_chart_t* bucket_name,
                         const kii_char_t* object_id,
                         const kii_json_t* replace_contents,
@@ -201,7 +201,7 @@ void kii_replace_object(const kii_app_t* app
                         const kii_char_t* opt_etag,
                         const kii_char_t* access_token,
                         kii_char_t** out_etag,
-                        kii_error_t** out_error);
+                        kii_error_t* out_error);
 
 /** Get object contents with specified id.
  * @param [in] app kii application uses this thing.
@@ -211,12 +211,12 @@ void kii_replace_object(const kii_app_t* app
  * @param [out] out_error represents error if not succeeded.
  * NULL if succeeded.
  */
-void kii_get_object(const kii_app_t* app
-                    const kii_scope_t* scope,
+void kii_get_object(const kii_app_t app
+                    const kii_scope_t scope,
                     const kii_chart_t* bucket_name,
                     const kii_char_t* object_id,
                     const kii_json_t** out_contents,
-                    kii_error_t** out_error);
+                    kii_error_t* out_error);
 
 /** Delete object with specified id.
  * @param [in] app kii application uses this thing.
@@ -226,11 +226,11 @@ void kii_get_object(const kii_app_t* app
  * @param [out] out_error represents error if not succeeded.
  * NULL if succeeded.
  */
-void kii_delete_object(const kii_app_t* app
-                       const kii_scope_t* scope,
+void kii_delete_object(const kii_app_t app
+                       const kii_scope_t scope,
                        const kii_chart_t* bucket_name,
                        const kii_char_t* object_id,
-                       kii_error_t** out_error);
+                       kii_error_t* out_error);
 
 
 #endif
