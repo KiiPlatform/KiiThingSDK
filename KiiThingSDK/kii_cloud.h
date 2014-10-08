@@ -8,7 +8,7 @@
 #ifndef KiiThingSDK_kii_cloud_h
 #define KiiThingSDK_kii_cloud_h
 
-#include "jannson.h"
+#include "jannson/jansson.h"
 
 #define KII_SITE_JP "https://api-jp.kii.com/api" /** Site JP */
 #define KII_SITE_US "https://api.kii.com/api" /** Site US */
@@ -16,7 +16,7 @@
 #define KII_SITE_SG "https://api-sg.kii.com/api" /** Site SG */
 
 /** boolean type */
-enum kii_bool {
+typedef enum {
     kii_false,
     kii_true
 } kii_bool_t;
@@ -37,7 +37,7 @@ typedef json_t kii_json_t;
 /** Represents error.
  * should be disposed by kii_dispose_error(kii_error_t)
  */
-struct kii_error {
+typedef struct {
     int status_code; /**< HTTP status code */
     kii_char_t* error_code; /**< Error code returned from kii cloud */
 } kii_error_t;
@@ -64,7 +64,7 @@ void kii_dispose_app(kii_app_t app);
 /** Dispose kii_error_t instance.
  * @param [in] error kii_error_t instance should be disposed.
  */
-void kii_dispose_error(kii_error_t error);
+void kii_dispose_error(kii_error_t* error);
 
 /** Dispose kii_scope_t instance.
  * @param [in] scope kii_scope_t instance should be disposed.
@@ -163,7 +163,7 @@ void kii_create_new_object_with_id(const kii_app_t app,
  */
 void kii_patch_object(const kii_app_t app,
                       const kii_scope_t scope,
-                      const kii_chart_t* bucket_name,
+                      const kii_char_t* bucket_name,
                       const kii_char_t* object_id,
                       const kii_json_t* patch,
                       const kii_bool_t force_update,
@@ -192,9 +192,9 @@ void kii_patch_object(const kii_app_t app,
  * @param [out] out_error represents error if not succeeded.
  * NULL if succeeded.
  */
-void kii_replace_object(const kii_app_t app
+void kii_replace_object(const kii_app_t app,
                         const kii_scope_t scope,
-                        const kii_chart_t* bucket_name,
+                        const kii_char_t* bucket_name,
                         const kii_char_t* object_id,
                         const kii_json_t* replace_contents,
                         const kii_bool_t force_update,
@@ -211,9 +211,9 @@ void kii_replace_object(const kii_app_t app
  * @param [out] out_error represents error if not succeeded.
  * NULL if succeeded.
  */
-void kii_get_object(const kii_app_t app
+void kii_get_object(const kii_app_t app,
                     const kii_scope_t scope,
-                    const kii_chart_t* bucket_name,
+                    const kii_char_t* bucket_name,
                     const kii_char_t* object_id,
                     const kii_json_t** out_contents,
                     kii_error_t* out_error);
@@ -226,9 +226,9 @@ void kii_get_object(const kii_app_t app
  * @param [out] out_error represents error if not succeeded.
  * NULL if succeeded.
  */
-void kii_delete_object(const kii_app_t app
+void kii_delete_object(const kii_app_t app,
                        const kii_scope_t scope,
-                       const kii_chart_t* bucket_name,
+                       const kii_char_t* bucket_name,
                        const kii_char_t* object_id,
                        kii_error_t* out_error);
 

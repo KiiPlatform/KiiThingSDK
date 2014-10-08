@@ -6,6 +6,22 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		7418A91919E524D900A85634 /* KiiThingSDKAggreagate */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 7418A91A19E524D900A85634 /* Build configuration list for PBXAggregateTarget "KiiThingSDKAggreagate" */;
+			buildPhases = (
+				7418A91D19E524F700A85634 /* ShellScript */,
+				7418A92219E526C600A85634 /* CopyFiles */,
+			);
+			dependencies = (
+				7418A92119E5263300A85634 /* PBXTargetDependency */,
+			);
+			name = KiiThingSDKAggreagate;
+			productName = KiiThingSDKAggreagate;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		7410ACBC19E28845002C9DF1 /* LibUsateTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7410ACBB19E28845002C9DF1 /* LibUsateTests.mm */; };
 		7410ACFF19E29622002C9DF1 /* libcurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7410ACFA19E29622002C9DF1 /* libcurl.a */; };
@@ -37,10 +53,13 @@
 		7416A5BE19E3C42A007DCC45 /* value.c in Sources */ = {isa = PBXBuildFile; fileRef = 7416A5A919E3C42A007DCC45 /* value.c */; };
 		7416A5BF19E3C42A007DCC45 /* value.c in Sources */ = {isa = PBXBuildFile; fileRef = 7416A5A919E3C42A007DCC45 /* value.c */; };
 		7418A91219E5206D00A85634 /* ThingSDKUsageTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7418A91119E5206D00A85634 /* ThingSDKUsageTest.mm */; };
+		7418A92319E526E700A85634 /* kii_cloud.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7410AD0719E29B70002C9DF1 /* kii_cloud.h */; };
+		7418A92419E527C700A85634 /* kii_cloud.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7410AD0719E29B70002C9DF1 /* kii_cloud.h */; };
+		7418A92519E5282900A85634 /* libKiiThingSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7410AC9419E27F7B002C9DF1 /* libKiiThingSDK.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		7418A91719E5220100A85634 /* PBXContainerItemProxy */ = {
+		7418A92019E5263300A85634 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7410AC8C19E27F7B002C9DF1 /* Project object */;
 			proxyType = 1;
@@ -56,6 +75,17 @@
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
+				7418A92419E527C700A85634 /* kii_cloud.h in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7418A92219E526C600A85634 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 16;
+			files = (
+				7418A92319E526E700A85634 /* kii_cloud.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -115,6 +145,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7418A92519E5282900A85634 /* libKiiThingSDK.a in Frameworks */,
 				7410AD0619E29A60002C9DF1 /* Security.framework in Frameworks */,
 				7410AD0519E29A5A002C9DF1 /* libz.dylib in Frameworks */,
 				7410AD0019E29622002C9DF1 /* libcurl.a in Frameworks */,
@@ -158,8 +189,8 @@
 			isa = PBXGroup;
 			children = (
 				7410ACBB19E28845002C9DF1 /* LibUsateTests.mm */,
-				7410ACB919E28845002C9DF1 /* Supporting Files */,
 				7418A91119E5206D00A85634 /* ThingSDKUsageTest.mm */,
+				7410ACB919E28845002C9DF1 /* Supporting Files */,
 			);
 			path = KiiThingSDKTests;
 			sourceTree = "<group>";
@@ -245,7 +276,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				7418A91819E5220100A85634 /* PBXTargetDependency */,
 			);
 			name = KiiThingSDKTests;
 			productName = KiiThingSDKTests;
@@ -267,6 +297,9 @@
 					7410ACB619E28845002C9DF1 = {
 						CreatedOnToolsVersion = 6.0.1;
 					};
+					7418A91919E524D900A85634 = {
+						CreatedOnToolsVersion = 6.0.1;
+					};
 				};
 			};
 			buildConfigurationList = 7410AC8F19E27F7B002C9DF1 /* Build configuration list for PBXProject "KiiThingSDK" */;
@@ -283,6 +316,7 @@
 			targets = (
 				7410AC9319E27F7B002C9DF1 /* KiiThingSDK */,
 				7410ACB619E28845002C9DF1 /* KiiThingSDKTests */,
+				7418A91919E524D900A85634 /* KiiThingSDKAggreagate */,
 			);
 		};
 /* End PBXProject section */
@@ -296,6 +330,22 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		7418A91D19E524F700A85634 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "xcodebuild_hoge() {\n    xcodebuild \\\n    -target \"${PROJECT_NAME}\" \\\n    -project ${PROJECT_NAME}.xcodeproj \\\n    -configuration ${CONFIGURATION} \\\n    -sdk $1 clean build\n}\n\nBUILD_DIR=\"${SRCROOT}/build\"\nLIB_DIR=\"${SRCROOT}/library\"\nLIB_NAME=\"lib${PROJECT_NAME}.a\"\n\nIOS_LIB=\"${BUILD_DIR}/${CONFIGURATION}-iphoneos/${LIB_NAME}\"\nSIM_LIB=\"${BUILD_DIR}/${CONFIGURATION}-iphonesimulator/${LIB_NAME}\"\nDEST_LIB=\"${LIB_DIR}/${LIB_NAME}\"\n\n\n# remove dir\nrm -rf \"${BUILD_DIR}\"\nrm -rf \"${LIB_DIR}\"\n\n# 1. xcodebuild\nxcodebuild_hoge iphoneos\nxcodebuild_hoge iphonesimulator\n\n# mkdir\nmkdir -p \"${LIB_DIR}\"\n\n# 2. lipo\nlipo \"${IOS_LIB}\" \"${SIM_LIB}\" -create -output \"${DEST_LIB}\"";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		7410AC9019E27F7B002C9DF1 /* Sources */ = {
@@ -339,10 +389,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		7418A91819E5220100A85634 /* PBXTargetDependency */ = {
+		7418A92119E5263300A85634 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 7410AC9319E27F7B002C9DF1 /* KiiThingSDK */;
-			targetProxy = 7418A91719E5220100A85634 /* PBXContainerItemProxy */;
+			targetProxy = 7418A92019E5263300A85634 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -467,6 +517,7 @@
 					"$(PROJECT_DIR)/KiiThingSDK/curl",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/KiiThingSDK/jannson";
 			};
 			name = Debug;
 		};
@@ -483,6 +534,21 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/KiiThingSDK/curl",
 				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/KiiThingSDK/jannson";
+			};
+			name = Release;
+		};
+		7418A91B19E524D900A85634 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		7418A91C19E524D900A85634 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -513,6 +579,15 @@
 			buildConfigurations = (
 				7410ACBE19E28845002C9DF1 /* Debug */,
 				7410ACBF19E28845002C9DF1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7418A91A19E524D900A85634 /* Build configuration list for PBXAggregateTarget "KiiThingSDKAggreagate" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7418A91B19E524D900A85634 /* Debug */,
+				7418A91C19E524D900A85634 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
