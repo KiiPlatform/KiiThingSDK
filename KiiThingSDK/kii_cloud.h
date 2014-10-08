@@ -10,13 +10,10 @@
 
 #include "jannson.h"
 
-/** Represents Kii site */
-enum kii_site {
-    kii_site_jp,
-    kii_site_us,
-    kii_site_cn,
-    kii_site_sg
-} kii_site_t;
+#define KII_SITE_JP "https://api-jp.kii.com/api" /** Site JP */
+#define KII_SITE_US "https://api.kii.com/api" /** Site US */
+#define KII_SITE_CN "https://api-cn2.kii.com/api" /** Site CN */
+#define KII_SITE_SG "https://api-sg.kii.com/api" /** Site SG */
 
 /** boolean type */
 enum kii_bool {
@@ -49,13 +46,14 @@ struct kii_error {
  * obtained instance should be disposed by application.
  * @param [in] app_id application id
  * @param [in] app_key application key
- * @param [in] site application site
+ * @param [in] site_url application site .
+ * choose from KII_SITE_JP, KII_SITE_US, KII_SITE_CN or KII_SITE_SG
  * @return kii_app_t instance.
  * @see kii_dispose_app(kii_app_t)
  */
 kii_app_t kii_init_app(const char* app_id,
-                        const char* app_key,
-                        kii_site_t site);
+                       const char* app_key,
+                       const char* site_url);
 
 // Object disposers.
 /** Dispose kii_app_t instance.
@@ -72,6 +70,8 @@ void kii_dispose_error(kii_error_t error);
  * @param [in] scope kii_scope_t instance should be disposed.
  */
 void kii_dispose_scope(kii_scope_t scope);
+
+void kii_dispose_kii_char(kii_char_t* kii_char);
 
 /** Register thing to Kii Cloud.
  * @param [in] app kii application uses this thing.

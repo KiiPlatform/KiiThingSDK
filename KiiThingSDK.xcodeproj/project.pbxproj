@@ -36,10 +36,11 @@
 		7416A5BD19E3C42A007DCC45 /* utf.c in Sources */ = {isa = PBXBuildFile; fileRef = 7416A5A719E3C42A007DCC45 /* utf.c */; };
 		7416A5BE19E3C42A007DCC45 /* value.c in Sources */ = {isa = PBXBuildFile; fileRef = 7416A5A919E3C42A007DCC45 /* value.c */; };
 		7416A5BF19E3C42A007DCC45 /* value.c in Sources */ = {isa = PBXBuildFile; fileRef = 7416A5A919E3C42A007DCC45 /* value.c */; };
+		7418A91219E5206D00A85634 /* ThingSDKUsageTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7418A91119E5206D00A85634 /* ThingSDKUsageTest.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		7410ACE719E294AF002C9DF1 /* PBXContainerItemProxy */ = {
+		7418A91719E5220100A85634 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7410AC8C19E27F7B002C9DF1 /* Project object */;
 			proxyType = 1;
@@ -96,6 +97,7 @@
 		7416A5A719E3C42A007DCC45 /* utf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = utf.c; sourceTree = "<group>"; };
 		7416A5A819E3C42A007DCC45 /* utf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utf.h; sourceTree = "<group>"; };
 		7416A5A919E3C42A007DCC45 /* value.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = value.c; sourceTree = "<group>"; };
+		7418A91119E5206D00A85634 /* ThingSDKUsageTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ThingSDKUsageTest.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -157,6 +159,7 @@
 			children = (
 				7410ACBB19E28845002C9DF1 /* LibUsateTests.mm */,
 				7410ACB919E28845002C9DF1 /* Supporting Files */,
+				7418A91119E5206D00A85634 /* ThingSDKUsageTest.mm */,
 			);
 			path = KiiThingSDKTests;
 			sourceTree = "<group>";
@@ -242,7 +245,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				7410ACE819E294AF002C9DF1 /* PBXTargetDependency */,
+				7418A91819E5220100A85634 /* PBXTargetDependency */,
 			);
 			name = KiiThingSDKTests;
 			productName = KiiThingSDKTests;
@@ -321,6 +324,7 @@
 				7416A5B519E3C42A007DCC45 /* memory.c in Sources */,
 				7416A5AF19E3C42A007DCC45 /* hashtable.c in Sources */,
 				7416A5B319E3C42A007DCC45 /* load.c in Sources */,
+				7418A91219E5206D00A85634 /* ThingSDKUsageTest.mm in Sources */,
 				7416A5B919E3C42A007DCC45 /* strbuffer.c in Sources */,
 				7416A5AD19E3C42A007DCC45 /* error.c in Sources */,
 				7416A5B119E3C42A007DCC45 /* hashtable_seed.c in Sources */,
@@ -335,10 +339,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		7410ACE819E294AF002C9DF1 /* PBXTargetDependency */ = {
+		7418A91819E5220100A85634 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 7410AC9319E27F7B002C9DF1 /* KiiThingSDK */;
-			targetProxy = 7410ACE719E294AF002C9DF1 /* PBXContainerItemProxy */;
+			targetProxy = 7418A91719E5220100A85634 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
