@@ -27,7 +27,7 @@
 
 - (void)tearDown {
     [super tearDown];
-    // global cleanup should be called onece for globa init.
+    // global cleanup should be called onece for global init.
     kii_global_clenaup();
 }
 
