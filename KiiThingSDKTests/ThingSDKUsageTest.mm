@@ -34,6 +34,7 @@
 - (void)testExample {
     kii_app_t app = kii_init_app("your-appid", "your-appkey", KII_SITE_JP);
     
+    // Register the thing.
     json_t *uData = json_object();
     json_object_set_new(uData, "_thingType", json_string("THERMOMETER"));
     json_object_set_new(uData, "_firmwareVersion", json_string("1.0.0"));
