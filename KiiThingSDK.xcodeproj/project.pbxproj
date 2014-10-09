@@ -56,6 +56,7 @@
 		7418A92319E526E700A85634 /* kii_cloud.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7410AD0719E29B70002C9DF1 /* kii_cloud.h */; };
 		7418A92419E527C700A85634 /* kii_cloud.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7410AD0719E29B70002C9DF1 /* kii_cloud.h */; };
 		7418A92519E5282900A85634 /* libKiiThingSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7410AC9419E27F7B002C9DF1 /* libKiiThingSDK.a */; };
+		7485E61B19E5360000BCA19C /* kii_cloud.c in Sources */ = {isa = PBXBuildFile; fileRef = 7485E61A19E5360000BCA19C /* kii_cloud.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -128,6 +129,7 @@
 		7416A5A819E3C42A007DCC45 /* utf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utf.h; sourceTree = "<group>"; };
 		7416A5A919E3C42A007DCC45 /* value.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = value.c; sourceTree = "<group>"; };
 		7418A91119E5206D00A85634 /* ThingSDKUsageTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ThingSDKUsageTest.mm; sourceTree = "<group>"; };
+		7485E61A19E5360000BCA19C /* kii_cloud.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kii_cloud.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -181,6 +183,7 @@
 				7416A59719E3C42A007DCC45 /* jannson */,
 				7410ACF419E29622002C9DF1 /* curl */,
 				7410AD0719E29B70002C9DF1 /* kii_cloud.h */,
+				7485E61A19E5360000BCA19C /* kii_cloud.c */,
 			);
 			path = KiiThingSDK;
 			sourceTree = "<group>";
@@ -363,6 +366,7 @@
 				7416A5BC19E3C42A007DCC45 /* utf.c in Sources */,
 				7416A5AE19E3C42A007DCC45 /* hashtable.c in Sources */,
 				7416A5B819E3C42A007DCC45 /* strbuffer.c in Sources */,
+				7485E61B19E5360000BCA19C /* kii_cloud.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
