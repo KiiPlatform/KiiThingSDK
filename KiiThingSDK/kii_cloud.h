@@ -47,6 +47,44 @@ typedef struct kii_error_t {
     kii_char_t* error_code; /**< Error code returned from kii cloud */
 } kii_error_t;
 
+
+
+/** Set up program environment.
+ * This function must be called at least once within a program
+ * (a program is all the code that shares a memory space) before the program
+ * calls any other function in kii sdk. 
+ * The environment it sets up is constant for the life of the program and
+ * is the same for every program, so multiple calls have the same effect
+ * as one call.
+ *
+ * This function is not thread safe.
+ * You must not call it when any other thread in the program
+ * (i.e. a thread sharing the same memory) is running
+ * This doesn't just mean no other thread that is using kii sdk.
+ * Because kii_global_init() calls functions of other libraries that are
+ * similarly thread unsafe,
+ * it could conflict with any other thread that uses these other libraries.
+ *
+ * @retrun if return code is not KIIE_OK, something went wrong and you cannot
+ * use other kii sdk functions.
+ */
+kii_error_code_t kii_global_init(void);
+
+/**
+ * This function releases resources acquired by kii_global_init.
+ * You should call kii_global_cleanup once
+ * for each call you make to kii_global_init, after you are done using kii sdk.
+ *
+ * This function is not thread safe.
+ * You must not call it when any other thread in the program
+ * (i.e. a thread sharing the same memory) is running
+ * This doesn't just mean no other thread that is using kii sdk.
+ * Because kii_global_init() calls functions of other libraries that are
+ * similarly thread unsafe,
+ * it could conflict with any other thread that uses these other libraries.
+ */
+void kii_global_clenaup(void);
+
 /** Init application.
  * obtained instance should be disposed by application.
  * @param [in] app_id application id
@@ -61,19 +99,14 @@ kii_app_t kii_init_app(const char* app_id,
                        const char* site_url);
 
 /** Obtain error detail happens last.
- * @return error detail. should be disposed by kii_dispose_error(kii_error_t*)
+ * @returns error detail.
  */
-kii_error_t kii_get_last_error(kii_app_t app);
+kii_error_t* kii_get_last_error(kii_app_t app);
 
 /** Dispose kii_app_t instance.
  * @param [in] app kii_app_t instance should be disposed.
  */
 void kii_dispose_app(kii_app_t app);
-
-/** Dispose kii_error_t instance.
- * @param [in] error kii_error_t instance should be disposed.
- */
-void kii_dispose_error(kii_error_t* error);
 
 /** Dispose kii_bucket_t instance.
  * @param [in] bucket kii_bucket_t instance should be disposed.
@@ -85,10 +118,10 @@ void kii_dispose_bucket(kii_bucket_t bucket);
  */
 void kii_dispose_kii_char(kii_char_t* char_ptr);
 
-/** Dispose kii_json_t allocated by SDK.
- * @param [in] json json instance should be disposed
+/** decrease reference of kii_json_t allocated by SDK.
+ * @param [in] json json instance.
  */
-void kii_dispose_kii_json(kii_json_t* json);
+void kii_json_decref(kii_json_t* json);
 
 /** Register thing to Kii Cloud.
  * This api performes the entire request in a blocking manner
@@ -116,8 +149,8 @@ kii_error_code_t kii_register_thing(const kii_app_t app,
  * @return kii bucket instance. Should be disposed by
  * kii_dispose_bucket(kii_bucket_t)
  */
-kii_bucket_t kii_init_thing_bucket(kii_char_t* thing_vendor_id,
-                                   kii_char_t* bucket_name);
+kii_bucket_t kii_init_thing_bucket(const kii_char_t* thing_vendor_id,
+                                   const kii_char_t* bucket_name);
 
 /** Create new object.
  * This api performes the entire request in a blocking manner
@@ -128,8 +161,12 @@ kii_bucket_t kii_init_thing_bucket(kii_char_t* thing_vendor_id,
  * @param [in] access_token specify access token of authur.
  * @param [out] out_object_id id of the object created by this api.
  * NULL if failed to create.
+ * You can pass NULL if you don't need to know id.
+ * If NULL passed, no resource is allocated for id.
  * @param [out] out_etag etag of created object.
  * NULL if failed to create.
+ * You can pass NULL if you don't need to know etag.
+ * If NULL passed, no resource is allocated for etag.
  * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
  * calling kii_get_last_error(kii_app_t).
  */
@@ -150,6 +187,8 @@ kii_error_code_t kii_create_new_object(const kii_app_t app,
  * @param [in] access_token specify access token of authur.
  * @param [out] out_etag etag of created object.
  * NULL if failed to create.
+ * You can pass NULL if you don't need to know etag.
+ * If NULL passed, no resource is allocated for etag.
  * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
  * calling kii_get_last_error(kii_app_t).
  */
@@ -177,6 +216,8 @@ kii_error_code_t kii_create_new_object_with_id(const kii_app_t app,
  * @param [in] access_token specify access token of authur.
  * @param [out] out_etag etag of created object.
  * NULL if failed to create.
+ * You can pass NULL if you don't need to know etag.
+ * If NULL passed, no resource is allocated for etag.
  * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
  * calling kii_get_last_error(kii_app_t).
  */
@@ -207,6 +248,8 @@ kii_error_code_t kii_patch_object(const kii_app_t app,
  * @param [in] access_token specify access token of authur.
  * @param [out] out_etag etag of created object.
  * NULL if failed to create.
+ * You can pass NULL if you don't need to know etag.
+ * If NULL passed, no resource is allocated for etag.
  * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
  * calling kii_get_last_error(kii_app_t).
  */
