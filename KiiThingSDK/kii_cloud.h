@@ -10,10 +10,10 @@
 
 #include "jannson/jansson.h"
 
-#define KII_SITE_JP "https://api-jp.kii.com/api" /** Site JP */
-#define KII_SITE_US "https://api.kii.com/api" /** Site US */
-#define KII_SITE_CN "https://api-cn2.kii.com/api" /** Site CN */
-#define KII_SITE_SG "https://api-sg.kii.com/api" /** Site SG */
+static const char KII_SITE_JP[] = "https://api-jp.kii.com/api"; /** Site JP */
+static const char KII_SITE_US[] = "https://api.kii.com/api"; /** Site US */
+static const char KII_SITE_CN[] = "https://api-cn2.kii.com/api"; /** Site CN */
+static const char KII_SITE_SG[] = "https://api-sg.kii.com/api"; /** Site SG */
 
 /** boolean type */
 typedef enum kii_bool_t {
