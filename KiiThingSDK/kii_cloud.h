@@ -36,6 +36,8 @@ typedef void* kii_app_t;
  */
 typedef void* kii_bucket_t;
 typedef int kii_int_t;
+typedef unsigned int kii_uint_t;
+typedef unsigned long kii_ulong_t;
 typedef char kii_char_t;
 typedef json_t kii_json_t;
 
@@ -48,6 +50,21 @@ typedef struct kii_error_t {
 } kii_error_t;
 
 
+/** Represents MQTT endpoint.
+ * should be disposed by kii_dispose_mqtt_endpoint(kii_mqtt_endpoint_t*)
+ */
+typedef struct kii_mqtt_endpoint_t {
+    kii_char_t* username; /**< username for connecting MQTT endpoint. */
+    kii_char_t* password; /**< password for connecting MQTT endpoint. */
+    kii_char_t* topic; /** topic for subscription. */
+    kii_char_t* host; /** hostname of MQTT endpoint. */
+    kii_char_t* port; /** port number of MQTT endpoint. */
+    /** valid period of this MQTT endpoint in second.
+     * You need to get new endpoint information when this
+     * period has elapsed.
+     */
+    kii_ulong_t ttl;
+} kii_mqtt_endpoint_t;
 
 /** Set up program environment.
  * This function must be called at least once within a program
@@ -112,6 +129,11 @@ void kii_dispose_app(kii_app_t app);
  * @param [in] bucket kii_bucket_t instance should be disposed.
  */
 void kii_dispose_bucket(kii_bucket_t bucket);
+
+/** Dispose kii_mqtt_endpoint_t instance.
+ * @param [in] endpoint kii_mqtt_endpoint_t instance should be disposed.
+ */
+void kii_dispose_mqtt_endpoint(kii_mqtt_endpoint_t* endpoint);
 
 /** Dispose kii_char_t allocated by SDK.
  * @param [in] char_ptr kii_char_t instance should be disposed
@@ -289,6 +311,40 @@ kii_error_code_t kii_get_object(const kii_app_t app,
 kii_error_code_t kii_delete_object(const kii_app_t app,
                                    const kii_bucket_t bucket,
                                    const kii_char_t* object_id);
+
+
+/** Install push for the thing.
+ * This api performes the entire request in a blocking manner
+ * and returns when done, or if it failed.
+ * @param [in] app kii application uses this thing.
+ * @param [in] access_token specify access token of authur.
+ * @param [out] installation_id id of installation.
+ * used for getting MQTT endpoint by kii_get_MQTT_endpoint().
+ * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
+ * calling kii_get_last_error(kii_app_t).
+ */
+kii_error_code_t kii_install_thing_push(const kii_app_t app,
+                                        const kii_char_t* access_token,
+                                        kii_char_t** installation_id);
+
+
+/** Get MQTT endpoint to retrieve message
+ * This api performes the entire request in a blocking manner
+ * and returns when done, or if it failed.
+ * @param [in] app kii application uses this thing.
+ * @param [in] installation_id obtained by kii_install_thing_push()
+ * @param [out] out_endpoint endpoint information.
+ * Reference would be null if failed.
+ * Should be disposed by kii_dispose_mqtt_endpoint(kii_mqtt_endpoint_t*).
+ * @param [out] out_retry_after_in_second Reference would be set when failed to
+ * get endpoint due to its not ready.
+ * You need to retry after this period elapsed.
+ */
+kii_error_code_t kii_get_mqtt_endpoint(const kii_app_t app,
+                                       const kii_char_t* installation_id,
+                                       const kii_char_t* access_token,
+                                       kii_mqtt_endpoint_t** out_endpoint,
+                                       kii_uint_t* out_retry_after_in_second);
 
 
 #endif
