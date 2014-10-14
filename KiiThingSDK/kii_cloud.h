@@ -160,7 +160,7 @@ void kii_json_decref(kii_json_t* json);
  * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
  * calling kii_get_last_error(kii_app_t).
  */
-kii_error_code_t kii_register_thing(const kii_app_t app,
+kii_error_code_t kii_register_thing(kii_app_t app,
                                     const kii_char_t* thing_vendor_id,
                                     const kii_char_t* thing_password,
                                     const kii_json_t* user_data,
@@ -192,7 +192,7 @@ kii_bucket_t kii_init_thing_bucket(const kii_char_t* thing_vendor_id,
  * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
  * calling kii_get_last_error(kii_app_t).
  */
-kii_error_code_t kii_create_new_object(const kii_app_t app,
+kii_error_code_t kii_create_new_object(kii_app_t app,
                                        const kii_bucket_t bucket,
                                        const kii_json_t* contents,
                                        const kii_char_t* access_token,
@@ -214,7 +214,7 @@ kii_error_code_t kii_create_new_object(const kii_app_t app,
  * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
  * calling kii_get_last_error(kii_app_t).
  */
-kii_error_code_t kii_create_new_object_with_id(const kii_app_t app,
+kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
                                    const kii_bucket_t bucket,
                                    const kii_char_t* object_id,
                                    const kii_json_t* contents,
@@ -243,7 +243,7 @@ kii_error_code_t kii_create_new_object_with_id(const kii_app_t app,
  * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
  * calling kii_get_last_error(kii_app_t).
  */
-kii_error_code_t kii_patch_object(const kii_app_t app,
+kii_error_code_t kii_patch_object(kii_app_t app,
                                   const kii_bucket_t bucket,
                                   const kii_char_t* object_id,
                                   const kii_json_t* patch,
@@ -275,7 +275,7 @@ kii_error_code_t kii_patch_object(const kii_app_t app,
  * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
  * calling kii_get_last_error(kii_app_t).
  */
-kii_error_code_t kii_replace_object(const kii_app_t app,
+kii_error_code_t kii_replace_object(kii_app_t app,
                                     const kii_bucket_t bucket,
                                     const kii_char_t* object_id,
                                     const kii_json_t* replace_contents,
@@ -294,7 +294,7 @@ kii_error_code_t kii_replace_object(const kii_app_t app,
  * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
  * calling kii_get_last_error(kii_app_t).
  */
-kii_error_code_t kii_get_object(const kii_app_t app,
+kii_error_code_t kii_get_object(kii_app_t app,
                                 const kii_bucket_t bucket,
                                 const kii_char_t* object_id,
                                 const kii_json_t** out_contents);
@@ -308,7 +308,7 @@ kii_error_code_t kii_get_object(const kii_app_t app,
  * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
  * calling kii_get_last_error(kii_app_t).
  */
-kii_error_code_t kii_delete_object(const kii_app_t app,
+kii_error_code_t kii_delete_object(kii_app_t app,
                                    const kii_bucket_t bucket,
                                    const kii_char_t* object_id);
 
@@ -323,7 +323,7 @@ kii_error_code_t kii_delete_object(const kii_app_t app,
  * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
  * calling kii_get_last_error(kii_app_t).
  */
-kii_error_code_t kii_install_thing_push(const kii_app_t app,
+kii_error_code_t kii_install_thing_push(kii_app_t app,
                                         const kii_char_t* access_token,
                                         kii_char_t** installation_id);
 
@@ -340,7 +340,7 @@ kii_error_code_t kii_install_thing_push(const kii_app_t app,
  * get endpoint due to its not ready.
  * You need to retry after this period elapsed.
  */
-kii_error_code_t kii_get_mqtt_endpoint(const kii_app_t app,
+kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
                                        const kii_char_t* installation_id,
                                        const kii_char_t* access_token,
                                        kii_mqtt_endpoint_t** out_endpoint,
