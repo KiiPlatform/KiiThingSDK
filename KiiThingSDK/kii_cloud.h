@@ -35,6 +35,7 @@ typedef void* kii_app_t;
  * should be disposed by kii_dispose_bucket(kii_bucket_t)
  */
 typedef void* kii_bucket_t;
+typedef void* kii_topic_t;
 typedef int kii_int_t;
 typedef unsigned int kii_uint_t;
 typedef unsigned long kii_ulong_t;
@@ -130,6 +131,11 @@ void kii_dispose_app(kii_app_t app);
  */
 void kii_dispose_bucket(kii_bucket_t bucket);
 
+/** Dispose kii_topic_t instance.
+ * @param [in] topic kii_topic_t instance should be disposed.
+ */
+void kii_dispose_topic(kii_topic_t topic);
+
 /** Dispose kii_mqtt_endpoint_t instance.
  * @param [in] endpoint kii_mqtt_endpoint_t instance should be disposed.
  */
@@ -166,7 +172,7 @@ kii_error_code_t kii_register_thing(kii_app_t app,
                                     const kii_json_t* user_data,
                                     kii_char_t** out_access_token);
 
-/** Init thing bucket bucket.
+/** Init thing scope bucket.
  * @param [in] thing_vendor_id identifier of the thing
  * @return kii bucket instance. Should be disposed by
  * kii_dispose_bucket(kii_bucket_t)
@@ -175,6 +181,7 @@ kii_bucket_t kii_init_thing_bucket(const kii_char_t* thing_vendor_id,
                                    const kii_char_t* bucket_name);
 
 /** Create new object.
+ * Bucket is created automatically if have not been created yet.
  * This api performes the entire request in a blocking manner
  * and returns when done, or if it failed.
  * @param [in] app kii application uses this thing.
@@ -200,6 +207,7 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
                                        kii_char_t** out_etag);
 
 /** Create new object with specified ID.
+ * Bucket is created automatically if have not been created yet.
  * This api performes the entire request in a blocking manner
  * and returns when done, or if it failed.
  * @param [in] app kii application uses this thing.
@@ -291,12 +299,14 @@ kii_error_code_t kii_replace_object(kii_app_t app,
  * @param [in] bucket specify bucket contains object.
  * @param [in] bucket_name specify name of the bucket.
  * @param [in] object_id specify id of the object.
+ * @param [in] access_token specify access token of authur.
  * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
  * calling kii_get_last_error(kii_app_t).
  */
 kii_error_code_t kii_get_object(kii_app_t app,
                                 const kii_bucket_t bucket,
                                 const kii_char_t* object_id,
+                                const kii_char_t* access_token,
                                 const kii_json_t** out_contents);
 
 /** Delete object with specified id.
@@ -305,13 +315,105 @@ kii_error_code_t kii_get_object(kii_app_t app,
  * @param [in] app kii application uses this thing.
  * @param [in] bucket specify bucket contains object.
  * @param [in] object_id specify id of the object.
+ * @param [in] access_token specify access token of authur.
  * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
  * calling kii_get_last_error(kii_app_t).
  */
 kii_error_code_t kii_delete_object(kii_app_t app,
                                    const kii_bucket_t bucket,
-                                   const kii_char_t* object_id);
+                                   const kii_char_t* object_id,
+                                   const kii_char_t* access_token);
 
+/** Subscribe to bucket push notification.
+ * After subscribed to the bucket, you can receive push notification when
+ * the event happened in this bucket thru MQTT endpoint which can be retrieved
+ * by kii_get_mqtt_endpoint().
+ * bucket is created automatically if have not been created yet.
+ * This api performes the entire request in a blocking manner
+ * and returns when done, or if it failed.
+ * @param [in] bucket target bucket to subscribe.
+ * @param [in] access_token specify access token of authur.
+ * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
+ * calling kii_get_last_error(kii_app_t).
+ */
+kii_error_code_t kii_subscribe_bucket(const kii_bucket_t bucket,
+                                      const kii_char_t* access_token);
+
+/** Unsubscribe bucket push notification.
+ * This api performes the entire request in a blocking manner
+ * and returns when done, or if it failed.
+ * @param [in] bucket target bucket to unsubscribe.
+ * @param [in] access_token specify access token of authur.
+ * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
+ * calling kii_get_last_error(kii_app_t).
+ */
+kii_error_code_t kii_unsubscribe_bucket(const kii_bucket_t bucket,
+                                        const kii_char_t* access_token);
+
+/** Check whether the bucket is subscribed or not.
+ * This api performes the entire request in a blocking manner
+ * and returns when done, or if it failed.
+ * @param [in] bucket target bucket to unsubscribe.
+ * @param [in] access_token specify access token of authur.
+ * @param [out] is_subscribed value would not be changed if the execution is
+ * failed.
+ * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
+ * calling kii_get_last_error(kii_app_t).
+ */
+kii_error_code_t kii_is_bucket_subscribed(const kii_bucket_t bucket,
+                                          const kii_char_t* access_token,
+                                          kii_bool_t* out_is_subscribed);
+
+
+/** Init thing scope topic.
+ * @param [in] thing_vendor_id identifier of the thing
+ * @return kii topic instance. Should be disposed by
+ * kii_dispose_topic(kii_topic_t)
+ */
+kii_topic_t kii_init_thing_topic(const kii_char_t* thing_vendor_id,
+                                   const kii_char_t* topic_name);
+
+
+/** Subscribe to topic push notification.
+ * After subscribed to the topic, you can receive push notification when
+ * the message is sent to the topic.
+ * You can receive message thru MQTT endpoint which can be retrieved by
+ * kii_get_mqtt_endpoint().
+ * Topic is created automatically if have not been created yet.
+ * This api performes the entire request in a blocking manner
+ * and returns when done, or if it failed.
+ * @param [in] topic target topic to subscribe.
+ * @param [in] access_token specify access token of authur.
+ * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
+ * calling kii_get_last_error(kii_app_t).
+ */
+kii_error_code_t kii_subscribe_topic(const kii_topic_t topic,
+                                     const kii_char_t* access_token);
+
+/** Unsubscribe topic push notification.
+ * This api performes the entire request in a blocking manner
+ * and returns when done, or if it failed.
+ * @param [in] topic target topic to unsubscribe.
+ * @param [in] access_token specify access token of authur.
+ * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
+ * calling kii_get_last_error(kii_app_t).
+ */
+kii_error_code_t kii_unsubscribe_topic(const kii_topic_t topic,
+                                       const kii_char_t* access_token);
+
+/** Check whether the topic is subscribed or not.
+ * This api performes the entire request in a blocking manner
+ * and returns when done, or if it failed.
+ * @param [in] topic target topic to unsubscribe.
+ * @param [in] access_token specify access token of authur.
+ * @param [out] is_subscribed value would not be changed if the execution is
+ * failed.
+ * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
+ * calling kii_get_last_error(kii_app_t).
+ */
+kii_error_code_t kii_is_topic_subscribed(const kii_topic_t topic,
+                                         const kii_char_t* access_token,
+                                         kii_bool_t* out_is_subscribed);
 
 /** Install push for the thing.
  * This api performes the entire request in a blocking manner
