@@ -78,11 +78,48 @@
     json_decref(objData);
 }
 
+- (char*) getAccessToken {
+    // NOTE: Assume this returns stored access token obtained by
+    // kii_register_thing. Won't show implementation details here as it would
+    // depends on environment.
+    return NULL;
+}
+
+- (void)testSubscription {
+    kii_app_t app = kii_init_app("your-appid", "your-appkey", KII_SITE_JP);
+    kii_bucket_t bucket = kii_init_thing_bucket("thing-vender-id",
+                                         "Tempertures");
+
+    const char* accessToken = [self getAccessToken];
+
+    kii_error_code_t r = kii_subscribe_bucket(bucket, accessToken);
+    if (r != KIIE_OK) {
+        kii_error_t* e = kii_get_last_error(app);
+        NSLog(@"http status code: %d", e->status_code);
+        NSLog(@"error code: %s", e->error_code);
+        kii_dispose_app(app);
+        kii_dispose_bucket(bucket);
+        return;
+    }
+    
+    kii_topic_t topic = kii_init_thing_topic("thing-vender-id",
+                                             "Control-Messages");
+    r = kii_subscribe_topic(topic, accessToken);
+    if (r != KIIE_OK) {
+        kii_error_t* e = kii_get_last_error(app);
+        NSLog(@"http status code: %d", e->status_code);
+        NSLog(@"error code: %s", e->error_code);
+    }
+    kii_dispose_app(app);
+    kii_dispose_bucket(bucket);
+    kii_dispose_topic(topic);
+}
+
 - (void)testGetMQTTEndpoint {
     kii_app_t app = kii_init_app("your-appid", "your-appkey", KII_SITE_JP);
 
     // installation.
-    const char* accessToken = "dummy";
+    const char* accessToken = [self getAccessToken];
     char* installationId = NULL;
 
     kii_error_code_t r = kii_install_thing_push(app,
