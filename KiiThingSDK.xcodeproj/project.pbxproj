@@ -28,7 +28,6 @@
 		7410AD0019E29622002C9DF1 /* libcurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7410ACFA19E29622002C9DF1 /* libcurl.a */; };
 		7410AD0219E29A21002C9DF1 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7410AD0119E29A21002C9DF1 /* libz.dylib */; };
 		7410AD0419E29A32002C9DF1 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7410AD0319E29A32002C9DF1 /* Security.framework */; };
-		7410AD0519E29A5A002C9DF1 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7410AD0119E29A21002C9DF1 /* libz.dylib */; };
 		7410AD0619E29A60002C9DF1 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7410AD0319E29A32002C9DF1 /* Security.framework */; };
 		7416A5AA19E3C42A007DCC45 /* dump.c in Sources */ = {isa = PBXBuildFile; fileRef = 7416A59819E3C42A007DCC45 /* dump.c */; };
 		7416A5AB19E3C42A007DCC45 /* dump.c in Sources */ = {isa = PBXBuildFile; fileRef = 7416A59819E3C42A007DCC45 /* dump.c */; };
@@ -55,8 +54,9 @@
 		7418A91219E5206D00A85634 /* ThingSDKUsageTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7418A91119E5206D00A85634 /* ThingSDKUsageTest.mm */; };
 		7418A92319E526E700A85634 /* kii_cloud.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7410AD0719E29B70002C9DF1 /* kii_cloud.h */; };
 		7418A92419E527C700A85634 /* kii_cloud.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7410AD0719E29B70002C9DF1 /* kii_cloud.h */; };
-		7418A92519E5282900A85634 /* libKiiThingSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7410AC9419E27F7B002C9DF1 /* libKiiThingSDK.a */; };
+		747F3B8B19EFCB3C00C1372A /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7410AD0119E29A21002C9DF1 /* libz.dylib */; };
 		7485E61B19E5360000BCA19C /* kii_cloud.c in Sources */ = {isa = PBXBuildFile; fileRef = 7485E61A19E5360000BCA19C /* kii_cloud.c */; };
+		74DB969719EFAFE3008FF61E /* libKiiThingSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 74DB969619EFAFE3008FF61E /* libKiiThingSDK.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -130,6 +130,7 @@
 		7416A5A919E3C42A007DCC45 /* value.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = value.c; sourceTree = "<group>"; };
 		7418A91119E5206D00A85634 /* ThingSDKUsageTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ThingSDKUsageTest.mm; sourceTree = "<group>"; };
 		7485E61A19E5360000BCA19C /* kii_cloud.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kii_cloud.c; sourceTree = "<group>"; };
+		74DB969619EFAFE3008FF61E /* libKiiThingSDK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libKiiThingSDK.a; path = library/libKiiThingSDK.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -147,9 +148,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7418A92519E5282900A85634 /* libKiiThingSDK.a in Frameworks */,
+				747F3B8B19EFCB3C00C1372A /* libz.dylib in Frameworks */,
+				74DB969719EFAFE3008FF61E /* libKiiThingSDK.a in Frameworks */,
 				7410AD0619E29A60002C9DF1 /* Security.framework in Frameworks */,
-				7410AD0519E29A5A002C9DF1 /* libz.dylib in Frameworks */,
 				7410AD0019E29622002C9DF1 /* libcurl.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -160,6 +161,7 @@
 		7410AC8B19E27F7B002C9DF1 = {
 			isa = PBXGroup;
 			children = (
+				74DB969619EFAFE3008FF61E /* libKiiThingSDK.a */,
 				7410AD0319E29A32002C9DF1 /* Security.framework */,
 				7410AD0119E29A21002C9DF1 /* libz.dylib */,
 				7410AC9619E27F7B002C9DF1 /* KiiThingSDK */,
@@ -346,7 +348,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "xcodebuild_hoge() {\n    xcodebuild \\\n    -target \"${PROJECT_NAME}\" \\\n    -project ${PROJECT_NAME}.xcodeproj \\\n    -configuration ${CONFIGURATION} \\\n    -sdk $1 clean build\n}\n\nBUILD_DIR=\"${SRCROOT}/build\"\nLIB_DIR=\"${SRCROOT}/library\"\nLIB_NAME=\"lib${PROJECT_NAME}.a\"\n\nIOS_LIB=\"${BUILD_DIR}/${CONFIGURATION}-iphoneos/${LIB_NAME}\"\nSIM_LIB=\"${BUILD_DIR}/${CONFIGURATION}-iphonesimulator/${LIB_NAME}\"\nDEST_LIB=\"${LIB_DIR}/${LIB_NAME}\"\n\n\n# remove dir\nrm -rf \"${BUILD_DIR}\"\nrm -rf \"${LIB_DIR}\"\n\n# 1. xcodebuild\nxcodebuild_hoge iphoneos\nxcodebuild_hoge iphonesimulator\n\n# mkdir\nmkdir -p \"${LIB_DIR}\"\n\n# 2. lipo\nlipo \"${IOS_LIB}\" \"${SIM_LIB}\" -create -output \"${DEST_LIB}\"";
+			shellScript = "xcodebuild_hoge() {\n    xcodebuild \\\n    -target \"${PROJECT_NAME}\" \\\n    -project ${PROJECT_NAME}.xcodeproj \\\n    -configuration ${CONFIGURATION} \\\n    -sdk $1 \\\n    -arch $2\n    clean build\n}\n\nBUILD_DIR=\"${SRCROOT}/build\"\nLIB_DIR=\"${SRCROOT}/library\"\nLIB_NAME=\"lib${PROJECT_NAME}.a\"\n\nIOS_LIB=\"${BUILD_DIR}/${CONFIGURATION}-iphoneos/${LIB_NAME}\"\nSIM_LIB=\"${BUILD_DIR}/${CONFIGURATION}-iphonesimulator/${LIB_NAME}\"\n\nIOS_LIB_V7S=\"${BUILD_DIR}/${CONFIGURATION}-iphoneos/V7S.a\"\nIOS_LIB_V7=\"${BUILD_DIR}/${CONFIGURATION}-iphoneos/V7.a\"\nIOS_LIB_64=\"${BUILD_DIR}/${CONFIGURATION}-iphoneos/64.a\"\n\nSIM_LIB_386=\"${BUILD_DIR}/${CONFIGURATION}-iphonesimulator/386.a\"\nSIM_LIB_86_64=\"${BUILD_DIR}/${CONFIGURATION}-iphonesimulator/86_64.a\"\n\nDEST_LIB=\"${LIB_DIR}/${LIB_NAME}\"\n\n\n# remove dir\nrm -rf \"${BUILD_DIR}\"\nrm -rf \"${LIB_DIR}\"\n\n# 1. xcodebuild\nxcodebuild_hoge iphoneos8.0 arm64\ncp \"${IOS_LIB}\" \"${IOS_LIB_64}\"\n\nxcodebuild_hoge iphoneos8.0 armv7s\ncp \"${IOS_LIB}\" \"${IOS_LIB_V7S}\"\n\nxcodebuild_hoge iphoneos8.0 armv7\ncp \"${IOS_LIB}\" \"${IOS_LIB_V7}\"\n\nxcodebuild_hoge iphonesimulator8.0 i386\ncp \"${SIM_LIB}\" \"${SIM_LIB_386}\"\n\nxcodebuild_hoge iphonesimulator8.0 x86_64\ncp \"${SIM_LIB}\" \"${SIM_LIB_86_64}\"\n\n# mkdir\nmkdir -p \"${LIB_DIR}\"\n\n# 2. lipo\nlipo \"${IOS_LIB_64}\" \"${IOS_LIB_V7S}\" \"${IOS_LIB_V7}\" \"${SIM_LIB_386}\" \"${SIM_LIB_86_64}\" -create -output \"${DEST_LIB}\"";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -519,6 +521,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/KiiThingSDK/curl",
+					"$(PROJECT_DIR)/library",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/KiiThingSDK/jannson";
@@ -537,6 +540,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/KiiThingSDK/curl",
+					"$(PROJECT_DIR)/library",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/KiiThingSDK/jannson";
