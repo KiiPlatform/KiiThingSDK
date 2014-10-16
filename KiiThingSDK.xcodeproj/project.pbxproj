@@ -23,7 +23,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		7410ACBC19E28845002C9DF1 /* LibUsateTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7410ACBB19E28845002C9DF1 /* LibUsateTests.mm */; };
+		7410ACBC19E28845002C9DF1 /* LibUsateTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7410ACBB19E28845002C9DF1 /* LibUsateTests.m */; };
 		7410ACFF19E29622002C9DF1 /* libcurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7410ACFA19E29622002C9DF1 /* libcurl.a */; };
 		7410AD0019E29622002C9DF1 /* libcurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7410ACFA19E29622002C9DF1 /* libcurl.a */; };
 		7410AD0219E29A21002C9DF1 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7410AD0119E29A21002C9DF1 /* libz.dylib */; };
@@ -51,7 +51,7 @@
 		7416A5BD19E3C42A007DCC45 /* utf.c in Sources */ = {isa = PBXBuildFile; fileRef = 7416A5A719E3C42A007DCC45 /* utf.c */; };
 		7416A5BE19E3C42A007DCC45 /* value.c in Sources */ = {isa = PBXBuildFile; fileRef = 7416A5A919E3C42A007DCC45 /* value.c */; };
 		7416A5BF19E3C42A007DCC45 /* value.c in Sources */ = {isa = PBXBuildFile; fileRef = 7416A5A919E3C42A007DCC45 /* value.c */; };
-		7418A91219E5206D00A85634 /* ThingSDKUsageTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7418A91119E5206D00A85634 /* ThingSDKUsageTest.mm */; };
+		7418A91219E5206D00A85634 /* ThingSDKUsageTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 7418A91119E5206D00A85634 /* ThingSDKUsageTest.m */; };
 		7418A92319E526E700A85634 /* kii_cloud.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7410AD0719E29B70002C9DF1 /* kii_cloud.h */; };
 		7418A92419E527C700A85634 /* kii_cloud.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7410AD0719E29B70002C9DF1 /* kii_cloud.h */; };
 		747F3B8B19EFCB3C00C1372A /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7410AD0119E29A21002C9DF1 /* libz.dylib */; };
@@ -96,7 +96,7 @@
 		7410AC9419E27F7B002C9DF1 /* libKiiThingSDK.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libKiiThingSDK.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		7410ACB719E28845002C9DF1 /* KiiThingSDKTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KiiThingSDKTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7410ACBA19E28845002C9DF1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		7410ACBB19E28845002C9DF1 /* LibUsateTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = LibUsateTests.mm; sourceTree = "<group>"; };
+		7410ACBB19E28845002C9DF1 /* LibUsateTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LibUsateTests.m; sourceTree = "<group>"; };
 		7410ACF519E29622002C9DF1 /* curl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = curl.h; sourceTree = "<group>"; };
 		7410ACF619E29622002C9DF1 /* curlbuild.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = curlbuild.h; sourceTree = "<group>"; };
 		7410ACF719E29622002C9DF1 /* curlrules.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = curlrules.h; sourceTree = "<group>"; };
@@ -128,7 +128,7 @@
 		7416A5A719E3C42A007DCC45 /* utf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = utf.c; sourceTree = "<group>"; };
 		7416A5A819E3C42A007DCC45 /* utf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utf.h; sourceTree = "<group>"; };
 		7416A5A919E3C42A007DCC45 /* value.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = value.c; sourceTree = "<group>"; };
-		7418A91119E5206D00A85634 /* ThingSDKUsageTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ThingSDKUsageTest.mm; sourceTree = "<group>"; };
+		7418A91119E5206D00A85634 /* ThingSDKUsageTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ThingSDKUsageTest.m; sourceTree = "<group>"; };
 		7485E61A19E5360000BCA19C /* kii_cloud.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kii_cloud.c; sourceTree = "<group>"; };
 		74DB969619EFAFE3008FF61E /* libKiiThingSDK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libKiiThingSDK.a; path = library/libKiiThingSDK.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -193,8 +193,8 @@
 		7410ACB819E28845002C9DF1 /* KiiThingSDKTests */ = {
 			isa = PBXGroup;
 			children = (
-				7410ACBB19E28845002C9DF1 /* LibUsateTests.mm */,
-				7418A91119E5206D00A85634 /* ThingSDKUsageTest.mm */,
+				7410ACBB19E28845002C9DF1 /* LibUsateTests.m */,
+				7418A91119E5206D00A85634 /* ThingSDKUsageTest.m */,
 				7410ACB919E28845002C9DF1 /* Supporting Files */,
 			);
 			path = KiiThingSDKTests;
@@ -380,11 +380,11 @@
 				7416A5B519E3C42A007DCC45 /* memory.c in Sources */,
 				7416A5AF19E3C42A007DCC45 /* hashtable.c in Sources */,
 				7416A5B319E3C42A007DCC45 /* load.c in Sources */,
-				7418A91219E5206D00A85634 /* ThingSDKUsageTest.mm in Sources */,
+				7418A91219E5206D00A85634 /* ThingSDKUsageTest.m in Sources */,
 				7416A5B919E3C42A007DCC45 /* strbuffer.c in Sources */,
 				7416A5AD19E3C42A007DCC45 /* error.c in Sources */,
 				7416A5B119E3C42A007DCC45 /* hashtable_seed.c in Sources */,
-				7410ACBC19E28845002C9DF1 /* LibUsateTests.mm in Sources */,
+				7410ACBC19E28845002C9DF1 /* LibUsateTests.m in Sources */,
 				7416A5B719E3C42A007DCC45 /* pack_unpack.c in Sources */,
 				7416A5BF19E3C42A007DCC45 /* value.c in Sources */,
 				7416A5AB19E3C42A007DCC45 /* dump.c in Sources */,
