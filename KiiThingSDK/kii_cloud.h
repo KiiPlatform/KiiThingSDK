@@ -10,6 +10,10 @@
 
 #include "jannson/jansson.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 static const char KII_SITE_JP[] = "https://api-jp.kii.com/api"; /** Site JP */
 static const char KII_SITE_US[] = "https://api.kii.com/api"; /** Site US */
 static const char KII_SITE_CN[] = "https://api-cn2.kii.com/api"; /** Site CN */
@@ -448,5 +452,8 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
                                        kii_mqtt_endpoint_t** out_endpoint,
                                        kii_uint_t* out_retry_after_in_second);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif
