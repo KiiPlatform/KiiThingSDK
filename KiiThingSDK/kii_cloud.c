@@ -49,11 +49,13 @@ void* kii_memset(void* buf, int ch, size_t n) {
     return memset(buf, ch, n);
 }
 
-/* TODO: use macro */
-void kii_free_and_nullify(void** ptr)
+#define M_KII_FREE_NULLIFY(ptr) \
+    kii_free((ptr));\
+    (ptr) = NULL;
+
+void kii_free(void* ptr)
 {
-    free(*ptr);
-    *ptr = NULL;
+    free(ptr);
 }
 
 char* kii_strdup(const char* s)
@@ -72,31 +74,31 @@ kii_app_t kii_init_app(const char* app_id,
     app->last_error = NULL;
     app->app_id = kii_strdup(app_id);
     if (app->app_id == NULL) {
-        kii_free_and_nullify((void**)&app);
+        M_KII_FREE_NULLIFY(app);
         return app;
     }
 
     app->app_key = kii_strdup(app_key);
     if (app->app_key == NULL) {
-        kii_free_and_nullify((void**)&(app->app_id));
-        kii_free_and_nullify((void**)&app);
+        M_KII_FREE_NULLIFY(app->app_id);
+        M_KII_FREE_NULLIFY(app);
         return app;
     }
 
     app->site_url = kii_strdup(site_url);
     if (app->site_url == NULL) {
-        kii_free_and_nullify((void**)&(app->app_id));
-        kii_free_and_nullify((void**)&(app->app_key));
-        kii_free_and_nullify((void**)&app);
+        M_KII_FREE_NULLIFY(app->app_id);
+        M_KII_FREE_NULLIFY(app->app_key);
+        M_KII_FREE_NULLIFY(app);
         return app;
     }
     
     app->curl_easy = curl_easy_init();
     if (app->curl_easy == NULL) {
-        kii_free_and_nullify((void**)&(app->app_id));
-        kii_free_and_nullify((void**)&(app->app_key));
-        kii_free_and_nullify((void**)&(app->site_url));
-        kii_free_and_nullify((void**)&app);
+        M_KII_FREE_NULLIFY(app->app_id);
+        M_KII_FREE_NULLIFY(app->app_key);
+        M_KII_FREE_NULLIFY(app->site_url);
+        M_KII_FREE_NULLIFY(app);
         return app;
     }
     return app;
@@ -109,59 +111,59 @@ kii_error_t* kii_get_last_error(kii_app_t app)
 
 void prv_kii_set_error(prv_kii_app_t* app, kii_error_t* new_error)
 {
-    free(app->last_error);
+    M_KII_FREE_NULLIFY(app->last_error);
     app->last_error = new_error;
 }
 
 void prv_kii_dispose_kii_error(kii_error_t* error)
 {
     if (error != NULL) {
-        kii_free_and_nullify((void**)&(error->error_code));
-        kii_free_and_nullify((void**)&error);
+        M_KII_FREE_NULLIFY(error->error_code);
+        M_KII_FREE_NULLIFY(error);
     }
 }
 
 void kii_dispose_app(kii_app_t app)
 {
     prv_kii_app_t* pApp = (prv_kii_app_t*)app;
-    kii_free_and_nullify((void**)&(pApp->app_id));
-    kii_free_and_nullify((void**)&(pApp->app_key));
-    kii_free_and_nullify((void**)&(pApp->site_url));
+    M_KII_FREE_NULLIFY(pApp->app_id);
+    M_KII_FREE_NULLIFY(pApp->app_key);
+    M_KII_FREE_NULLIFY(pApp->site_url);
     prv_kii_dispose_kii_error(pApp->last_error);
     curl_easy_cleanup(pApp->curl_easy);
     pApp->curl_easy = NULL;
-    kii_free_and_nullify(&app);
+    M_KII_FREE_NULLIFY(app);
 }
 
 void kii_dispose_bucket(kii_bucket_t bucket)
 {
     prv_kii_bucket_t* pBucket = (prv_kii_bucket_t*) bucket;
-    kii_free_and_nullify((void**)&(pBucket->bucket_name));
-    kii_free_and_nullify((void**)&(pBucket->thing_vendor_id));
-    kii_free_and_nullify(&bucket);
+    M_KII_FREE_NULLIFY(pBucket->bucket_name);
+    M_KII_FREE_NULLIFY(pBucket->thing_vendor_id);
+    M_KII_FREE_NULLIFY(bucket);
 }
 
 void kii_dispose_topic(kii_topic_t topic)
 {
     prv_kii_topic_t* pTopic = (prv_kii_topic_t*) topic;
-    kii_free_and_nullify((void**)&(pTopic->topic_name));
-    kii_free_and_nullify((void**)&(pTopic->thing_vendor_id));
-    kii_free_and_nullify(&topic);
+    M_KII_FREE_NULLIFY(pTopic->topic_name);
+    M_KII_FREE_NULLIFY(pTopic->thing_vendor_id);
+    M_KII_FREE_NULLIFY(topic);
 }
 
 void kii_dispose_mqtt_endpoint(kii_mqtt_endpoint_t* endpoint)
 {
-    kii_free_and_nullify((void**)&endpoint->password);
-    kii_free_and_nullify((void**)&endpoint->username);
-    kii_free_and_nullify((void**)&endpoint->host);
-    kii_free_and_nullify((void**)&endpoint->port);
-    kii_free_and_nullify((void**)&endpoint->topic);
-    kii_free_and_nullify((void**)&endpoint);
+    M_KII_FREE_NULLIFY(endpoint->password);
+    M_KII_FREE_NULLIFY(endpoint->username);
+    M_KII_FREE_NULLIFY(endpoint->host);
+    M_KII_FREE_NULLIFY(endpoint->port);
+    M_KII_FREE_NULLIFY(endpoint->topic);
+    M_KII_FREE_NULLIFY(endpoint);
 }
 
 void kii_dispose_kii_char(kii_char_t* char_ptr)
 {
-    kii_free_and_nullify((void**)&char_ptr);
+    M_KII_FREE_NULLIFY(char_ptr);
 }
 
 void kii_json_decref(kii_json_t* json)
@@ -184,7 +186,7 @@ static size_t callbackWrite(char* ptr,
         kii_memset(concat, '\0', newSize);
         strcat(concat, *respData);
         strcat(concat, ptr);
-        free(*respData);
+        M_KII_FREE_NULLIFY(*respData);
         *respData = concat;
     }
     return dataLen;
@@ -307,12 +309,12 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     }
     
 ON_EXIT:
-    kii_free_and_nullify((void**)&appIdHdr);
-    kii_free_and_nullify((void**)&appkeyHdr);
-    kii_free_and_nullify((void**)&contentTypeHdr);
+    M_KII_FREE_NULLIFY(appIdHdr);
+    M_KII_FREE_NULLIFY(appkeyHdr);
+    M_KII_FREE_NULLIFY(contentTypeHdr);
     curl_slist_free_all(headers);
-    kii_free_and_nullify((void**)&reqStr);
-    kii_free_and_nullify((void**)&respData);
+    M_KII_FREE_NULLIFY(reqStr);
+    M_KII_FREE_NULLIFY(respData);
 
     return ret;
 }
