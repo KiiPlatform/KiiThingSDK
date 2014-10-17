@@ -8,7 +8,7 @@
 #ifndef KiiThingSDK_kii_cloud_h
 #define KiiThingSDK_kii_cloud_h
 
-#include "jannson/jansson.h"
+#include "jansson.h"
 
 #ifdef __cplusplus
 extern "C" {
