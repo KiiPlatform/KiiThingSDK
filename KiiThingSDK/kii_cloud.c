@@ -49,6 +49,7 @@ void* kii_memset(void* buf, int ch, size_t n) {
     return memset(buf, ch, n);
 }
 
+/* TODO: use macro */
 void kii_free_and_nullify(void** ptr)
 {
     free(*ptr);
@@ -68,7 +69,7 @@ kii_app_t kii_init_app(const char* app_id,
     if (app == NULL) {
         return app;
     }
-
+    app->last_error = NULL;
     app->app_id = kii_strdup(app_id);
     if (app->app_id == NULL) {
         kii_free_and_nullify((void**)&app);
@@ -114,8 +115,10 @@ void prv_kii_set_error(prv_kii_app_t* app, kii_error_t* new_error)
 
 void prv_kii_dispose_kii_error(kii_error_t* error)
 {
-    kii_free_and_nullify((void**)&(error->error_code));
-    kii_free_and_nullify((void**)&error);
+    if (error != NULL) {
+        kii_free_and_nullify((void**)&(error->error_code));
+        kii_free_and_nullify((void**)&error);
+    }
 }
 
 void kii_dispose_app(kii_app_t app)
@@ -171,16 +174,28 @@ static size_t callbackWrite(char* ptr,
                             size_t nmemb,
                             char** respData)
 {
-    // TODO: implement it.
-    return 0;
+    size_t dataLen = size * nmemb;
+    if (*respData == NULL) { /* First time. */
+        *respData = strdup(ptr);
+    } else {
+        size_t lastLen = strlen(*respData);
+        size_t newSize = lastLen + size + 1;
+        char* concat = malloc(newSize);
+        kii_memset(concat, '\0', newSize);
+        strcat(concat, *respData);
+        strcat(concat, ptr);
+        free(*respData);
+        *respData = concat;
+    }
+    return dataLen;
 }
 
 char* prv_new_header_string(const char* key, const char* value)
 {
-    size_t len = strlen(key) + strlen(" : ") + strlen(value) +1;
-    char* val = kii_malloc(strlen(key) + strlen(" : ") + strlen(value) +1);
+    size_t len = strlen(key) + strlen(":") + strlen(value) +1;
+    char* val = kii_malloc(len);
     kii_memset(val, '\0', len);
-    sprintf(val, "%s : %s", key, value);
+    sprintf(val, "%s:%s", key, value);
     return val;
 }
 
@@ -202,17 +217,17 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     /* prepare URL */
     char reqUrl[1024]; // TODO: calcurate length and alloc minimum length.
     kii_memset(reqUrl, '\0', sizeof(reqUrl));
-    sprintf(reqUrl, "%s/apps/%s/things", pApp->site_url, pApp->app_key);
+    sprintf(reqUrl, "%s/apps/%s/things", pApp->site_url, pApp->app_id);
     
     /* prepare headers */
     struct curl_slist* headers = NULL;
-    char* appIdHdr = prv_new_header_string("x-kii-appid", pApp->app_key);
+    char* appIdHdr = prv_new_header_string("x-kii-appid", pApp->app_id);
     char* appkeyHdr = prv_new_header_string("x-kii-appkey", pApp->app_key);
     char* contentTypeHdr = prv_new_header_string("content-type",
                                                  "application/vnd.kii.ThingRegistrationAndAuthorizationRequest+json");
-    curl_slist_append(headers, appIdHdr);
-    curl_slist_append(headers, appkeyHdr);
-    curl_slist_append(headers, contentTypeHdr);
+    headers = curl_slist_append(headers, appIdHdr);
+    headers = curl_slist_append(headers, appkeyHdr);
+    headers = curl_slist_append(headers, contentTypeHdr);
     
     /* prepare request data */
     json_t* reqJson = NULL;
@@ -231,17 +246,19 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     char* respData = NULL;
     curl_easy_setopt(pApp->curl_easy, CURLOPT_URL, reqUrl);
     curl_easy_setopt(pApp->curl_easy, CURLOPT_POSTFIELDS, reqStr);
-    curl_easy_setopt(pApp->curl_easy, CURLOPT_HEADERDATA, headers);
+    curl_easy_setopt(pApp->curl_easy, CURLOPT_HTTPHEADER, headers);
 
     curl_easy_setopt(pApp->curl_easy, CURLOPT_WRITEFUNCTION, callbackWrite);
     curl_easy_setopt(pApp->curl_easy, CURLOPT_WRITEDATA, &respData);
     
     kii_error_t* err = kii_malloc(sizeof(kii_error_t));
+    err->error_code = NULL; // TODO: create private kii_error_t initializer.
     kii_error_code_t ret = KIIE_FAIL;
 
     CURLcode curlRet = curl_easy_perform(pApp->curl_easy);
     if (curlRet != CURLE_OK) {
         err->status_code = 0;
+        /* TODO: define const str.*/
         err->error_code = strdup("CONNECTION_ERROR");
         prv_kii_set_error(pApp, err);
         ret = KIIE_FAIL;
@@ -252,11 +269,29 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     long respCode = 0;
     curl_easy_getinfo(pApp->curl_easy, CURLINFO_RESPONSE_CODE, &respCode);
     if ((200 <= respCode) && (respCode < 300)) {
+        printf("response: %s", respData); /* TODO: create logger*/
+        json_error_t jErr;
+        json_t* respJson = json_loads(respData, 0, &jErr);
+        if (respJson != NULL) {
+            json_t* accessTokenJson = json_object_get(respJson, "_accessToken");
+            if (out_access_token != NULL) {
+                char* temp = json_dumps(accessTokenJson, JSON_ENCODE_ANY);
+                *out_access_token = temp;
+            } else {
+                err->status_code = (int)respCode;
+                err->error_code = strdup("PARSE_FAILED");
+                ret = KIIE_FAIL;
+                goto ON_EXIT;
+            }
+            kii_json_decref(respJson);
+        }
         prv_kii_set_error(pApp, NULL);
         ret = KIIE_OK;
         goto ON_EXIT;
     } else {
+        printf("response: %s", respData); /* TODO: create logger*/
         err->status_code = (int)respCode;
+        err->error_code = strdup("");
         json_error_t jErr;
         json_t* errJson = json_loads(respData, 0, &jErr);
         if (errJson != NULL) {
@@ -277,6 +312,7 @@ ON_EXIT:
     kii_free_and_nullify((void**)&contentTypeHdr);
     curl_slist_free_all(headers);
     kii_free_and_nullify((void**)&reqStr);
+    kii_free_and_nullify((void**)&respData);
 
     return ret;
 }

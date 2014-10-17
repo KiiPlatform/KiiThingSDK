@@ -55,6 +55,7 @@
 		7418A92319E526E700A85634 /* kii_cloud.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7410AD0719E29B70002C9DF1 /* kii_cloud.h */; };
 		7418A92419E527C700A85634 /* kii_cloud.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7410AD0719E29B70002C9DF1 /* kii_cloud.h */; };
 		747F3B8B19EFCB3C00C1372A /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7410AD0119E29A21002C9DF1 /* libz.dylib */; };
+		747F3D5519F0FD8A00C1372A /* ThingSDKBasicTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 747F3D5419F0FD8A00C1372A /* ThingSDKBasicTests.m */; };
 		7485E61B19E5360000BCA19C /* kii_cloud.c in Sources */ = {isa = PBXBuildFile; fileRef = 7485E61A19E5360000BCA19C /* kii_cloud.c */; };
 		74DB969719EFAFE3008FF61E /* libKiiThingSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 74DB969619EFAFE3008FF61E /* libKiiThingSDK.a */; };
 /* End PBXBuildFile section */
@@ -129,6 +130,7 @@
 		7416A5A819E3C42A007DCC45 /* utf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utf.h; sourceTree = "<group>"; };
 		7416A5A919E3C42A007DCC45 /* value.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = value.c; sourceTree = "<group>"; };
 		7418A91119E5206D00A85634 /* ThingSDKUsageTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ThingSDKUsageTest.m; sourceTree = "<group>"; };
+		747F3D5419F0FD8A00C1372A /* ThingSDKBasicTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ThingSDKBasicTests.m; sourceTree = "<group>"; };
 		7485E61A19E5360000BCA19C /* kii_cloud.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kii_cloud.c; sourceTree = "<group>"; };
 		74DB969619EFAFE3008FF61E /* libKiiThingSDK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libKiiThingSDK.a; path = library/libKiiThingSDK.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -196,6 +198,7 @@
 				7410ACBB19E28845002C9DF1 /* LibUsateTests.m */,
 				7418A91119E5206D00A85634 /* ThingSDKUsageTest.m */,
 				7410ACB919E28845002C9DF1 /* Supporting Files */,
+				747F3D5419F0FD8A00C1372A /* ThingSDKBasicTests.m */,
 			);
 			path = KiiThingSDKTests;
 			sourceTree = "<group>";
@@ -376,6 +379,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				747F3D5519F0FD8A00C1372A /* ThingSDKBasicTests.m in Sources */,
 				7416A5BD19E3C42A007DCC45 /* utf.c in Sources */,
 				7416A5B519E3C42A007DCC45 /* memory.c in Sources */,
 				7416A5AF19E3C42A007DCC45 /* hashtable.c in Sources */,
