@@ -23,7 +23,7 @@
 }
 
 - (void)tearDown {
-    kii_global_clenaup();
+    kii_global_cleanup();
     [super tearDown];
 }
 

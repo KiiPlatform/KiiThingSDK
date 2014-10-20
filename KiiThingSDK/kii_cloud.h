@@ -108,7 +108,7 @@ kii_error_code_t kii_global_init(void);
  * similarly thread unsafe,
  * it could conflict with any other thread that uses these other libraries.
  */
-void kii_global_clenaup(void);
+void kii_global_cleanup(void);
 
 /** Init application.
  * obtained instance should be disposed by application.

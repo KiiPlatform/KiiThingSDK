@@ -16,7 +16,7 @@ kii_error_code_t kii_global_init(void)
     return ((r == CURLE_OK) ? KIIE_OK : KIIE_FAIL);
 }
 
-void kii_global_clenaup(void)
+void kii_global_cleanup(void)
 {
     curl_global_cleanup();
 }

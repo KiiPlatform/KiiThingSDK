@@ -28,7 +28,7 @@
 - (void)tearDown {
     [super tearDown];
     // global cleanup should be called onece for global init.
-    kii_global_clenaup();
+    kii_global_cleanup();
 }
 
 - (void)testRegistrationAndCreateObject {
