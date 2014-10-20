@@ -177,6 +177,34 @@ char* prv_new_header_string(const char* key, const char* value)
     return val;
 }
 
+typedef enum {
+    POST,
+    PUT,
+    PATCH,
+    DELETE
+} prv_kii_req_method_t;
+
+kii_error_code_t prv_execute_curl(CURL* curl,
+                                  const char* url,
+                                  prv_kii_req_method_t method,
+                                  const char* request_body,
+                                  const struct curl_slist* headers,
+                                  char** response_body,
+                                  kii_error_t** error)
+{
+    curl_easy_setopt(curl, CURLOPT_URL, url);
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+    
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callbackWrite);
+    char* respData = NULL;
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &respData);
+    
+    
+    return KIIE_FAIL;
+}
+
+
 kii_error_code_t kii_register_thing(kii_app_t app,
                                     const kii_char_t* thing_vendor_id,
                                     const kii_char_t* thing_password,
