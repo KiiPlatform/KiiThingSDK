@@ -30,12 +30,12 @@ typedef struct prv_kii_app_t {
 } prv_kii_app_t;
 
 typedef struct prv_kii_bucket_t {
-    char* thing_vendor_id;
+    char* vendor_thing_id;
     char* bucket_name;
 } prv_kii_bucket_t;
 
 typedef struct prv_kii_topic_t {
-    char* thing_vendor_id;
+    char* vendor_thing_id;
     char* topic_name;
 } prv_kii_topic_t;
 
@@ -115,7 +115,7 @@ void kii_dispose_bucket(kii_bucket_t bucket)
 {
     prv_kii_bucket_t* pBucket = (prv_kii_bucket_t*) bucket;
     M_KII_FREE_NULLIFY(pBucket->bucket_name);
-    M_KII_FREE_NULLIFY(pBucket->thing_vendor_id);
+    M_KII_FREE_NULLIFY(pBucket->vendor_thing_id);
     M_KII_FREE_NULLIFY(bucket);
 }
 
@@ -123,7 +123,7 @@ void kii_dispose_topic(kii_topic_t topic)
 {
     prv_kii_topic_t* pTopic = (prv_kii_topic_t*) topic;
     M_KII_FREE_NULLIFY(pTopic->topic_name);
-    M_KII_FREE_NULLIFY(pTopic->thing_vendor_id);
+    M_KII_FREE_NULLIFY(pTopic->vendor_thing_id);
     M_KII_FREE_NULLIFY(topic);
 }
 
@@ -206,7 +206,7 @@ kii_error_code_t prv_execute_curl(CURL* curl,
 
 
 kii_error_code_t kii_register_thing(kii_app_t app,
-                                    const kii_char_t* thing_vendor_id,
+                                    const kii_char_t* vendor_thing_id,
                                     const kii_char_t* thing_password,
                                     const kii_char_t* opt_thing_type,
                                     const kii_json_t* user_data,
@@ -218,7 +218,7 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     M_KII_ASSERT(kii_strlen(pApp->app_key)>0);
     M_KII_ASSERT(kii_strlen(pApp->site_url)>0);
     M_KII_ASSERT(pApp->curl_easy != NULL);
-    M_KII_ASSERT(thing_vendor_id != NULL);
+    M_KII_ASSERT(vendor_thing_id != NULL);
     M_KII_ASSERT(thing_password != NULL);
 
     /* prepare URL */
@@ -244,7 +244,7 @@ kii_error_code_t kii_register_thing(kii_app_t app,
         reqJson = json_object();
     }
     json_object_set_new(reqJson, "_vendorThingID",
-                        json_string(thing_vendor_id));
+                        json_string(vendor_thing_id));
     json_object_set_new(reqJson, "_password",
                         json_string(thing_password));
     if (opt_thing_type != NULL && kii_strlen(opt_thing_type) > 0) {
@@ -327,7 +327,7 @@ ON_EXIT:
     return ret;
 }
 
-kii_bucket_t kii_init_thing_bucket(const kii_char_t* thing_vendor_id,
+kii_bucket_t kii_init_thing_bucket(const kii_char_t* vendor_thing_id,
                                    const kii_char_t* bucket_name)
 {
     // TODO: implement it.
@@ -426,7 +426,7 @@ kii_error_code_t kii_is_bucket_subscribed(kii_app_t app,
     return KIIE_FAIL;
 }
 
-kii_topic_t kii_init_thing_topic(const kii_char_t* thing_vendor_id,
+kii_topic_t kii_init_thing_topic(const kii_char_t* vendor_thing_id,
                                  const kii_char_t* topic_name)
 {
     // TODO: implement it.

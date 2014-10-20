@@ -162,7 +162,7 @@ void kii_json_decref(kii_json_t* json);
  * This api performes the entire request in a blocking manner
  * and returns when done, or if it failed.
  * @param [in] app kii application uses this thing.
- * @param [in] thing_vendor_id identifier of the thing
+ * @param [in] vendor_thing_id identifier of the thing
  * should be unique in application.
  * @param [in] thing_password thing password for security.
  * @param [in] opt_thing_type type name of the thing. Can be omitted by
@@ -176,18 +176,18 @@ void kii_json_decref(kii_json_t* json);
  * calling kii_get_last_error(kii_app_t).
  */
 kii_error_code_t kii_register_thing(kii_app_t app,
-                                    const kii_char_t* thing_vendor_id,
+                                    const kii_char_t* vendor_thing_id,
                                     const kii_char_t* thing_password,
                                     const kii_char_t* opt_thing_type,
                                     const kii_json_t* user_data,
                                     kii_char_t** out_access_token);
 
 /** Init thing scope bucket.
- * @param [in] thing_vendor_id identifier of the thing
+ * @param [in] vendor_thing_id identifier of the thing
  * @return kii bucket instance. Should be disposed by
  * kii_dispose_bucket(kii_bucket_t)
  */
-kii_bucket_t kii_init_thing_bucket(const kii_char_t* thing_vendor_id,
+kii_bucket_t kii_init_thing_bucket(const kii_char_t* vendor_thing_id,
                                    const kii_char_t* bucket_name);
 
 /** Create new object.
@@ -382,11 +382,11 @@ kii_error_code_t kii_is_bucket_subscribed(kii_app_t app,
 
 
 /** Init thing scope topic.
- * @param [in] thing_vendor_id identifier of the thing
+ * @param [in] vendor_thing_id identifier of the thing
  * @return kii topic instance. Should be disposed by
  * kii_dispose_topic(kii_topic_t)
  */
-kii_topic_t kii_init_thing_topic(const kii_char_t* thing_vendor_id,
+kii_topic_t kii_init_thing_topic(const kii_char_t* vendor_thing_id,
                                    const kii_char_t* topic_name);
 
 
