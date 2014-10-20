@@ -62,7 +62,7 @@
     json_object_set_new(objData, "temperture", json_integer(25));
 
     // Create new object in the bucket.
-    r = kii_create_new_object(app, bukcet, objData, accessToken, NULL, NULL);
+    r = kii_create_new_object(app, accessToken, bukcet, objData, NULL, NULL);
     
     if (r != KIIE_OK) {// Error handling.
         kii_error_t* e = kii_get_last_error(app);
@@ -140,8 +140,8 @@
     do {
         sleep(retryAfter);
         r = kii_get_mqtt_endpoint(app,
-                                  installationId,
                                   accessToken,
+                                  installationId,
                                   &endpoint,
                                   &retryAfter);
         ++retry;

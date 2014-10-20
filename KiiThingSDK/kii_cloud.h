@@ -192,9 +192,9 @@ kii_bucket_t kii_init_thing_bucket(const kii_char_t* thing_vendor_id,
  * This api performes the entire request in a blocking manner
  * and returns when done, or if it failed.
  * @param [in] app kii application uses this thing.
+ * @param [in] access_token specify access token of authur.
  * @param [in] bucket specify bucket contains object.
  * @param [in] contents specify key-values of object.
- * @param [in] access_token specify access token of authur.
  * @param [out] out_object_id id of the object created by this api.
  * NULL if failed to create.
  * You can pass NULL if you don't need to know id.
@@ -207,9 +207,9 @@ kii_bucket_t kii_init_thing_bucket(const kii_char_t* thing_vendor_id,
  * calling kii_get_last_error(kii_app_t).
  */
 kii_error_code_t kii_create_new_object(kii_app_t app,
+                                       const kii_char_t* access_token,
                                        const kii_bucket_t bucket,
                                        const kii_json_t* contents,
-                                       const kii_char_t* access_token,
                                        kii_char_t** out_object_id,
                                        kii_char_t** out_etag);
 
@@ -218,10 +218,10 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
  * This api performes the entire request in a blocking manner
  * and returns when done, or if it failed.
  * @param [in] app kii application uses this thing.
+ * @param [in] access_token specify access token of authur.
  * @param [in] bucket specify bucket contains object.
  * @param [in] object_id specify id of the object.
  * @param [in] contents specify key-values of object.
- * @param [in] access_token specify access token of authur.
  * @param [out] out_etag etag of created object.
  * NULL if failed to create.
  * You can pass NULL if you don't need to know etag.
@@ -230,11 +230,11 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
  * calling kii_get_last_error(kii_app_t).
  */
 kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
-                                   const kii_bucket_t bucket,
-                                   const kii_char_t* object_id,
-                                   const kii_json_t* contents,
-                                   const kii_char_t* access_token,
-                                   kii_char_t** out_etag);
+                                               const kii_char_t* access_token,
+                                               const kii_bucket_t bucket,
+                                               const kii_char_t* object_id,
+                                               const kii_json_t* contents,
+                                               kii_char_t** out_etag);
 
 /** Update object with patch.
  * This api performes the entire request in a blocking manner
@@ -242,6 +242,7 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
  * Key-Value pair which contained in patch would be update object partially.
  * Other Key-Value pair in existing object would not be updated.
  * @param [in] app kii application uses this thing.
+ * @param [in] access_token specify access token of authur.
  * @param [in] bucket specify bucket contains object.
  * @param [in] object_id specify id of the object.
  * @param [in] patch patch data.
@@ -250,7 +251,6 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
  * matches.
  * @param [in] opt_etag required if force_update is kii_true.
  * Specify NULL otherwise.
- * @param [in] access_token specify access token of authur.
  * @param [out] out_etag etag of created object.
  * NULL if failed to create.
  * You can pass NULL if you don't need to know etag.
@@ -259,12 +259,12 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
  * calling kii_get_last_error(kii_app_t).
  */
 kii_error_code_t kii_patch_object(kii_app_t app,
+                                  const kii_char_t* access_token,
                                   const kii_bucket_t bucket,
                                   const kii_char_t* object_id,
                                   const kii_json_t* patch,
                                   const kii_bool_t force_update,
                                   const kii_char_t* opt_etag,
-                                  const kii_char_t* access_token,
                                   kii_char_t** out_etag);
 
 /** Replace object contents with specified object.
@@ -274,6 +274,7 @@ kii_error_code_t kii_patch_object(kii_app_t app,
  * object.
  * Key-Value pair which is not exists in the object would be deleted.
  * @param [in] app kii application uses this thing.
+ * @param [in] access_token specify access token of authur.
  * @param [in] bucket specify bucket contains object.
  * @param [in] object_id specify id of the object.
  * @param [in] replace_contents replacement data.
@@ -282,7 +283,6 @@ kii_error_code_t kii_patch_object(kii_app_t app,
  * matches.
  * @param [in] opt_etag required if force_update is kii_true.
  * Specify NULL otherwise.
- * @param [in] access_token specify access token of authur.
  * @param [out] out_etag etag of created object.
  * NULL if failed to create.
  * You can pass NULL if you don't need to know etag.
@@ -291,45 +291,45 @@ kii_error_code_t kii_patch_object(kii_app_t app,
  * calling kii_get_last_error(kii_app_t).
  */
 kii_error_code_t kii_replace_object(kii_app_t app,
+                                    const kii_char_t* access_token,
                                     const kii_bucket_t bucket,
                                     const kii_char_t* object_id,
                                     const kii_json_t* replace_contents,
                                     const kii_bool_t force_update,
                                     const kii_char_t* opt_etag,
-                                    const kii_char_t* access_token,
                                     kii_char_t** out_etag);
 
 /** Get object contents with specified id.
  * This api performes the entire request in a blocking manner
  * and returns when done, or if it failed.
  * @param [in] app kii application uses this thing.
+ * @param [in] access_token specify access token of authur.
  * @param [in] bucket specify bucket contains object.
  * @param [in] bucket_name specify name of the bucket.
  * @param [in] object_id specify id of the object.
- * @param [in] access_token specify access token of authur.
  * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
  * calling kii_get_last_error(kii_app_t).
  */
 kii_error_code_t kii_get_object(kii_app_t app,
+                                const kii_char_t* access_token,
                                 const kii_bucket_t bucket,
                                 const kii_char_t* object_id,
-                                const kii_char_t* access_token,
                                 const kii_json_t** out_contents);
 
 /** Delete object with specified id.
  * This api performes the entire request in a blocking manner
  * and returns when done, or if it failed.
  * @param [in] app kii application uses this thing.
+ * @param [in] access_token specify access token of authur.
  * @param [in] bucket specify bucket contains object.
  * @param [in] object_id specify id of the object.
- * @param [in] access_token specify access token of authur.
  * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
  * calling kii_get_last_error(kii_app_t).
  */
 kii_error_code_t kii_delete_object(kii_app_t app,
+                                   const kii_char_t* access_token,
                                    const kii_bucket_t bucket,
-                                   const kii_char_t* object_id,
-                                   const kii_char_t* access_token);
+                                   const kii_char_t* object_id);
 
 /** Subscribe to bucket push notification.
  * After subscribed to the bucket, you can receive push notification when
