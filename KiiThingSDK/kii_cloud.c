@@ -236,8 +236,7 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     CURLcode curlRet = curl_easy_perform(pApp->curl_easy);
     if (curlRet != CURLE_OK) {
         err->status_code = 0;
-        /* TODO: define const str.*/
-        err->error_code = kii_strdup("CONNECTION_ERROR");
+        err->error_code = kii_strdup(KII_ECODE_CONNECTION);
         prv_kii_set_error(pApp, err);
         ret = KIIE_FAIL;
         goto ON_EXIT;
@@ -257,7 +256,7 @@ kii_error_code_t kii_register_thing(kii_app_t app,
                 *out_access_token = temp;
             } else {
                 err->status_code = (int)respCode;
-                err->error_code = kii_strdup("PARSE_FAILED");
+                err->error_code = kii_strdup(KII_ECODE_PARSE);
                 ret = KIIE_FAIL;
                 goto ON_EXIT;
             }
