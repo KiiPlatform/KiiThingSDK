@@ -38,6 +38,7 @@
     char* accessToken = NULL;
     kii_error_code_t ret = kii_register_thing(app,
                                               thing_id,
+                                              "THERMOMETER",
                                               "1234", NULL, &accessToken);
     XCTAssertEqual(ret, KIIE_OK, "register failed");
     XCTAssertTrue(strlen(accessToken) > 0, "access token invalid");

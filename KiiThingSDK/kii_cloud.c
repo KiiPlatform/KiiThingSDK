@@ -208,6 +208,7 @@ kii_error_code_t prv_execute_curl(CURL* curl,
 kii_error_code_t kii_register_thing(kii_app_t app,
                                     const kii_char_t* thing_vendor_id,
                                     const kii_char_t* thing_password,
+                                    const kii_char_t* opt_thing_type,
                                     const kii_json_t* user_data,
                                     kii_char_t** out_access_token)
 {
@@ -246,6 +247,10 @@ kii_error_code_t kii_register_thing(kii_app_t app,
                         json_string(thing_vendor_id));
     json_object_set_new(reqJson, "_password",
                         json_string(thing_password));
+    if (opt_thing_type != NULL && kii_strlen(opt_thing_type) > 0) {
+        json_object_set_new(reqJson, "_thingType",
+                            json_string(opt_thing_type));
+    }
     char* reqStr = json_dumps(reqJson, 0);
     kii_json_decref(reqJson);
 

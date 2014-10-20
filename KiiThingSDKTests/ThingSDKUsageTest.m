@@ -36,12 +36,12 @@
     
     // Register the thing.
     json_t *uData = json_object();
-    json_object_set_new(uData, "_thingType", json_string("THERMOMETER"));
     json_object_set_new(uData, "_firmwareVersion", json_string("1.0.0"));
     char* accessToken = NULL;
     kii_error_code_t r = kii_register_thing(app,
                                             "thing-vender-id",
                                             "thing-password",
+                                            "THERMOMETER",
                                             uData,
                                             &accessToken);
 

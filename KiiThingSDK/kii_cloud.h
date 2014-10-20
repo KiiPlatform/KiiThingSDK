@@ -165,6 +165,8 @@ void kii_json_decref(kii_json_t* json);
  * @param [in] thing_vendor_id identifier of the thing
  * should be unique in application.
  * @param [in] thing_password thing password for security.
+ * @param [in] opt_thing_type type name of the thing. Can be omitted by
+ * specifying NULL.
  * @param [in] user_data additional information about the thing.
  * TODO: details should be linked here.
  * @param [out] access_token would be used to
@@ -176,6 +178,7 @@ void kii_json_decref(kii_json_t* json);
 kii_error_code_t kii_register_thing(kii_app_t app,
                                     const kii_char_t* thing_vendor_id,
                                     const kii_char_t* thing_password,
+                                    const kii_char_t* opt_thing_type,
                                     const kii_json_t* user_data,
                                     kii_char_t** out_access_token);
 
