@@ -396,22 +396,25 @@ kii_error_code_t kii_delete_object(kii_app_t app,
     return KIIE_FAIL;
 }
 
-kii_error_code_t kii_subscribe_bucket(const kii_bucket_t bucket,
-                                      const kii_char_t* access_token)
+kii_error_code_t kii_subscribe_bucket(kii_app_t app,
+                                      const kii_char_t* access_token,
+                                      const kii_bucket_t bucket)
 {
     // TODO: implement it.
     return KIIE_FAIL;
 }
 
-kii_error_code_t kii_unsubscribe_bucket(const kii_bucket_t bucket,
-                                        const kii_char_t* access_token)
+kii_error_code_t kii_unsubscribe_bucket(kii_app_t app,
+                                        const kii_char_t* access_token,
+                                        const kii_bucket_t bucket)
 {
     // TODO: implement it.
     return KIIE_FAIL;
 }
 
-kii_error_code_t kii_is_bucket_subscribed(const kii_bucket_t bucket,
+kii_error_code_t kii_is_bucket_subscribed(kii_app_t app,
                                           const kii_char_t* access_token,
+                                          const kii_bucket_t bucket,
                                           kii_bool_t* out_is_subscribed)
 {
     // TODO: implement it.
@@ -425,22 +428,25 @@ kii_topic_t kii_init_thing_topic(const kii_char_t* thing_vendor_id,
     return NULL;
 }
 
-kii_error_code_t kii_subscribe_topic(const kii_topic_t topic,
-                                     const kii_char_t* access_token)
+kii_error_code_t kii_subscribe_topic(kii_app_t app,
+                                     const kii_char_t* access_token,
+                                     const kii_topic_t topic)
 {
     // TODO: implement it.
     return KIIE_FAIL;
 }
 
-kii_error_code_t kii_unsubscribe_topic(const kii_topic_t topic,
-                                       const kii_char_t* access_token)
+kii_error_code_t kii_unsubscribe_topic(kii_app_t app,
+                                       const kii_char_t* access_token,
+                                       const kii_topic_t topic)
 {
     // TODO: implement it.
     return KIIE_FAIL;
 }
 
-kii_error_code_t kii_is_topic_subscribed(const kii_topic_t topic,
+kii_error_code_t kii_is_topic_subscribed(kii_app_t app,
                                          const kii_char_t* access_token,
+                                         const kii_topic_t topic,
                                          kii_bool_t* out_is_subscribed)
 {
     // TODO: implement it.

@@ -92,7 +92,7 @@
 
     const char* accessToken = [self getAccessToken];
 
-    kii_error_code_t r = kii_subscribe_bucket(bucket, accessToken);
+    kii_error_code_t r = kii_subscribe_bucket(app, accessToken, bucket);
     if (r != KIIE_OK) {
         kii_error_t* e = kii_get_last_error(app);
         NSLog(@"http status code: %d", e->status_code);
@@ -104,7 +104,7 @@
     
     kii_topic_t topic = kii_init_thing_topic("thing-vender-id",
                                              "Control-Messages");
-    r = kii_subscribe_topic(topic, accessToken);
+    r = kii_subscribe_topic(app, accessToken, topic);
     if (r != KIIE_OK) {
         kii_error_t* e = kii_get_last_error(app);
         NSLog(@"http status code: %d", e->status_code);
