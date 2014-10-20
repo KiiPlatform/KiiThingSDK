@@ -14,7 +14,7 @@
 kii_error_code_t kii_global_init(void)
 {
     CURLcode r = curl_global_init(CURL_GLOBAL_ALL);
-    return r == CURLE_OK ? KIIE_OK : KIIE_FAIL;
+    return ((r == CURLE_OK) ? KIIE_OK : KIIE_FAIL);
 }
 
 void kii_global_clenaup(void)
