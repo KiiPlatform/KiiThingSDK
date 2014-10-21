@@ -31,6 +31,7 @@ char* kii_strdup(const char* s);
 int kii_sprintf(char* str, const char* format, ...);
 char* kii_strcat(char* s1, const char* s2);
 size_t kii_strlen(const char* str);
+char* kii_strcpy(char* s1, const char* s2);
 
 #ifdef __cplusplus
 }

@@ -61,6 +61,7 @@
 		74DB969719EFAFE3008FF61E /* libKiiThingSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 74DB969619EFAFE3008FF61E /* libKiiThingSDK.a */; };
 		B613F69319F50D6100AC5548 /* kii_utils.c in Sources */ = {isa = PBXBuildFile; fileRef = B613F69119F50D6100AC5548 /* kii_utils.c */; };
 		B613F69419F50D7600AC5548 /* kii_utils.c in Sources */ = {isa = PBXBuildFile; fileRef = B613F69119F50D6100AC5548 /* kii_utils.c */; };
+		B69FA67119F6415700DC1872 /* URLBuilderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B69FA67019F6415700DC1872 /* URLBuilderTest.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -141,6 +142,7 @@
 		74DB969619EFAFE3008FF61E /* libKiiThingSDK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libKiiThingSDK.a; path = library/libKiiThingSDK.a; sourceTree = "<group>"; };
 		B613F69119F50D6100AC5548 /* kii_utils.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kii_utils.c; sourceTree = "<group>"; };
 		B613F69219F50D6100AC5548 /* kii_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kii_utils.h; sourceTree = "<group>"; };
+		B69FA67019F6415700DC1872 /* URLBuilderTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = URLBuilderTest.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -211,6 +213,7 @@
 				7410ACBB19E28845002C9DF1 /* LibUsateTests.m */,
 				7418A91119E5206D00A85634 /* ThingSDKUsageTest.m */,
 				747F3D5419F0FD8A00C1372A /* ThingSDKBasicTests.m */,
+				B69FA67019F6415700DC1872 /* URLBuilderTest.m */,
 				7410ACB919E28845002C9DF1 /* Supporting Files */,
 			);
 			path = KiiThingSDKTests;
@@ -399,6 +402,7 @@
 				7416A5BD19E3C42A007DCC45 /* utf.c in Sources */,
 				7416A5B519E3C42A007DCC45 /* memory.c in Sources */,
 				7416A5AF19E3C42A007DCC45 /* hashtable.c in Sources */,
+				B69FA67119F6415700DC1872 /* URLBuilderTest.m in Sources */,
 				7416A5B319E3C42A007DCC45 /* load.c in Sources */,
 				7418A91219E5206D00A85634 /* ThingSDKUsageTest.m in Sources */,
 				7416A5B919E3C42A007DCC45 /* strbuffer.c in Sources */,

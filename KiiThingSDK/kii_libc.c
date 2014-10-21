@@ -48,3 +48,8 @@ size_t kii_strlen(const char* str)
 {
     return strlen(str);
 }
+
+char* kii_strcpy(char* s1, const char* s2)
+{
+  return strcpy(s1, s2);
+}
