@@ -9,7 +9,6 @@
 
 #include "kii_libc.h"
 
-#include <assert.h>
 #include <stdarg.h>
 
 static size_t prv_url_encoded_len(const char* element);
@@ -63,7 +62,7 @@ char* prv_build_url(const char* first, ...)
 
 static size_t prv_url_encoded_len(const char* element)
 {
-    assert(element != NULL);
+    M_KII_ASSERT(element != NULL);
 
     // TODO: calculate url encoded length.
     return kii_strlen(element);
@@ -71,8 +70,8 @@ static size_t prv_url_encoded_len(const char* element)
 
 static char* prv_url_encoded_copy(char* s1, const char* s2)
 {
-    assert(s1 != NULL);
-    assert(s2 != NULL);
+    M_KII_ASSERT(s1 != NULL);
+    M_KII_ASSERT(s2 != NULL);
 
     // TODO: copy url encoded s2 string to s1.
     return kii_strcpy(s1, s2);
