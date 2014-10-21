@@ -27,7 +27,7 @@
 
 - (void)testBuildUrl
 {
-    char *url = build_url("http://hoge.com", "fuga", NULL);
+    char *url = prv_build_url("http://hoge.com", "fuga", NULL);
     XCTAssertTrue(strcmp("http://hoge.com/fuga", url) == 0 ? YES : NO,
                  @"url unmatched: http://hoge.com/fuga , %s", url);
     free(url);

@@ -12,6 +12,6 @@
 
 // The last argument of this method must be NULL.
 // Returned value of this method must be freed by caller of this method.
-char *build_url(const char* first, ...);
+char* prv_build_url(const char* first, ...);
 
 #endif /* defined(__KiiThingSDK__kii_utils__) */
