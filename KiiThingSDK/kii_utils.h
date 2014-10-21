@@ -10,8 +10,16 @@
 
 #include <stdio.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // The last argument of this method must be NULL.
 // Returned value of this method must be freed by caller of this method.
 char* prv_build_url(const char* first, ...);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* defined(__KiiThingSDK__kii_utils__) */
