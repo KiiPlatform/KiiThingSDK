@@ -1,10 +1,10 @@
-//
-//  kii_libc.c
-//  KiiThingSDK
-//
-//  Created by 熊野 聡 on 2014/10/20.
-//  Copyright (c) 2014年 Kii. All rights reserved.
-//
+/*
+  kii_libc.c
+  KiiThingSDK
+
+  Created by 熊野 聡 on 2014/10/20.
+  Copyright (c) 2014年 Kii. All rights reserved.
+*/
 
 #include "kii_libc.h"
 #include <stdlib.h>
@@ -32,9 +32,10 @@ char* kii_strdup(const char* s)
 
 int kii_sprintf(char* dest, const char* format, ...)
 {
+    int ret = 0;
     va_list list;
     va_start(list, format);
-    int ret = vsprintf(dest, format, list);
+    ret = vsprintf(dest, format, list);
     va_end(list);
     return ret;
 }

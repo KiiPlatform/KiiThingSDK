@@ -1,9 +1,9 @@
-//
-//  kii_cloud.c
-//  KiiThingSDK
-//
-//  Copyright (c) 2014 Kii. All rights reserved.
-//
+/*
+  kii_cloud.c
+  KiiThingSDK
+
+  Copyright (c) 2014 Kii. All rights reserved.
+*/
 
 #include "curl.h"
 #include "kii_cloud.h"
@@ -192,12 +192,13 @@ kii_error_code_t prv_execute_curl(CURL* curl,
                                   char** response_body,
                                   kii_error_t** error)
 {
+    char* respData = NULL;
+
     curl_easy_setopt(curl, CURLOPT_URL, url);
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
     
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callbackWrite);
-    char* respData = NULL;
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &respData);
     
     
@@ -213,6 +214,19 @@ kii_error_code_t kii_register_thing(kii_app_t app,
                                     kii_char_t** out_access_token)
 {
     prv_kii_app_t* pApp = (prv_kii_app_t*)app;
+    char reqUrl[1024]; /* TODO: calcurate length and alloc minimum length. */
+    struct curl_slist* headers = NULL;
+    char* appIdHdr = NULL;
+    char* appkeyHdr = NULL;
+    char* contentTypeHdr = NULL;
+    json_t* reqJson = NULL;
+    char* reqStr = NULL;
+    char* respData = NULL;
+    CURLcode curlRet;
+    long respCode = 0;
+    kii_error_t* err = NULL;
+    kii_error_code_t ret = KIIE_FAIL;
+
     M_KII_ASSERT(app != NULL);
     M_KII_ASSERT(kii_strlen(pApp->app_id)>0);
     M_KII_ASSERT(kii_strlen(pApp->app_key)>0);
@@ -222,22 +236,19 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     M_KII_ASSERT(thing_password != NULL);
 
     /* prepare URL */
-    char reqUrl[1024]; // TODO: calcurate length and alloc minimum length.
     kii_memset(reqUrl, '\0', sizeof(reqUrl));
     kii_sprintf(reqUrl, "%s/apps/%s/things", pApp->site_url, pApp->app_id);
     
     /* prepare headers */
-    struct curl_slist* headers = NULL;
-    char* appIdHdr = prv_new_header_string("x-kii-appid", pApp->app_id);
-    char* appkeyHdr = prv_new_header_string("x-kii-appkey", pApp->app_key);
-    char* contentTypeHdr = prv_new_header_string("content-type",
+    appIdHdr = prv_new_header_string("x-kii-appid", pApp->app_id);
+    appkeyHdr = prv_new_header_string("x-kii-appkey", pApp->app_key);
+    contentTypeHdr = prv_new_header_string("content-type",
                                                  "application/vnd.kii.ThingRegistrationAndAuthorizationRequest+json");
     headers = curl_slist_append(headers, appIdHdr);
     headers = curl_slist_append(headers, appkeyHdr);
     headers = curl_slist_append(headers, contentTypeHdr);
     
     /* prepare request data */
-    json_t* reqJson = NULL;
     if (user_data != NULL) {
         reqJson = json_deep_copy((kii_json_t*)user_data);
     } else {
@@ -251,10 +262,9 @@ kii_error_code_t kii_register_thing(kii_app_t app,
         json_object_set_new(reqJson, "_thingType",
                             json_string(opt_thing_type));
     }
-    char* reqStr = json_dumps(reqJson, 0);
+    reqStr = json_dumps(reqJson, 0);
     kii_json_decref(reqJson);
 
-    char* respData = NULL;
     curl_easy_setopt(pApp->curl_easy, CURLOPT_URL, reqUrl);
     curl_easy_setopt(pApp->curl_easy, CURLOPT_POSTFIELDS, reqStr);
     curl_easy_setopt(pApp->curl_easy, CURLOPT_HTTPHEADER, headers);
@@ -262,11 +272,10 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     curl_easy_setopt(pApp->curl_easy, CURLOPT_WRITEFUNCTION, callbackWrite);
     curl_easy_setopt(pApp->curl_easy, CURLOPT_WRITEDATA, &respData);
     
-    kii_error_t* err = kii_malloc(sizeof(kii_error_t));
-    err->error_code = NULL; // TODO: create private kii_error_t initializer.
-    kii_error_code_t ret = KIIE_FAIL;
+    err = kii_malloc(sizeof(kii_error_t));
+    err->error_code = NULL; /* TODO: create private kii_error_t initializer. */
 
-    CURLcode curlRet = curl_easy_perform(pApp->curl_easy);
+    curlRet = curl_easy_perform(pApp->curl_easy);
     if (curlRet != CURLE_OK) {
         err->status_code = 0;
         err->error_code = kii_strdup(KII_ECODE_CONNECTION);
@@ -275,13 +284,13 @@ kii_error_code_t kii_register_thing(kii_app_t app,
         goto ON_EXIT;
     }
 
-    // Check response code
-    long respCode = 0;
+    /* Check response code */
     curl_easy_getinfo(pApp->curl_easy, CURLINFO_RESPONSE_CODE, &respCode);
     if ((200 <= respCode) && (respCode < 300)) {
-        M_KII_LOG("response: %s", respData);
         json_error_t jErr;
-        json_t* respJson = json_loads(respData, 0, &jErr);
+        json_t* respJson = NULL;
+        M_KII_LOG("response: %s", respData);
+        respJson = json_loads(respData, 0, &jErr);
         if (respJson != NULL) {
             json_t* accessTokenJson = json_object_get(respJson, "_accessToken");
             if (out_access_token != NULL) {
@@ -299,11 +308,12 @@ kii_error_code_t kii_register_thing(kii_app_t app,
         ret = KIIE_OK;
         goto ON_EXIT;
     } else {
+        json_error_t jErr;
+        json_t* errJson = NULL;
         M_KII_LOG("response: %s", respData);
         err->status_code = (int)respCode;
         err->error_code = kii_strdup("");
-        json_error_t jErr;
-        json_t* errJson = json_loads(respData, 0, &jErr);
+        errJson = json_loads(respData, 0, &jErr);
         if (errJson != NULL) {
             json_t* eCode = json_object_get(errJson, "errorCode");
             if (eCode != NULL) {
@@ -330,7 +340,7 @@ ON_EXIT:
 kii_bucket_t kii_init_thing_bucket(const kii_char_t* vendor_thing_id,
                                    const kii_char_t* bucket_name)
 {
-    // TODO: implement it.
+    /* TODO: implement it. */
     return NULL;
 }
 
@@ -341,7 +351,7 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
                                        kii_char_t** out_object_id,
                                        kii_char_t** out_etag)
 {
-    // TODO: implement it.
+    /* TODO: implement it. */
     return KIIE_FAIL;
 }
 
@@ -352,7 +362,7 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
                                                const kii_json_t* contents,
                                                kii_char_t** out_etag)
 {
-    // TODO: implement it.
+    /* TODO: implement it. */
     return KIIE_FAIL;
 }
 
@@ -365,7 +375,7 @@ kii_error_code_t kii_patch_object(kii_app_t app,
                                   const kii_char_t* opt_etag,
                                   kii_char_t** out_etag)
 {
-    // TODO: implement it.
+    /* TODO: implement it. */
     return KIIE_FAIL;
 }
 
@@ -378,7 +388,7 @@ kii_error_code_t kii_replace_object(kii_app_t app,
                                     const kii_char_t* opt_etag,
                                     kii_char_t** out_etag)
 {
-    // TODO: implement it.
+    /* TODO: implement it. */
     return KIIE_FAIL;
 }
 
@@ -388,7 +398,7 @@ kii_error_code_t kii_get_object(kii_app_t app,
                                 const kii_char_t* object_id,
                                 const kii_json_t** out_contents)
 {
-    // TODO: implement it.
+    /* TODO: implement it. */
     return KIIE_FAIL;
 }
 
@@ -397,7 +407,7 @@ kii_error_code_t kii_delete_object(kii_app_t app,
                                    const kii_bucket_t bucket,
                                    const kii_char_t* object_id)
 {
-    // TODO: implement it.
+    /* TODO: implement it. */
     return KIIE_FAIL;
 }
 
@@ -405,7 +415,7 @@ kii_error_code_t kii_subscribe_bucket(kii_app_t app,
                                       const kii_char_t* access_token,
                                       const kii_bucket_t bucket)
 {
-    // TODO: implement it.
+    /* TODO: implement it. */
     return KIIE_FAIL;
 }
 
@@ -413,7 +423,7 @@ kii_error_code_t kii_unsubscribe_bucket(kii_app_t app,
                                         const kii_char_t* access_token,
                                         const kii_bucket_t bucket)
 {
-    // TODO: implement it.
+    /* TODO: implement it. */
     return KIIE_FAIL;
 }
 
@@ -422,14 +432,14 @@ kii_error_code_t kii_is_bucket_subscribed(kii_app_t app,
                                           const kii_bucket_t bucket,
                                           kii_bool_t* out_is_subscribed)
 {
-    // TODO: implement it.
+    /* TODO: implement it. */
     return KIIE_FAIL;
 }
 
 kii_topic_t kii_init_thing_topic(const kii_char_t* vendor_thing_id,
                                  const kii_char_t* topic_name)
 {
-    // TODO: implement it.
+    /* TODO: implement it. */
     return NULL;
 }
 
@@ -437,7 +447,7 @@ kii_error_code_t kii_subscribe_topic(kii_app_t app,
                                      const kii_char_t* access_token,
                                      const kii_topic_t topic)
 {
-    // TODO: implement it.
+    /* TODO: implement it. */
     return KIIE_FAIL;
 }
 
@@ -445,7 +455,7 @@ kii_error_code_t kii_unsubscribe_topic(kii_app_t app,
                                        const kii_char_t* access_token,
                                        const kii_topic_t topic)
 {
-    // TODO: implement it.
+    /* TODO: implement it. */
     return KIIE_FAIL;
 }
 
@@ -454,7 +464,7 @@ kii_error_code_t kii_is_topic_subscribed(kii_app_t app,
                                          const kii_topic_t topic,
                                          kii_bool_t* out_is_subscribed)
 {
-    // TODO: implement it.
+    /* TODO: implement it. */
     return KIIE_FAIL;
 }
 
@@ -462,7 +472,7 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
                                         const kii_char_t* access_token,
                                         kii_char_t** out_installation_id)
 {
-    // TODO: implement it.
+    /* TODO: implement it. */
     return KIIE_FAIL;
 }
 
@@ -472,6 +482,6 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
                                        kii_mqtt_endpoint_t** out_endpoint,
                                        kii_uint_t* out_retry_after_in_second)
 {
-    // TODO: implement it.
+    /* TODO: implement it. */
     return KIIE_FAIL;
 }

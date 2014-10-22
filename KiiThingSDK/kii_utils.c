@@ -1,9 +1,9 @@
-//
-//  kii_utils.c
-//  KiiThingSDK
-//
-//  Copyright (c) 2014 Kii. All rights reserved.
-//
+/*
+   kii_utils.c
+   KiiThingSDK
+
+   Copyright (c) 2014 Kii. All rights reserved.
+*/
 
 #include "kii_utils.h"
 
@@ -23,31 +23,32 @@ char* prv_build_url(const char* first, ...)
         return NULL;
     }
 
-    // calculate size.
+    /* calculate size. */
     {
+        const char* element = NULL;
         va_list list;
         va_start(list, first);
-        for (const char* element = first; element != NULL;
-                element = va_arg(list, char*)) {
-            // last "+ 1" means size of '/' or '\0'.
+        for (element = first; element != NULL; element = va_arg(list, char*)) {
+            /* last "+ 1" means size of '/' or '\0'. */
             size = size + prv_url_encoded_len(element) + 1;
         }
         va_end(list);
     }
 
-    // alloc size.
+    /* alloc size. */
     retval = kii_malloc(size);
     kii_memset(retval, 0, size);
 
-    // copy elements;.
+    /* copy elements. */
     {
+        const char* element = NULL;
         va_list list;
         va_start(list, first);
 
-        // copy first element.
+        /* copy first element. */
         prv_url_encoded_copy(retval, first);
 
-        for (const char* element = va_arg(list, char*); element != NULL;
+        for (element = va_arg(list, char*); element != NULL;
                 element = va_arg(list, char*)) {
             size_t len = kii_strlen(retval);
             retval[len] = '/';
@@ -64,7 +65,7 @@ static size_t prv_url_encoded_len(const char* element)
 {
     M_KII_ASSERT(element != NULL);
 
-    // TODO: calculate url encoded length.
+    /* TODO: calculate url encoded length. */
     return kii_strlen(element);
 }
 
@@ -73,6 +74,6 @@ static char* prv_url_encoded_copy(char* s1, const char* s2)
     M_KII_ASSERT(s1 != NULL);
     M_KII_ASSERT(s2 != NULL);
 
-    // TODO: copy url encoded s2 string to s1.
+    /* TODO: copy url encoded s2 string to s1. */
     return kii_strcpy(s1, s2);
 }

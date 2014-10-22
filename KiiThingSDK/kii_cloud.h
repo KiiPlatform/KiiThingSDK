@@ -1,9 +1,9 @@
-//
-//  kii_cloud.h
-//  KiiThingSDK
-//
-//  Copyright (c) 2014 Kii. All rights reserved.
-//
+/*
+  kii_cloud.h
+  KiiThingSDK
+
+  Copyright (c) 2014 Kii. All rights reserved.
+*/
 
 #ifndef KiiThingSDK_kii_cloud_h
 #define KiiThingSDK_kii_cloud_h
