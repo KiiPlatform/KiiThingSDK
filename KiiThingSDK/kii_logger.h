@@ -1,10 +1,10 @@
-//
-//  kii_logger.h
-//  KiiThingSDK
-//
-//  Created by 熊野 聡 on 2014/10/20.
-//  Copyright (c) 2014年 Kii. All rights reserved.
-//
+/*
+  kii_logger.h
+  KiiThingSDK
+
+  Created by 熊野 聡 on 2014/10/20.
+  Copyright (c) 2014年 Kii. All rights reserved.
+*/
 
 #ifndef __KiiThingSDK__kii_logger__
 #define __KiiThingSDK__kii_logger__
