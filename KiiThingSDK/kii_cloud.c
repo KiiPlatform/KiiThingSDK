@@ -204,6 +204,16 @@ static size_t callback_read(
     return (curl_off_t)actual_size;
 }
 
+size_t callback_header(
+        char *buffer,
+        size_t size,
+        size_t nitems,
+        void *userdata)
+{
+    /* TODO: implement me. */
+    return size * nitems;
+}
+
 char* prv_new_header_string(const char* key, const char* value)
 {
     size_t len = kii_strlen(key) + kii_strlen(":") + kii_strlen(value) +1;
@@ -220,8 +230,6 @@ typedef enum {
     DELETE
 } prv_kii_req_method_t;
 
-/** NOTE: Currently response header is not parsed and outputted. We should
-    parse response header and output as response_header. */
 kii_error_code_t prv_execute_curl(CURL* curl,
                                   const char* url,
                                   prv_kii_req_method_t method,
@@ -232,6 +240,7 @@ kii_error_code_t prv_execute_curl(CURL* curl,
                                   kii_error_t** error)
 {
     char* respData = NULL;
+    char* respHeaderData = NULL;
     prv_kii_http_put_data put_data; /* data container for HTTP PUT method. */
     CURLcode curlCode = CURLE_COULDNT_CONNECT; /* set error code as default. */
 
@@ -269,6 +278,8 @@ kii_error_code_t prv_execute_curl(CURL* curl,
 
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callbackWrite);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &respData);
+    curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, callback_header);
+    curl_easy_setopt(curl, CURLOPT_HEADERDATA, &respHeaderData);
 
     curlCode = curl_easy_perform(curl);
     if (curlCode != CURLE_OK) {
