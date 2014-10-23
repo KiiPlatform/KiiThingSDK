@@ -26,6 +26,7 @@ assert((exp));
 
 void* kii_malloc(size_t size);
 void* kii_memset(void* buf, int ch, size_t n);
+void* kii_memcpy(void* buf1, const void* buf2, size_t n);
 void kii_free(void* ptr);
 char* kii_strdup(const char* s);
 int kii_sprintf(char* str, const char* format, ...);

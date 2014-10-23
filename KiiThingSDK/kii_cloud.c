@@ -40,6 +40,12 @@ typedef struct prv_kii_topic_t {
     char* topic_name;
 } prv_kii_topic_t;
 
+typedef struct prv_kii_http_put_data {
+    const char* request_body;
+    size_t position;
+    size_t length;
+} prv_kii_http_put_data;
+
 kii_app_t kii_init_app(const char* app_id,
                        const char* app_key,
                        const char* site_url)
@@ -179,6 +185,35 @@ static size_t callbackWrite(char* ptr,
     return dataLen;
 }
 
+static size_t callback_read(
+        char *buffer,
+        size_t size,
+        size_t nitems,
+        void *instream)
+{
+    prv_kii_http_put_data* put_data = (prv_kii_http_put_data*)instream;
+    size_t rest_size = put_data->length - put_data->position;
+    size_t max_size = size * nitems;
+    size_t actual_size = rest_size < max_size ? rest_size : max_size;
+    if (actual_size <= 0) {
+        return (curl_off_t)0;
+    }
+    kii_memcpy(buffer, &put_data->request_body[put_data->position],
+            actual_size);
+    put_data->position += actual_size;
+    return (curl_off_t)actual_size;
+}
+
+size_t callback_header(
+        char *buffer,
+        size_t size,
+        size_t nitems,
+        void *userdata)
+{
+    /* TODO: implement me. */
+    return size * nitems;
+}
+
 char* prv_new_header_string(const char* key, const char* value)
 {
     size_t len = kii_strlen(key) + kii_strlen(":") + kii_strlen(value) +1;
@@ -199,30 +234,39 @@ kii_error_code_t prv_execute_curl(CURL* curl,
                                   const char* url,
                                   prv_kii_req_method_t method,
                                   const char* request_body,
-                                  const struct curl_slist* headers,
+                                  const struct curl_slist* request_headers,
                                   char** response_body,
+                                  json_t** response_headers,
                                   kii_error_t** error)
 {
     char* respData = NULL;
+    char* respHeaderData = NULL;
+    prv_kii_http_put_data put_data; /* data container for HTTP PUT method. */
     CURLcode curlCode = CURLE_COULDNT_CONNECT; /* set error code as default. */
 
     M_KII_ASSERT(curl != NULL);
     M_KII_ASSERT(url != NULL);
-    M_KII_ASSERT(headers != NULL);
+    M_KII_ASSERT(request_headers != NULL);
     M_KII_ASSERT(response_body != NULL);
     M_KII_ASSERT(error != NULL);
 
     curl_easy_setopt(curl, CURLOPT_URL, url);
-    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, request_headers);
 
     switch (method) {
         case POST:
             curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
-            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callbackWrite);
-            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &respData);
             break;
         case PUT:
-            /* TODO: implement me. */
+            curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
+            curl_easy_setopt(curl, CURLOPT_PUT, 1L);
+            curl_easy_setopt(curl, CURLOPT_READFUNCTION, callback_read);
+            put_data.request_body = request_body;
+            put_data.position = 0;
+            put_data.length = kii_strlen(request_body);
+            curl_easy_setopt(curl, CURLOPT_READDATA, (void*)&put_data);
+            curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE,
+                    (curl_off_t)put_data.length);
             break;
         case PATCH:
             /* TODO: implement me. */
@@ -231,6 +275,11 @@ kii_error_code_t prv_execute_curl(CURL* curl,
             /* TODO: implement me. */
             break;
     }
+
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callbackWrite);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &respData);
+    curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, callback_header);
+    curl_easy_setopt(curl, CURLOPT_HEADERDATA, &respHeaderData);
 
     curlCode = curl_easy_perform(curl);
     if (curlCode != CURLE_OK) {
