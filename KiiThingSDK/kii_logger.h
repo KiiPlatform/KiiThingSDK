@@ -16,13 +16,15 @@ extern "C" {
 #endif
 
 #ifdef DEBUG
-#define M_KII_LOG(f_, ...) printf((f_), __VA_ARGS__)
+#define M_KII_DEBUG(f) f
 #else
-#define M_KII_LOG(f_, ...)
+#define M_KII_DEBUG(f)
 #endif
 
 #ifdef __cplusplus
 }
 #endif
+
+int prv_log(const char* format, ...);
 
 #endif /* defined(__KiiThingSDK__kii_logger__) */

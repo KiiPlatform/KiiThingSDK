@@ -62,6 +62,7 @@
 		B613F69319F50D6100AC5548 /* kii_utils.c in Sources */ = {isa = PBXBuildFile; fileRef = B613F69119F50D6100AC5548 /* kii_utils.c */; };
 		B613F69419F50D7600AC5548 /* kii_utils.c in Sources */ = {isa = PBXBuildFile; fileRef = B613F69119F50D6100AC5548 /* kii_utils.c */; };
 		B69FA67119F6415700DC1872 /* URLBuilderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B69FA67019F6415700DC1872 /* URLBuilderTest.m */; };
+		B69FA67319F8A83300DC1872 /* kii_logger.c in Sources */ = {isa = PBXBuildFile; fileRef = B69FA67219F8A83300DC1872 /* kii_logger.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -143,6 +144,7 @@
 		B613F69119F50D6100AC5548 /* kii_utils.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kii_utils.c; sourceTree = "<group>"; };
 		B613F69219F50D6100AC5548 /* kii_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kii_utils.h; sourceTree = "<group>"; };
 		B69FA67019F6415700DC1872 /* URLBuilderTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = URLBuilderTest.m; sourceTree = "<group>"; };
+		B69FA67219F8A83300DC1872 /* kii_logger.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kii_logger.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -203,6 +205,7 @@
 				7485E61A19E5360000BCA19C /* kii_cloud.c */,
 				B613F69119F50D6100AC5548 /* kii_utils.c */,
 				B613F69219F50D6100AC5548 /* kii_utils.h */,
+				B69FA67219F8A83300DC1872 /* kii_logger.c */,
 			);
 			path = KiiThingSDK;
 			sourceTree = "<group>";
@@ -382,6 +385,7 @@
 				B613F69319F50D6100AC5548 /* kii_utils.c in Sources */,
 				7416A5AC19E3C42A007DCC45 /* error.c in Sources */,
 				747F3D5819F4D3A800C1372A /* kii_libc.c in Sources */,
+				B69FA67319F8A83300DC1872 /* kii_logger.c in Sources */,
 				7416A5B019E3C42A007DCC45 /* hashtable_seed.c in Sources */,
 				7416A5AA19E3C42A007DCC45 /* dump.c in Sources */,
 				7416A5BE19E3C42A007DCC45 /* value.c in Sources */,
