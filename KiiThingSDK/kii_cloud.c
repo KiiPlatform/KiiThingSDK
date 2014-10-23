@@ -9,6 +9,7 @@
 #include "kii_cloud.h"
 #include "kii_logger.h"
 #include "kii_libc.h"
+#include "kii_utils.h"
 
 kii_error_code_t kii_global_init(void)
 {
@@ -89,6 +90,16 @@ void prv_kii_set_error(prv_kii_app_t* app, kii_error_t* new_error)
 {
     M_KII_FREE_NULLIFY(app->last_error);
     app->last_error = new_error;
+}
+
+static kii_error_t* prv_construct_kii_error(
+        int status_code,
+        const char* error_code)
+{
+    kii_error_t* retval = kii_malloc(sizeof(kii_error_t));
+    retval->status_code = status_code;
+    retval->error_code = kii_strdup(error_code == NULL ? "" : error_code);
+    return retval;
 }
 
 void prv_kii_dispose_kii_error(kii_error_t* error)
@@ -193,16 +204,63 @@ kii_error_code_t prv_execute_curl(CURL* curl,
                                   kii_error_t** error)
 {
     char* respData = NULL;
+    CURLcode curlCode = CURLE_COULDNT_CONNECT; /* set error code as default. */
+
+    M_KII_ASSERT(curl != NULL);
+    M_KII_ASSERT(url != NULL);
+    M_KII_ASSERT(headers != NULL);
+    M_KII_ASSERT(response_body != NULL);
+    M_KII_ASSERT(error != NULL);
 
     curl_easy_setopt(curl, CURLOPT_URL, url);
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-    
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callbackWrite);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &respData);
-    
-    
-    return KIIE_FAIL;
+
+    switch (method) {
+        case POST:
+            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callbackWrite);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &respData);
+            break;
+        case PUT:
+            /* TODO: implement me. */
+            break;
+        case PATCH:
+            /* TODO: implement me. */
+            break;
+        case DELETE:
+            /* TODO: implement me. */
+            break;
+    }
+
+    curlCode = curl_easy_perform(curl);
+    if (curlCode != CURLE_OK) {
+        *error = prv_construct_kii_error(0, KII_ECODE_CONNECTION);
+        return KIIE_FAIL;
+    } else {
+        long respCode = 0;
+        M_KII_DEBUG(prv_log("response: %s", respData));
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &respCode);
+        if ((200 <= respCode) && (respCode < 300)) {
+            *response_body = respData;
+            return KIIE_OK;
+        } else {
+            char* error_code = NULL;
+            json_error_t jErr;
+            json_t* errJson = json_loads(respData, 0, &jErr);
+            if (errJson != NULL) {
+                json_t* eCode = json_object_get(errJson, "errorCode");
+                if (eCode != NULL) {
+                    error_code = json_dumps(eCode, JSON_ENCODE_ANY);
+                }
+                json_decref(errJson);
+            }
+            *error = prv_construct_kii_error((int)respCode, error_code);
+            if (error_code != NULL) {
+                M_KII_FREE_NULLIFY(error_code);
+            }
+            return KIIE_FAIL;
+        }
+    }
 }
 
 
