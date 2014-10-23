@@ -289,7 +289,7 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     if ((200 <= respCode) && (respCode < 300)) {
         json_error_t jErr;
         json_t* respJson = NULL;
-        M_KII_LOG("response: %s", respData);
+        M_KII_DEBUG(prv_log("response: %s", respData));
         respJson = json_loads(respData, 0, &jErr);
         if (respJson != NULL) {
             json_t* accessTokenJson = json_object_get(respJson, "_accessToken");
@@ -310,7 +310,7 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     } else {
         json_error_t jErr;
         json_t* errJson = NULL;
-        M_KII_LOG("response: %s", respData);
+        M_KII_DEBUG(prv_log("response: %s", respData));
         err->status_code = (int)respCode;
         err->error_code = kii_strdup("");
         errJson = json_loads(respData, 0, &jErr);
