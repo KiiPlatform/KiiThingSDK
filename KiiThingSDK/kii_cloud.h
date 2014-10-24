@@ -442,6 +442,8 @@ kii_error_code_t kii_is_topic_subscribed(kii_app_t app,
  * and returns when done, or if it failed.
  * @param [in] app kii application uses this thing.
  * @param [in] access_token specify access token of authur.
+ * @param [in] development indicate whether this installation is development
+ * or production.
  * @param [out] out_installation_id id of installation.
  * used for getting MQTT endpoint by kii_get_MQTT_endpoint().
  * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
@@ -449,6 +451,7 @@ kii_error_code_t kii_is_topic_subscribed(kii_app_t app,
  */
 kii_error_code_t kii_install_thing_push(kii_app_t app,
                                         const kii_char_t* access_token,
+                                        kii_bool_t development,
                                         kii_char_t** out_installation_id);
 
 

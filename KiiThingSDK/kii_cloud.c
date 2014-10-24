@@ -577,10 +577,106 @@ kii_error_code_t kii_is_topic_subscribed(kii_app_t app,
 
 kii_error_code_t kii_install_thing_push(kii_app_t app,
                                         const kii_char_t* access_token,
+                                        kii_bool_t development,
                                         kii_char_t** out_installation_id)
 {
-    /* TODO: implement it. */
-    return KIIE_FAIL;
+    kii_char_t* url = NULL;
+    prv_kii_app_t* pApp = (prv_kii_app_t*)app;
+    json_t* reqBodyJson = NULL;
+    kii_char_t* reqBodyStr = NULL;
+    struct curl_slist* reqHeaders = NULL;
+    kii_char_t* respBodyStr = NULL;
+    json_t* respBodyJson = NULL;
+    kii_error_t* error = NULL;
+    kii_char_t* appIdHdr = NULL;
+    kii_char_t* appkeyHdr = NULL;
+    kii_char_t* contentTypeHdr = NULL;
+    kii_char_t* authHdr = NULL;
+    kii_char_t* bearerStr = NULL;
+    size_t bearerStrLen = kii_strlen("bearer ") + kii_strlen(access_token);
+    kii_error_code_t exeCurlRet = KIIE_FAIL;
+    kii_error_code_t ret = KIIE_FAIL;
+    json_error_t jErr;
+    
+
+    M_KII_ASSERT(app != NULL);
+    M_KII_ASSERT(access_token != NULL);
+
+    /* Prepare URL */
+    url = prv_build_url(pApp->site_url,
+                        "apps",
+                        pApp->app_id,
+                        "installations",
+                        NULL);
+    
+    /* Prepare body */
+    reqBodyJson = json_object();
+    json_object_set_new(reqBodyJson, "deviceType", json_string("MQTT"));
+    json_object_set_new(reqBodyJson, "development", json_boolean(development));
+    reqBodyStr = json_dumps(reqBodyJson, 0);
+    kii_json_decref(reqBodyJson);
+
+    /* Prepare headers*/
+    appIdHdr = prv_new_header_string("x-kii-appid", pApp->app_id);
+    appkeyHdr = prv_new_header_string("x-kii-appkey", pApp->app_key);
+    contentTypeHdr = prv_new_header_string("content-type",
+                                           "application/vnd.kii.InstallationCreationRequest+json");
+    /* TODO: make utility of auth header. */
+    bearerStr =
+        kii_malloc(bearerStrLen + 1);
+    kii_memset(bearerStr, '\0', bearerStrLen + 1);
+    kii_sprintf(bearerStr, "bearer %s", access_token);
+    authHdr = prv_new_header_string("authorization", bearerStr);
+    
+    reqHeaders = curl_slist_append(reqHeaders, appIdHdr);
+    reqHeaders = curl_slist_append(reqHeaders, appkeyHdr);
+    reqHeaders = curl_slist_append(reqHeaders, contentTypeHdr);
+    reqHeaders = curl_slist_append(reqHeaders, authHdr);
+
+    exeCurlRet = prv_execute_curl(pApp->curl_easy,
+                                  url,
+                                  POST,
+                                  reqBodyStr,
+                                  reqHeaders,
+                                  &respBodyStr,
+                                  NULL,
+                                  &error);
+    if (exeCurlRet != KIIE_OK) {
+        prv_kii_set_error(app, error);
+        ret = KIIE_FAIL;
+        goto ON_EXIT;
+    }
+
+    /* Parse body */
+    respBodyJson = json_loads(respBodyStr, 0, &jErr);
+    if (respBodyJson != NULL) {
+        json_t* installIDJson = NULL;
+        installIDJson = json_object_get(respBodyJson, "installationID");
+        if (installIDJson != NULL) {
+            *out_installation_id = json_dumps(installIDJson, JSON_ENCODE_ANY);
+            kii_json_decref(installIDJson);
+            ret = KIIE_OK;
+            goto ON_EXIT;
+        }
+    }
+    if (*out_installation_id == NULL) { /* parse error */
+        error = prv_construct_kii_error(0, KII_ECODE_PARSE);
+        prv_kii_set_error(app, error);
+        ret = KIIE_FAIL;
+        goto ON_EXIT;
+    }
+
+ON_EXIT:
+    M_KII_FREE_NULLIFY(url);
+    M_KII_FREE_NULLIFY(reqBodyStr);
+    M_KII_FREE_NULLIFY(respBodyStr);
+    M_KII_FREE_NULLIFY(appIdHdr);
+    M_KII_FREE_NULLIFY(appkeyHdr);
+    M_KII_FREE_NULLIFY(bearerStr);
+    M_KII_FREE_NULLIFY(authHdr);
+    curl_slist_free_all(reqHeaders);
+
+    return ret;
 }
 
 kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
@@ -589,6 +685,7 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
                                        kii_mqtt_endpoint_t** out_endpoint,
                                        kii_uint_t* out_retry_after_in_second)
 {
+
     /* TODO: implement it. */
     return KIIE_FAIL;
 }
