@@ -251,26 +251,29 @@ kii_error_code_t prv_execute_curl(CURL* curl,
 
     switch (method) {
         case POST:
-            M_KII_ASSERT(request_body != NULL);
-            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
+            if (request_body != NULL) {
+                curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
+            }
             break;
         case PUT:
-            M_KII_ASSERT(request_body != NULL);
-            curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
             curl_easy_setopt(curl, CURLOPT_PUT, 1L);
-            curl_easy_setopt(curl, CURLOPT_READFUNCTION, callback_read);
-            put_data.request_body = request_body;
-            put_data.position = 0;
-            put_data.length = kii_strlen(request_body);
-            curl_easy_setopt(curl, CURLOPT_READDATA, (void*)&put_data);
-            curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE,
-                    (curl_off_t)put_data.length);
+            if (request_body != NULL) {
+                put_data.request_body = request_body;
+                put_data.position = 0;
+                put_data.length = kii_strlen(request_body);
+                curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
+                curl_easy_setopt(curl, CURLOPT_READFUNCTION, callback_read);
+                curl_easy_setopt(curl, CURLOPT_READDATA, (void*)&put_data);
+                curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE,
+                        (curl_off_t)put_data.length);
+            }
             break;
         case PATCH:
-            M_KII_ASSERT(request_body != NULL);
             request_headers = curl_slist_append(request_headers,
                     "X-HTTP-METHOD-OVERRIDE: PATCH");
-            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
+            if (request_body != NULL) {
+                curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
+            }
             break;
         case DELETE:
             M_KII_ASSERT(request_body == NULL);
