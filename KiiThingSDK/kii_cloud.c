@@ -223,6 +223,16 @@ char* prv_new_header_string(const char* key, const char* value)
     return val;
 }
 
+char* prv_new_auth_header_string(const char* access_token)
+{
+    size_t len = kii_strlen("authorization: bearer ")
+        + kii_strlen(access_token);
+    char* ret = malloc(len);
+    kii_memset(ret, '\0', len);
+    kii_sprintf(ret, "authorization: bearer %s", access_token);
+    return ret;
+}
+
 typedef enum {
     POST,
     PUT,
@@ -592,8 +602,6 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
     kii_char_t* appkeyHdr = NULL;
     kii_char_t* contentTypeHdr = NULL;
     kii_char_t* authHdr = NULL;
-    kii_char_t* bearerStr = NULL;
-    size_t bearerStrLen = kii_strlen("bearer ") + kii_strlen(access_token);
     kii_error_code_t exeCurlRet = KIIE_FAIL;
     kii_error_code_t ret = KIIE_FAIL;
     json_error_t jErr;
@@ -621,12 +629,7 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
     appkeyHdr = prv_new_header_string("x-kii-appkey", pApp->app_key);
     contentTypeHdr = prv_new_header_string("content-type",
                                            "application/vnd.kii.InstallationCreationRequest+json");
-    /* TODO: make utility of auth header. */
-    bearerStr =
-        kii_malloc(bearerStrLen + 1);
-    kii_memset(bearerStr, '\0', bearerStrLen + 1);
-    kii_sprintf(bearerStr, "bearer %s", access_token);
-    authHdr = prv_new_header_string("authorization", bearerStr);
+    authHdr = prv_new_auth_header_string(access_token);
     
     reqHeaders = curl_slist_append(reqHeaders, appIdHdr);
     reqHeaders = curl_slist_append(reqHeaders, appkeyHdr);
@@ -672,7 +675,6 @@ ON_EXIT:
     M_KII_FREE_NULLIFY(respBodyStr);
     M_KII_FREE_NULLIFY(appIdHdr);
     M_KII_FREE_NULLIFY(appkeyHdr);
-    M_KII_FREE_NULLIFY(bearerStr);
     M_KII_FREE_NULLIFY(authHdr);
     curl_slist_free_all(reqHeaders);
 
