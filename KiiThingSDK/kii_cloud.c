@@ -603,7 +603,11 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
     M_KII_ASSERT(access_token != NULL);
 
     /* Prepare URL */
-    url = prv_build_url(pApp->site_url, "apps", pApp->app_id, "installations");
+    url = prv_build_url(pApp->site_url,
+                        "apps",
+                        pApp->app_id,
+                        "installations",
+                        NULL);
     
     /* Prepare body */
     reqBodyJson = json_object();

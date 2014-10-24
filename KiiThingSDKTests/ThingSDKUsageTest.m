@@ -124,6 +124,7 @@
 
     kii_error_code_t r = kii_install_thing_push(app,
                                                 accessToken,
+                                                KII_TRUE,
                                                 &installationId);
     if (r != KIIE_OK) {
         kii_error_t* e = kii_get_last_error(app);
