@@ -251,9 +251,11 @@ kii_error_code_t prv_execute_curl(CURL* curl,
 
     switch (method) {
         case POST:
+            M_KII_ASSERT(request_body != NULL);
             curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
             break;
         case PUT:
+            M_KII_ASSERT(request_body != NULL);
             curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
             curl_easy_setopt(curl, CURLOPT_PUT, 1L);
             curl_easy_setopt(curl, CURLOPT_READFUNCTION, callback_read);
@@ -265,15 +267,14 @@ kii_error_code_t prv_execute_curl(CURL* curl,
                     (curl_off_t)put_data.length);
             break;
         case PATCH:
+            M_KII_ASSERT(request_body != NULL);
             request_headers = curl_slist_append(request_headers,
                     "X-HTTP-METHOD-OVERRIDE: PATCH");
             curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
             break;
         case DELETE:
+            M_KII_ASSERT(request_body == NULL);
             curl_easy_setopt(curl,CURLOPT_CUSTOMREQUEST,"DELETE");
-            if (request_body != NULL) {
-                curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
-            }
             break;
     }
 
