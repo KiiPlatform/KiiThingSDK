@@ -247,7 +247,6 @@ kii_error_code_t prv_execute_curl(CURL* curl,
     M_KII_ASSERT(curl != NULL);
     M_KII_ASSERT(url != NULL);
     M_KII_ASSERT(request_headers != NULL);
-    M_KII_ASSERT(response_body != NULL);
     M_KII_ASSERT(error != NULL);
 
     curl_easy_setopt(curl, CURLOPT_URL, url);
@@ -272,7 +271,10 @@ kii_error_code_t prv_execute_curl(CURL* curl,
             /* TODO: implement me. */
             break;
         case DELETE:
-            /* TODO: implement me. */
+            curl_easy_setopt(curl,CURLOPT_CUSTOMREQUEST,"DELETE");
+            if (request_body != NULL) {
+                curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
+            }
             break;
     }
 
