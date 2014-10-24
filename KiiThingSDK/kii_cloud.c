@@ -237,7 +237,8 @@ typedef enum {
     POST,
     PUT,
     PATCH,
-    DELETE
+    DELETE,
+    GET
 } prv_kii_req_method_t;
 
 kii_error_code_t prv_execute_curl(CURL* curl,
@@ -284,6 +285,15 @@ kii_error_code_t prv_execute_curl(CURL* curl,
         case DELETE:
             /* TODO: implement me. */
             break;
+        case GET:
+            curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);
+            if (request_body != NULL) {
+                curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
+            }
+            break;
+        default:
+            M_KII_ASSERT(0); /* programing error */
+            return KIIE_FAIL;
     }
 
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callbackWrite);
