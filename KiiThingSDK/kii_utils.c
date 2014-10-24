@@ -77,19 +77,3 @@ static char* prv_url_encoded_copy(char* s1, const char* s2)
     /* TODO: copy url encoded s2 string to s1. */
     return kii_strcpy(s1, s2);
 }
-
-char* prv_strdup_upper(const char* s)
-{
-    if (s == NULL) {
-        return NULL;
-    } else {
-        size_t size = kii_strlen(s) + 1;
-        char* retval = kii_malloc(size);
-        int i = 0;
-        kii_memset(retval, '\0', size);
-        for (i = 0; i < size; ++i) {
-            retval[i] = (char)kii_toupper(s[i]);
-        }
-        return retval;
-    }
-}
