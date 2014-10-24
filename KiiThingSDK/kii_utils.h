@@ -18,6 +18,9 @@ extern "C" {
 /* Returned value of this method must be freed by caller of this method. */
 char* prv_build_url(const char* first, ...);
 
+/* Returned value of this method must be freed by caller of this method. */
+char* prv_strdup_upper(const char* s);
+
 #ifdef __cplusplus
 }
 #endif

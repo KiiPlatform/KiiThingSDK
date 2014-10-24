@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <ctype.h>
 
 void* kii_malloc(size_t size)
 {
@@ -57,5 +58,20 @@ size_t kii_strlen(const char* str)
 
 char* kii_strcpy(char* s1, const char* s2)
 {
-  return strcpy(s1, s2);
+    return strcpy(s1, s2);
+}
+
+int kii_strcmp(const char* s1, const char* s2)
+{
+    return strcmp(s1, s2);
+}
+
+int kii_strncmp(const char* s1, const char* s2, size_t n)
+{
+    return strncmp(s1, s2, n);
+}
+
+int kii_toupper(int c)
+{
+    return toupper(c);
 }

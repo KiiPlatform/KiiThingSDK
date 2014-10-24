@@ -108,6 +108,45 @@ static kii_error_t* prv_construct_kii_error(
     return retval;
 }
 
+static struct curl_slist* prv_copy_curl_slist(const struct curl_slist* list)
+{
+    struct curl_slist* retval = NULL;
+    while (list != NULL) {
+        retval = curl_slist_append(retval, list->data);
+        list = list->next;
+    }
+    return retval;
+}
+
+static int prv_contains_patch(const struct curl_slist* headers)
+{
+    const char OVERRIDE_FIELD_NAME[] = "X-HTTP-METHOD-OVERRIDE";
+    const size_t OVERRIDE_FIELD_NAME_LEN = kii_strlen(OVERRIDE_FIELD_NAME);
+
+    while (headers != NULL) {
+        char* header = prv_strdup_upper(headers->data);
+        /* check header field name. */
+        if (kii_strncmp(OVERRIDE_FIELD_NAME, header,
+                OVERRIDE_FIELD_NAME_LEN) == 0) {
+            if (header[OVERRIDE_FIELD_NAME_LEN] == ':') {
+                size_t i = OVERRIDE_FIELD_NAME_LEN + 1;
+                /* skip spaces. */
+                while (header[i] == ' ') {
+                    ++i;
+                }
+                /* check header field value. */
+                if (kii_strcmp("PATCH", &header[i]) == 0) {
+                    M_KII_FREE_NULLIFY(header);
+                    return 1;
+                }
+            }
+        }
+        M_KII_FREE_NULLIFY(header);
+        headers = headers->next;
+    }
+    return 0;
+}
+
 void prv_kii_dispose_kii_error(kii_error_t* error)
 {
     if (error != NULL) {
@@ -243,14 +282,14 @@ kii_error_code_t prv_execute_curl(CURL* curl,
     char* respHeaderData = NULL;
     prv_kii_http_put_data put_data; /* data container for HTTP PUT method. */
     CURLcode curlCode = CURLE_COULDNT_CONNECT; /* set error code as default. */
+    struct curl_slist* copied_request_headers =
+        prv_copy_curl_slist(request_headers);
+    kii_error_code_t retval = KIIE_FAIL;
 
     M_KII_ASSERT(curl != NULL);
     M_KII_ASSERT(url != NULL);
-    M_KII_ASSERT(request_headers != NULL);
+    M_KII_ASSERT(copied_request_headers != NULL);
     M_KII_ASSERT(error != NULL);
-
-    curl_easy_setopt(curl, CURLOPT_URL, url);
-    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, request_headers);
 
     switch (method) {
         case POST:
@@ -268,7 +307,12 @@ kii_error_code_t prv_execute_curl(CURL* curl,
                     (curl_off_t)put_data.length);
             break;
         case PATCH:
-            /* TODO: implement me. */
+            if (prv_contains_patch(copied_request_headers) == 0) {
+                copied_request_headers = curl_slist_append(
+                        copied_request_headers,
+                        "X-HTTP-METHOD-OVERRIDE: PATCH");
+            }
+            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
             break;
         case DELETE:
             curl_easy_setopt(curl,CURLOPT_CUSTOMREQUEST,"DELETE");
@@ -278,6 +322,8 @@ kii_error_code_t prv_execute_curl(CURL* curl,
             break;
     }
 
+    curl_easy_setopt(curl, CURLOPT_URL, url);
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, copied_request_headers);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callbackWrite);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &respData);
     curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, callback_header);
@@ -286,14 +332,16 @@ kii_error_code_t prv_execute_curl(CURL* curl,
     curlCode = curl_easy_perform(curl);
     if (curlCode != CURLE_OK) {
         *error = prv_construct_kii_error(0, KII_ECODE_CONNECTION);
-        return KIIE_FAIL;
+        retval = KIIE_FAIL;
+        goto ON_EXIT;
     } else {
         long respCode = 0;
         M_KII_DEBUG(prv_log("response: %s", respData));
         curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &respCode);
         if ((200 <= respCode) && (respCode < 300)) {
             *response_body = respData;
-            return KIIE_OK;
+            retval = KIIE_OK;
+            goto ON_EXIT;
         } else {
             char* error_code = NULL;
             json_error_t jErr;
@@ -309,9 +357,14 @@ kii_error_code_t prv_execute_curl(CURL* curl,
             if (error_code != NULL) {
                 M_KII_FREE_NULLIFY(error_code);
             }
-            return KIIE_FAIL;
+            retval = KIIE_FAIL;
+            goto ON_EXIT;
         }
     }
+
+ON_EXIT:
+    curl_slist_free_all(copied_request_headers);
+    return retval;
 }
 
 
