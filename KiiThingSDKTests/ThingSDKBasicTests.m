@@ -71,8 +71,30 @@ static const char* BASEURL = "api-development-jp.internal.kii.com/api";
         NSLog(@"code: %s", err->error_code);
         NSLog(@"resp code: %d", err->status_code);
     }
-    kii_dispose_app(app);
+    
+    kii_mqtt_endpoint_t* endpoint = NULL;
+    kii_uint_t retryAfter = 0;
+    ret = kii_get_mqtt_endpoint(app,
+                                ACCESS_TOKEN,
+                                installId,
+                                &endpoint,
+                                &retryAfter);
+    if (ret != KIIE_OK) {
+        kii_error_t* err = kii_get_last_error(app);
+        NSLog(@"code: %s", err->error_code);
+        NSLog(@"resp code: %d", err->status_code);
+    }
+
+    XCTAssertEqual(ret, KIIE_OK, "register failed");
+    XCTAssert(strlen(endpoint->username) > 0);
+    XCTAssert(strlen(endpoint->password) > 0);
+    XCTAssert(strlen(endpoint->host) > 0);
+    XCTAssert(strlen(endpoint->topic) > 0);
+    XCTAssert(endpoint->ttl > 0);
+
     kii_dispose_kii_char(installId);
+    kii_dispose_mqtt_endpoint(endpoint);
+    kii_dispose_app(app);
 }
 
 @end

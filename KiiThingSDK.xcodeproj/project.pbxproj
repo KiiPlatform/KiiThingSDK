@@ -554,6 +554,10 @@
 					"$(PROJECT_DIR)/KiiThingSDK/curl",
 					"$(PROJECT_DIR)/library",
 				);
+				OTHER_CFLAGS = (
+					"-pedantic",
+					"-Wno-gnu",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/KiiThingSDK/jannson";
 			};
@@ -573,6 +577,10 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/KiiThingSDK/curl",
 					"$(PROJECT_DIR)/library",
+				);
+				OTHER_CFLAGS = (
+					"-pedantic",
+					"-Wno-gnu",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/KiiThingSDK/jannson";
