@@ -368,7 +368,8 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     M_KII_ASSERT(thing_password != NULL);
 
     /* prepare URL */
-    reqUrl = prv_build_url(pApp->site_url, "apps", pApp->app_id, "things");
+    reqUrl = prv_build_url(pApp->site_url, "apps", pApp->app_id, "things",
+            NULL);
     
     /* prepare headers */
     appIdHdr = prv_new_header_string("x-kii-appid", pApp->app_id);
