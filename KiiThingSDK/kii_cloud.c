@@ -347,7 +347,7 @@ kii_error_code_t kii_register_thing(kii_app_t app,
                                     kii_char_t** out_access_token)
 {
     prv_kii_app_t* pApp = (prv_kii_app_t*)app;
-    char reqUrl[1024]; /* TODO: calcurate length and alloc minimum length. */
+    kii_char_t *reqUrl;
     struct curl_slist* headers = NULL;
     char* appIdHdr = NULL;
     char* appkeyHdr = NULL;
@@ -355,9 +355,8 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     json_t* reqJson = NULL;
     char* reqStr = NULL;
     char* respData = NULL;
-    CURLcode curlRet;
-    long respCode = 0;
     kii_error_t* err = NULL;
+    kii_error_code_t exeCurlRet = KIIE_FAIL;
     kii_error_code_t ret = KIIE_FAIL;
 
     M_KII_ASSERT(app != NULL);
@@ -369,8 +368,7 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     M_KII_ASSERT(thing_password != NULL);
 
     /* prepare URL */
-    kii_memset(reqUrl, '\0', sizeof(reqUrl));
-    kii_sprintf(reqUrl, "%s/apps/%s/things", pApp->site_url, pApp->app_id);
+    reqUrl = prv_build_url(pApp->site_url, "apps", pApp->app_id, "things");
     
     /* prepare headers */
     appIdHdr = prv_new_header_string("x-kii-appid", pApp->app_id);
@@ -398,28 +396,16 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     reqStr = json_dumps(reqJson, 0);
     kii_json_decref(reqJson);
 
-    curl_easy_setopt(pApp->curl_easy, CURLOPT_URL, reqUrl);
-    curl_easy_setopt(pApp->curl_easy, CURLOPT_POSTFIELDS, reqStr);
-    curl_easy_setopt(pApp->curl_easy, CURLOPT_HTTPHEADER, headers);
-
-    curl_easy_setopt(pApp->curl_easy, CURLOPT_WRITEFUNCTION, callbackWrite);
-    curl_easy_setopt(pApp->curl_easy, CURLOPT_WRITEDATA, &respData);
-    
-    err = kii_malloc(sizeof(kii_error_t));
-    err->error_code = NULL; /* TODO: create private kii_error_t initializer. */
-
-    curlRet = curl_easy_perform(pApp->curl_easy);
-    if (curlRet != CURLE_OK) {
-        err->status_code = 0;
-        err->error_code = kii_strdup(KII_ECODE_CONNECTION);
+    exeCurlRet = prv_execute_curl(pApp->curl_easy, reqUrl, POST,
+            reqStr, headers, &respData, NULL, &err);
+    if (exeCurlRet != KIIE_OK) {
         prv_kii_set_error(pApp, err);
         ret = KIIE_FAIL;
         goto ON_EXIT;
     }
 
     /* Check response code */
-    curl_easy_getinfo(pApp->curl_easy, CURLINFO_RESPONSE_CODE, &respCode);
-    if ((200 <= respCode) && (respCode < 300)) {
+    {
         json_error_t jErr;
         json_t* respJson = NULL;
         M_KII_DEBUG(prv_log("response: %s", respData));
@@ -430,8 +416,11 @@ kii_error_code_t kii_register_thing(kii_app_t app,
                 char* temp = json_dumps(accessTokenJson, JSON_ENCODE_ANY);
                 *out_access_token = temp;
             } else {
-                err->status_code = (int)respCode;
-                err->error_code = kii_strdup(KII_ECODE_PARSE);
+                long respCode = 0;
+                curl_easy_getinfo(pApp->curl_easy, CURLINFO_RESPONSE_CODE,
+                        &respCode);
+                err = prv_construct_kii_error((int)respCode, KII_ECODE_PARSE);
+                prv_kii_set_error(pApp, err);
                 ret = KIIE_FAIL;
                 goto ON_EXIT;
             }
@@ -439,23 +428,6 @@ kii_error_code_t kii_register_thing(kii_app_t app,
         }
         prv_kii_set_error(pApp, NULL);
         ret = KIIE_OK;
-        goto ON_EXIT;
-    } else {
-        json_error_t jErr;
-        json_t* errJson = NULL;
-        M_KII_DEBUG(prv_log("response: %s", respData));
-        err->status_code = (int)respCode;
-        err->error_code = kii_strdup("");
-        errJson = json_loads(respData, 0, &jErr);
-        if (errJson != NULL) {
-            json_t* eCode = json_object_get(errJson, "errorCode");
-            if (eCode != NULL) {
-                err->error_code = json_dumps(eCode, JSON_ENCODE_ANY);
-            }
-            json_decref(errJson);
-        }
-        prv_kii_set_error(pApp, err);
-        ret = KIIE_FAIL;
         goto ON_EXIT;
     }
     
@@ -466,6 +438,7 @@ ON_EXIT:
     curl_slist_free_all(headers);
     M_KII_FREE_NULLIFY(reqStr);
     M_KII_FREE_NULLIFY(respData);
+    M_KII_FREE_NULLIFY(reqUrl);
 
     return ret;
 }
