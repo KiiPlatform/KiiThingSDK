@@ -673,7 +673,6 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
         installIDJson = json_object_get(respBodyJson, "installationID");
         if (installIDJson != NULL) {
             *out_installation_id = kii_strdup(json_string_value(installIDJson));
-            kii_json_decref(installIDJson);
             ret = KIIE_OK;
             goto ON_EXIT;
         }
@@ -686,6 +685,7 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
     }
 
 ON_EXIT:
+    kii_json_decref(respBodyJson);
     M_KII_FREE_NULLIFY(url);
     M_KII_FREE_NULLIFY(reqBodyStr);
     M_KII_FREE_NULLIFY(respBodyStr);
