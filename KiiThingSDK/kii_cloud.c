@@ -219,12 +219,13 @@ static size_t callback_header(
 
     M_KII_ASSERT(userdata != NULL);
 
-    /* to upper case. */
     {
         int i = 0;
-        kii_memcpy(line, '\0', len + 1);
-        for (i = 0; i < len; ++i) {
-            line[i] = (char)kii_toupper(buffer[i]);
+        kii_memcpy(line, buffer, len);
+        line[len] = '\0';
+        /* Field name becomes upper case. */
+        for (int i = 0; line[i] != ":"; ++i) {
+            line[i] = (char)kii_toupper(line[i]);
         }
     }
 
