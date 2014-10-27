@@ -673,7 +673,7 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
         json_t* installIDJson = NULL;
         installIDJson = json_object_get(respBodyJson, "installationID");
         if (installIDJson != NULL) {
-            *out_installation_id = json_string_value(installIDJson);
+            *out_installation_id = kii_strdup(json_string_value(installIDJson));
             M_KII_DEBUG(prv_log("installationID: %s length: %u", *out_installation_id, strlen(*out_installation_id)));
             kii_json_decref(installIDJson);
             ret = KIIE_OK;
