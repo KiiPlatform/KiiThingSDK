@@ -237,14 +237,15 @@ typedef enum {
     POST,
     PUT,
     PATCH,
-    DELETE
+    DELETE,
+    GET
 } prv_kii_req_method_t;
 
 kii_error_code_t prv_execute_curl(CURL* curl,
                                   const char* url,
                                   prv_kii_req_method_t method,
                                   const char* request_body,
-                                  const struct curl_slist* request_headers,
+                                  struct curl_slist* request_headers,
                                   char** response_body,
                                   json_t** response_headers,
                                   kii_error_t** error)
@@ -257,35 +258,51 @@ kii_error_code_t prv_execute_curl(CURL* curl,
     M_KII_ASSERT(curl != NULL);
     M_KII_ASSERT(url != NULL);
     M_KII_ASSERT(request_headers != NULL);
-    M_KII_ASSERT(response_body != NULL);
     M_KII_ASSERT(error != NULL);
-
-    curl_easy_setopt(curl, CURLOPT_URL, url);
-    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, request_headers);
 
     switch (method) {
         case POST:
-            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
+            if (request_body != NULL) {
+                curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
+            }
             break;
         case PUT:
-            curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
             curl_easy_setopt(curl, CURLOPT_PUT, 1L);
-            curl_easy_setopt(curl, CURLOPT_READFUNCTION, callback_read);
-            put_data.request_body = request_body;
-            put_data.position = 0;
-            put_data.length = kii_strlen(request_body);
-            curl_easy_setopt(curl, CURLOPT_READDATA, (void*)&put_data);
-            curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE,
-                    (curl_off_t)put_data.length);
+            if (request_body != NULL) {
+                put_data.request_body = request_body;
+                put_data.position = 0;
+                put_data.length = kii_strlen(request_body);
+                curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
+                curl_easy_setopt(curl, CURLOPT_READFUNCTION, callback_read);
+                curl_easy_setopt(curl, CURLOPT_READDATA, (void*)&put_data);
+                curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE,
+                        (curl_off_t)put_data.length);
+            }
             break;
         case PATCH:
-            /* TODO: implement me. */
+            request_headers = curl_slist_append(request_headers,
+                    "X-HTTP-METHOD-OVERRIDE: PATCH");
+            if (request_body != NULL) {
+                curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
+            }
             break;
         case DELETE:
-            /* TODO: implement me. */
+            M_KII_ASSERT(request_body == NULL);
+            curl_easy_setopt(curl,CURLOPT_CUSTOMREQUEST,"DELETE");
             break;
+        case GET:
+            curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);
+            if (request_body != NULL) {
+                curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
+            }
+            break;
+        default:
+            M_KII_ASSERT(0); /* programing error */
+            return KIIE_FAIL;
     }
 
+    curl_easy_setopt(curl, CURLOPT_URL, url);
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, request_headers);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callbackWrite);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &respData);
     curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, callback_header);
