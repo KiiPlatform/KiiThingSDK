@@ -64,3 +64,13 @@ void* kii_realloc(void* ptr, size_t size)
 {
     return realloc(ptr, size);
 }
+
+int kii_strncmp(const char *s1, const char *s2, size_t n)
+{
+    return strncmp(s1, s2, n);
+}
+
+int kii_tolower(int c)
+{
+    return tolower(c);
+}
