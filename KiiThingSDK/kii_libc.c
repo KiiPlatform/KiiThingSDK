@@ -59,3 +59,13 @@ char* kii_strcpy(char* s1, const char* s2)
 {
   return strcpy(s1, s2);
 }
+
+int kii_strncmp(const char *s1, const char *s2, size_t n)
+{
+    return strncmp(s1, s2, n);
+}
+
+int kii_toupper(int c)
+{
+    return toupper(c);
+}

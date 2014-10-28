@@ -205,14 +205,62 @@ static size_t callback_read(
     return (curl_off_t)actual_size;
 }
 
-size_t callback_header(
+static size_t callback_header(
         char *buffer,
         size_t size,
         size_t nitems,
         void *userdata)
 {
-    /* TODO: implement me. */
-    return size * nitems;
+    const char ETAG[] = "ETAG";
+    const char RETRYAFTER[] = "RETRY-AFTER";
+    size_t len = size * nitems;
+    char* line = kii_malloc(len + 1);
+    const char* field_name = NULL;
+
+    M_KII_ASSERT(userdata != NULL);
+
+    /* to upper case. */
+    {
+        int i = 0;
+        kii_memcpy(line, '\0', len + 1);
+        for (i = 0; i < len; ++i) {
+            line[i] = (char)kii_toupper(buffer[i]);
+        }
+    }
+
+    /* check http header name. */
+    if (kii_strncmp(line, ETAG, sizeof(ETAG) / sizeof(ETAG[0])) == 0) {
+        field_name = ETAG;
+    } else if (kii_strncmp(line, RETRYAFTER,
+            sizeof(RETRYAFTER) / sizeof(RETRYAFTER[0])) == 0) {
+        field_name = RETRYAFTER;
+    }
+
+    if (field_name != NULL) {
+        json_t** json = (json_t**)userdata;
+        char* value = NULL;
+        int i = 0;
+        /* skip until ":". */
+        while (line[i] != ':') {
+            ++i;
+        }
+        /* skip ':' */
+        ++i;
+        /* skip spaces. */
+        while (line[i] == ' ') {
+            ++i;
+        }
+
+        value = kii_strdup(&line[i]);
+        if (*json == NULL) {
+            *json = json_object();
+        }
+        json_object_set_new(*json, field_name, json_string(value));
+        M_KII_FREE_NULLIFY(value);
+    }
+
+    M_KII_FREE_NULLIFY(line);
+    return len;
 }
 
 char* prv_new_header_string(const char* key, const char* value)
@@ -251,13 +299,13 @@ kii_error_code_t prv_execute_curl(CURL* curl,
                                   json_t** response_headers,
                                   kii_error_t** error)
 {
-    char* respHeaderData = NULL;
     prv_kii_http_put_data put_data; /* data container for HTTP PUT method. */
     CURLcode curlCode = CURLE_COULDNT_CONNECT; /* set error code as default. */
 
     M_KII_ASSERT(curl != NULL);
     M_KII_ASSERT(url != NULL);
     M_KII_ASSERT(request_headers != NULL);
+    M_KII_ASSERT(response_headers != NULL)
     M_KII_ASSERT(error != NULL);
 
     switch (method) {
@@ -306,7 +354,8 @@ kii_error_code_t prv_execute_curl(CURL* curl,
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callbackWrite);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, response_body);
     curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, callback_header);
-    curl_easy_setopt(curl, CURLOPT_HEADERDATA, &respHeaderData);
+    *response_headers = NULL;
+    curl_easy_setopt(curl, CURLOPT_HEADERDATA, response_headers);
 
     curlCode = curl_easy_perform(curl);
     if (curlCode != CURLE_OK) {
