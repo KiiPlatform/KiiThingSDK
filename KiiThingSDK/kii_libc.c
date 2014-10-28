@@ -60,6 +60,11 @@ char* kii_strcpy(char* s1, const char* s2)
   return strcpy(s1, s2);
 }
 
+void* kii_realloc(void* ptr, size_t size)
+{
+    return realloc(ptr, size);
+}
+
 int kii_strncmp(const char *s1, const char *s2, size_t n)
 {
     return strncmp(s1, s2, n);
