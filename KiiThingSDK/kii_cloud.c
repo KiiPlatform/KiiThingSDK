@@ -211,7 +211,7 @@ static size_t callback_header(
         size_t nitems,
         void *userdata)
 {
-    const char ETAG[] = "ETAG";
+    const char ETAG[] = "etag";
     size_t len = size * nitems;
     char* line = kii_malloc(len + 1);
 
@@ -223,7 +223,7 @@ static size_t callback_header(
         line[len] = '\0';
         /* Field name becomes upper case. */
         for (i = 0; line[i] != ':'; ++i) {
-            line[i] = (char)kii_toupper(line[i]);
+            line[i] = (char)kii_tolower(line[i]);
         }
     }
 
