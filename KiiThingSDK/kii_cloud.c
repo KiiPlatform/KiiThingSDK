@@ -212,10 +212,8 @@ static size_t callback_header(
         void *userdata)
 {
     const char ETAG[] = "ETAG";
-    const char RETRYAFTER[] = "RETRY-AFTER";
     size_t len = size * nitems;
     char* line = kii_malloc(len + 1);
-    const char* field_name = NULL;
 
     M_KII_ASSERT(userdata != NULL);
 
@@ -224,40 +222,30 @@ static size_t callback_header(
         kii_memcpy(line, buffer, len);
         line[len] = '\0';
         /* Field name becomes upper case. */
-        for (int i = 0; line[i] != ":"; ++i) {
+        for (i = 0; line[i] != ':'; ++i) {
             line[i] = (char)kii_toupper(line[i]);
         }
     }
 
     /* check http header name. */
     if (kii_strncmp(line, ETAG, sizeof(ETAG) / sizeof(ETAG[0])) == 0) {
-        field_name = ETAG;
-    } else if (kii_strncmp(line, RETRYAFTER,
-            sizeof(RETRYAFTER) / sizeof(RETRYAFTER[0])) == 0) {
-        field_name = RETRYAFTER;
-    }
-
-    if (field_name != NULL) {
         json_t** json = (json_t**)userdata;
-        char* value = NULL;
-        int i = 0;
+        char* value = line;
         /* skip until ":". */
-        while (line[i] != ':') {
-            ++i;
+        while (*value != ':') {
+            ++value;
         }
         /* skip ':' */
-        ++i;
+        ++value;
         /* skip spaces. */
-        while (line[i] == ' ') {
-            ++i;
+        while (*value == ' ') {
+            ++value;
         }
 
-        value = kii_strdup(&line[i]);
         if (*json == NULL) {
             *json = json_object();
         }
-        json_object_set_new(*json, field_name, json_string(value));
-        M_KII_FREE_NULLIFY(value);
+        json_object_set_new(*json, ETAG, json_string(value));
     }
 
     M_KII_FREE_NULLIFY(line);
