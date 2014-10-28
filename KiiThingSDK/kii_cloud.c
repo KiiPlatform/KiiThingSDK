@@ -294,7 +294,6 @@ kii_error_code_t prv_execute_curl(CURL* curl,
     M_KII_ASSERT(curl != NULL);
     M_KII_ASSERT(url != NULL);
     M_KII_ASSERT(request_headers != NULL);
-    M_KII_ASSERT(response_headers != NULL)
     M_KII_ASSERT(error != NULL);
 
     switch (method) {
@@ -342,9 +341,11 @@ kii_error_code_t prv_execute_curl(CURL* curl,
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, request_headers);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callbackWrite);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, response_body);
-    curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, callback_header);
-    *response_headers = NULL;
-    curl_easy_setopt(curl, CURLOPT_HEADERDATA, response_headers);
+    if (response_headers != NULL) {
+        curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, callback_header);
+        *response_headers = NULL;
+        curl_easy_setopt(curl, CURLOPT_HEADERDATA, response_headers);
+    }
 
     curlCode = curl_easy_perform(curl);
     if (curlCode != CURLE_OK) {
