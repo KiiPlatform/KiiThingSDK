@@ -175,7 +175,7 @@ static size_t callbackWrite(char* ptr,
         *respData = kii_strdup(ptr);
     } else {
         size_t lastLen = kii_strlen(*respData);
-        size_t newSize = lastLen + size + 1;
+        size_t newSize = lastLen + (size * nmemb) + 1;
         char* concat = malloc(newSize);
         kii_memset(concat, '\0', newSize);
         kii_strcat(concat, *respData);
