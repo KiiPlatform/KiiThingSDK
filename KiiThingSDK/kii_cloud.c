@@ -585,8 +585,10 @@ kii_error_code_t kii_is_bucket_subscribed(kii_app_t app,
 kii_topic_t kii_init_thing_topic(const kii_char_t* vendor_thing_id,
                                  const kii_char_t* topic_name)
 {
-    /* TODO: implement it. */
-    return NULL;
+    prv_kii_topic_t* topic = kii_malloc(sizeof(prv_kii_topic_t));
+    topic->vendor_thing_id = kii_strdup(vendor_thing_id);
+    topic->topic_name = kii_strdup(topic_name);
+    return topic;
 }
 
 kii_error_code_t kii_subscribe_topic(kii_app_t app,
