@@ -30,7 +30,8 @@ typedef enum kii_bool_t {
 
 typedef enum kii_error_code_t {
     KIIE_OK = 0,
-    KIIE_FAIL
+    KIIE_FAIL,
+    KIIE_LOWMEMORY
 } kii_error_code_t;
 
 /** Represents application.
