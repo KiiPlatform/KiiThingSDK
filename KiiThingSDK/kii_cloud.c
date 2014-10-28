@@ -720,7 +720,6 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
     json_t* mqttTopicJson = NULL;
     json_t* hostJson = NULL;
     json_t* mqttTtlJson = NULL;
-    kii_ulong_t iTtl = 0;
 
     M_KII_ASSERT(app != NULL);
     M_KII_ASSERT(access_token != NULL);
@@ -806,12 +805,6 @@ ON_EXIT:
     M_KII_FREE_NULLIFY(authHdr);
     M_KII_FREE_NULLIFY(respBodyStr);
     curl_slist_free_all(reqHeaders);
-
     kii_json_decref(respBodyJson);
-    kii_json_decref(userNameJson);
-    kii_json_decref(passwordJson);
-    kii_json_decref(mqttTopicJson);
-    kii_json_decref(hostJson);
-    kii_json_decref(mqttTtlJson);
     return ret;
 }
