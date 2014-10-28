@@ -171,6 +171,9 @@ static size_t callbackWrite(char* ptr,
                             char** respData)
 {
     size_t dataLen = size * nmemb;
+    if (dataLen == 0) {
+        return 0;
+    }
     if (*respData == NULL) { /* First time. */
         *respData = kii_malloc(dataLen+1);
         if (respData == NULL) {
