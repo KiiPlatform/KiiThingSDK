@@ -800,6 +800,7 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
     goto ON_EXIT;
 
 ON_EXIT:
+    M_KII_FREE_NULLIFY(url);
     M_KII_FREE_NULLIFY(appIdHdr);
     M_KII_FREE_NULLIFY(appkeyHdr);
     M_KII_FREE_NULLIFY(authHdr);
