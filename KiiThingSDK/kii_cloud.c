@@ -498,7 +498,7 @@ ON_EXIT:
 kii_bucket_t kii_init_thing_bucket(const kii_char_t* vendor_thing_id,
                                    const kii_char_t* bucket_name)
 {
-    prv_kii_bucket_t* bucket = malloc(sizeof(prv_kii_bucket_t));
+    prv_kii_bucket_t* bucket = kii_malloc(sizeof(prv_kii_bucket_t));
     if (bucket == NULL) {
         return bucket;
     }
