@@ -498,8 +498,22 @@ ON_EXIT:
 kii_bucket_t kii_init_thing_bucket(const kii_char_t* vendor_thing_id,
                                    const kii_char_t* bucket_name)
 {
-    /* TODO: implement it. */
-    return NULL;
+    prv_kii_bucket_t* bucket = malloc(sizeof(prv_kii_bucket_t));
+    if (bucket == NULL) {
+        return bucket;
+    }
+    bucket->vendor_thing_id = kii_strdup(vendor_thing_id);
+    if (bucket->vendor_thing_id == NULL) {
+        M_KII_FREE_NULLIFY(bucket);
+        return bucket;
+    }
+    bucket->bucket_name = kii_strdup(bucket_name);
+    if (bucket->bucket_name == NULL) {
+        M_KII_FREE_NULLIFY(bucket->vendor_thing_id);
+        M_KII_FREE_NULLIFY(bucket);
+        return bucket;
+    }
+    return bucket;
 }
 
 kii_error_code_t kii_create_new_object(kii_app_t app,
