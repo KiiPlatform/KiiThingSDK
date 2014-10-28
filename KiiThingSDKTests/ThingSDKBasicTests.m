@@ -30,7 +30,7 @@
 static const char* ACCESS_TOKEN = "Xk899v8Jp9A5bX9__2WTZ8TBkJlHx1nUmjpp0lBprpI";
 static const char* APPID = "84fff36e";
 static const char* APPKEY = "e45fcc2d31d6aca675af639bc5f04a26";
-static const char* BASEURL = "api-development-jp.internal.kii.com/api";
+static const char* BASEURL = "https://api-development-jp.internal.kii.com/api";
 
 - (void)testRegisterThing {
     kii_app_t app = kii_init_app(APPID,
@@ -71,8 +71,35 @@ static const char* BASEURL = "api-development-jp.internal.kii.com/api";
         NSLog(@"code: %s", err->error_code);
         NSLog(@"resp code: %d", err->status_code);
     }
-    kii_dispose_app(app);
+    
+    kii_mqtt_endpoint_t* endpoint = NULL;
+    kii_uint_t retryAfter = 0;
+    
+    do {
+        NSLog(@"Retry after: %d ....", retryAfter);
+        [NSThread sleepForTimeInterval:retryAfter];
+        ret = kii_get_mqtt_endpoint(app,
+                                    ACCESS_TOKEN,
+                                    installId,
+                                    &endpoint,
+                                    &retryAfter);
+    } while (ret != KIIE_OK);
+    if (ret != KIIE_OK) {
+        kii_error_t* err = kii_get_last_error(app);
+        NSLog(@"code: %s", err->error_code);
+        NSLog(@"resp code: %d", err->status_code);
+    }
+
+    XCTAssertEqual(ret, KIIE_OK, "register failed");
+    XCTAssert(strlen(endpoint->username) > 0);
+    XCTAssert(strlen(endpoint->password) > 0);
+    XCTAssert(strlen(endpoint->host) > 0);
+    XCTAssert(strlen(endpoint->topic) > 0);
+    XCTAssert(endpoint->ttl > 0);
+
     kii_dispose_kii_char(installId);
+    kii_dispose_mqtt_endpoint(endpoint);
+    kii_dispose_app(app);
 }
 
 @end
