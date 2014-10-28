@@ -173,17 +173,23 @@ static size_t callbackWrite(char* ptr,
     size_t dataLen = size * nmemb;
     if (*respData == NULL) { /* First time. */
         *respData = kii_malloc(dataLen+1);
+        if (respData == NULL) {
+            return 0;
+        }
         kii_memcpy(*respData, ptr, dataLen);
         (*respData)[dataLen] = '\0';
     } else {
         size_t lastLen = kii_strlen(*respData);
         size_t newSize = lastLen + dataLen + 1;
-        char* concat = kii_malloc(newSize);
-
-        kii_memset(concat, '\0', newSize);
-        kii_strcat(concat, *respData);
+        char* concat = kii_realloc(*respData, newSize);
+        if (concat == NULL) {
+            return 0;
+        }
         kii_strcat(concat, ptr);
-        M_KII_FREE_NULLIFY(*respData);
+        concat[newSize] = '\0';
+        if (concat != *respData) {
+            M_KII_FREE_NULLIFY(*respData);
+        }
         *respData = concat;
     }
     return dataLen;
