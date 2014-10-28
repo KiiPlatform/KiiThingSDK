@@ -597,9 +597,30 @@ kii_error_code_t kii_is_bucket_subscribed(kii_app_t app,
 kii_topic_t kii_init_thing_topic(const kii_char_t* vendor_thing_id,
                                  const kii_char_t* topic_name)
 {
-    prv_kii_topic_t* topic = kii_malloc(sizeof(prv_kii_topic_t));
-    topic->vendor_thing_id = kii_strdup(vendor_thing_id);
-    topic->topic_name = kii_strdup(topic_name);
+    prv_kii_topic_t* topic =NULL;
+    char* tempThingId = NULL;
+    char* tempTopicName = NULL;
+
+    topic = kii_malloc(sizeof(prv_kii_topic_t));
+    if (topic == NULL) {
+        return NULL;
+    }
+
+    tempThingId = kii_strdup(vendor_thing_id);
+    if (tempThingId == NULL) {
+        M_KII_FREE_NULLIFY(topic);
+        return NULL;
+    }
+
+    tempTopicName= kii_strdup(topic_name);
+    if (tempTopicName == NULL) {
+        M_KII_FREE_NULLIFY(tempThingId);
+        M_KII_FREE_NULLIFY(topic);
+        return NULL;
+    }
+
+    topic->vendor_thing_id = tempThingId;
+    topic->topic_name = tempTopicName;
     return topic;
 }
 
