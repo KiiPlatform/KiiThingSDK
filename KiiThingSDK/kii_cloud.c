@@ -247,6 +247,7 @@ kii_error_code_t prv_execute_curl(CURL* curl,
                                   prv_kii_req_method_t method,
                                   const char* request_body,
                                   struct curl_slist* request_headers,
+                                  long* response_status_code,
                                   char** response_body,
                                   json_t** response_headers,
                                   kii_error_t** error)
@@ -258,6 +259,7 @@ kii_error_code_t prv_execute_curl(CURL* curl,
     M_KII_ASSERT(curl != NULL);
     M_KII_ASSERT(url != NULL);
     M_KII_ASSERT(request_headers != NULL);
+    M_KII_ASSERT(response_status_code != NULL);
     M_KII_ASSERT(error != NULL);
 
     switch (method) {
@@ -313,10 +315,9 @@ kii_error_code_t prv_execute_curl(CURL* curl,
         *error = prv_construct_kii_error(0, KII_ECODE_CONNECTION);
         return KIIE_FAIL;
     } else {
-        long respCode = 0;
         M_KII_DEBUG(prv_log("response: %s", *response_body));
-        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &respCode);
-        if ((200 <= respCode) && (respCode < 300)) {
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, response_status_code);
+        if ((200 <= *response_status_code) && (*response_status_code < 300)) {
             return KIIE_OK;
         } else {
             char* error_code = NULL;
@@ -329,7 +330,8 @@ kii_error_code_t prv_execute_curl(CURL* curl,
                 }
                 json_decref(errJson);
             }
-            *error = prv_construct_kii_error((int)respCode, error_code);
+            *error = prv_construct_kii_error((int)(*response_status_code),
+                    error_code);
             if (error_code != NULL) {
                 M_KII_FREE_NULLIFY(error_code);
             }
@@ -354,6 +356,7 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     char* contentTypeHdr = NULL;
     json_t* reqJson = NULL;
     char* reqStr = NULL;
+    long respCode = 0;
     char* respData = NULL;
     kii_error_t* err = NULL;
     kii_error_code_t exeCurlRet = KIIE_FAIL;
@@ -398,7 +401,7 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     kii_json_decref(reqJson);
 
     exeCurlRet = prv_execute_curl(pApp->curl_easy, reqUrl, POST,
-            reqStr, headers, &respData, NULL, &err);
+            reqStr, headers, &respCode, &respData, NULL, &err);
     if (exeCurlRet != KIIE_OK) {
         prv_kii_set_error(pApp, err);
         ret = KIIE_FAIL;
@@ -417,9 +420,6 @@ kii_error_code_t kii_register_thing(kii_app_t app,
                 char* temp = json_dumps(accessTokenJson, JSON_ENCODE_ANY);
                 *out_access_token = temp;
             } else {
-                long respCode = 0;
-                curl_easy_getinfo(pApp->curl_easy, CURLINFO_RESPONSE_CODE,
-                        &respCode);
                 err = prv_construct_kii_error((int)respCode, KII_ECODE_PARSE);
                 prv_kii_set_error(pApp, err);
                 ret = KIIE_FAIL;
@@ -585,6 +585,7 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
     json_t* reqBodyJson = NULL;
     kii_char_t* reqBodyStr = NULL;
     struct curl_slist* reqHeaders = NULL;
+    long respCode = 0;
     kii_char_t* respBodyStr = NULL;
     json_t* respBodyJson = NULL;
     kii_error_t* error = NULL;
@@ -631,6 +632,7 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
                                   POST,
                                   reqBodyStr,
                                   reqHeaders,
+                                  &respCode,
                                   &respBodyStr,
                                   NULL,
                                   &error);
@@ -652,7 +654,7 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
         }
     }
     if (*out_installation_id == NULL) { /* parse error */
-        error = prv_construct_kii_error(0, KII_ECODE_PARSE);
+        error = prv_construct_kii_error((int)respCode, KII_ECODE_PARSE);
         prv_kii_set_error(app, error);
         ret = KIIE_FAIL;
         goto ON_EXIT;
@@ -684,6 +686,7 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
     char* appkeyHdr = NULL;
     char* authHdr = NULL;
     kii_error_code_t exeCurlRet = KIIE_FAIL;
+    long respCode = 0;
     kii_char_t* respBodyStr = NULL;
     json_t* respBodyJson = NULL;
     kii_error_t* error = NULL;
@@ -722,6 +725,7 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
                                   GET,
                                   NULL,
                                   reqHeaders,
+                                  &respCode,
                                   &respBodyStr,
                                   NULL,
                                   &error);
@@ -768,7 +772,7 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
         goto ON_EXIT;
     }
     /* if body not present : parse error */
-    error = prv_construct_kii_error(0, KII_ECODE_PARSE);
+    error = prv_construct_kii_error((int)respCode, KII_ECODE_PARSE);
     prv_kii_set_error(app, error);
     ret = KIIE_FAIL;
     goto ON_EXIT;
