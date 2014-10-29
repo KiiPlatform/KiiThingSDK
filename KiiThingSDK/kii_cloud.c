@@ -375,32 +375,37 @@ kii_error_code_t prv_execute_curl(CURL* curl,
     }
 
     curlCode = curl_easy_perform(curl);
-    if (curlCode != CURLE_OK) {
-        *error = prv_construct_kii_error(0, KII_ECODE_CONNECTION);
-        return *error != NULL ? KIIE_FAIL : KIIE_LOWMEMORY;
-    } else {
-        M_KII_DEBUG(prv_log("response: %s", *response_body));
-        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, response_status_code);
-        if ((200 <= *response_status_code) && (*response_status_code < 300)) {
-            return KIIE_OK;
-        } else {
-            char* error_code = NULL;
-            json_error_t jErr;
-            json_t* errJson = json_loads(*response_body, 0, &jErr);
-            if (errJson != NULL) {
-                json_t* eCode = json_object_get(errJson, "errorCode");
-                if (eCode != NULL) {
-                    error_code = json_dumps(eCode, JSON_ENCODE_ANY);
+    switch (curlCode) {
+        case CURLE_OK:
+            M_KII_DEBUG(prv_log("response: %s", *response_body));
+            curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE,
+                    response_status_code);
+            if ((200 <= *response_status_code) &&
+                    (*response_status_code < 300)) {
+                return KIIE_OK;
+            } else {
+                char* error_code = NULL;
+                json_error_t jErr;
+                json_t* errJson = json_loads(*response_body, 0, &jErr);
+                if (errJson != NULL) {
+                    json_t* eCode = json_object_get(errJson, "errorCode");
+                    if (eCode != NULL) {
+                        error_code = json_dumps(eCode, JSON_ENCODE_ANY);
+                    }
+                    json_decref(errJson);
                 }
-                json_decref(errJson);
+                *error = prv_construct_kii_error((int)(*response_status_code),
+                        error_code);
+                if (error_code != NULL) {
+                    M_KII_FREE_NULLIFY(error_code);
+                }
+                return *error != NULL ? KIIE_FAIL : KIIE_LOWMEMORY;
             }
-            *error = prv_construct_kii_error((int)(*response_status_code),
-                    error_code);
-            if (error_code != NULL) {
-                M_KII_FREE_NULLIFY(error_code);
-            }
+        case CURLE_WRITE_ERROR:
+            return KIIE_RESPWRITE;
+        default:
+            *error = prv_construct_kii_error(0, KII_ECODE_CONNECTION);
             return *error != NULL ? KIIE_FAIL : KIIE_LOWMEMORY;
-        }
     }
 }
 
