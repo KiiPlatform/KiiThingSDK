@@ -27,11 +27,14 @@
     [super tearDown];
 }
 
-static const char* ACCESS_TOKEN = "Xk899v8Jp9A5bX9__2WTZ8TBkJlHx1nUmjpp0lBprpI";
+
 static const char* APPID = "84fff36e";
 static const char* APPKEY = "e45fcc2d31d6aca675af639bc5f04a26";
 static const char* BASEURL = "https://api-development-jp.internal.kii.com/api";
-static const char* REGISTERED_THING_VID = "BB7213C9-65F7-4040-87A5-C9A99A08B5F9";
+
+// Pre registered thing.
+static const char* ACCESS_TOKEN = "2ELl7D5hVQAY_IxuGc3LY5yhu_GWBBd3EBP0hl1cw_s";
+static const char* REGISTERED_THING_VID = "266738FA-BEFF-4805-AE08-D816E3C154A4";
 
 - (void)testRegisterThing {
     kii_app_t app = kii_init_app(APPID,
@@ -57,7 +60,6 @@ static const char* REGISTERED_THING_VID = "BB7213C9-65F7-4040-87A5-C9A99A08B5F9"
     kii_dispose_kii_char(accessToken);
 }
 
-
 -(void) testInstallPush {
     kii_app_t app = kii_init_app(APPID,
                                  APPKEY,
@@ -65,7 +67,7 @@ static const char* REGISTERED_THING_VID = "BB7213C9-65F7-4040-87A5-C9A99A08B5F9"
     char* installId = NULL;
     kii_error_code_t ret =
         kii_install_thing_push(app, ACCESS_TOKEN, true, &installId);
-    XCTAssertEqual(ret, KIIE_OK, "register failed");
+    XCTAssertEqual(ret, KIIE_OK, "install failed");
     XCTAssertTrue(strlen(installId) > 0, "installId invalid");
     if (ret != KIIE_OK) {
         kii_error_t* err = kii_get_last_error(app);
@@ -93,7 +95,7 @@ static const char* REGISTERED_THING_VID = "BB7213C9-65F7-4040-87A5-C9A99A08B5F9"
         NSLog(@"resp code: %d", err->status_code);
     }
 
-    XCTAssertEqual(ret, KIIE_OK, "register failed");
+    XCTAssertEqual(ret, KIIE_OK, "get endpoint failed");
     XCTAssert(strlen(endpoint->username) > 0);
     XCTAssert(strlen(endpoint->password) > 0);
     XCTAssert(strlen(endpoint->host) > 0);
@@ -102,6 +104,20 @@ static const char* REGISTERED_THING_VID = "BB7213C9-65F7-4040-87A5-C9A99A08B5F9"
 
     kii_dispose_kii_char(installId);
     kii_dispose_mqtt_endpoint(endpoint);
+    kii_dispose_app(app);
+}
+
+-(void) testSubscribeTopic {
+    kii_app_t app = kii_init_app(APPID, APPKEY, BASEURL);
+    kii_topic_t topic = kii_init_thing_topic(REGISTERED_THING_VID, "myTopic");
+    kii_error_code_t ret = kii_subscribe_topic(app, ACCESS_TOKEN, topic);
+    if (ret != KIIE_OK) {
+        kii_error_t* err = kii_get_last_error(app);
+        NSLog(@"code: %s", err->error_code);
+        NSLog(@"resp code: %d", err->status_code);
+    }
+    XCTAssertEqual(ret, KIIE_OK, "subscribe topic failed");
+    kii_dispose_topic(topic);
     kii_dispose_app(app);
 }
 

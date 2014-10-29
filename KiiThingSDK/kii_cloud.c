@@ -40,12 +40,6 @@ typedef struct prv_kii_topic_t {
     char* topic_name;
 } prv_kii_topic_t;
 
-typedef struct prv_kii_http_put_data {
-    const char* request_body;
-    size_t position;
-    size_t length;
-} prv_kii_http_put_data;
-
 kii_app_t kii_init_app(const char* app_id,
                        const char* app_key,
                        const char* site_url)
@@ -198,25 +192,6 @@ static size_t callbackWrite(char* ptr,
     return dataLen;
 }
 
-static size_t callback_read(
-        char *buffer,
-        size_t size,
-        size_t nitems,
-        void *instream)
-{
-    prv_kii_http_put_data* put_data = (prv_kii_http_put_data*)instream;
-    size_t rest_size = put_data->length - put_data->position;
-    size_t max_size = size * nitems;
-    size_t actual_size = rest_size < max_size ? rest_size : max_size;
-    if (actual_size <= 0) {
-        return (curl_off_t)0;
-    }
-    kii_memcpy(buffer, &put_data->request_body[put_data->position],
-            actual_size);
-    put_data->position += actual_size;
-    return (curl_off_t)actual_size;
-}
-
 static size_t callback_header(
         char *buffer,
         size_t size,
@@ -268,7 +243,7 @@ char* prv_new_header_string(const char* key, const char* value)
 {
     size_t len = kii_strlen(key) + kii_strlen(":") + kii_strlen(value) +1;
     char* val = kii_malloc(len);
-    kii_memset(val, '\0', len);
+    val[len] = '\0';
     kii_sprintf(val, "%s:%s", key, value);
     return val;
 }
@@ -276,9 +251,9 @@ char* prv_new_header_string(const char* key, const char* value)
 char* prv_new_auth_header_string(const char* access_token)
 {
     size_t len = kii_strlen("authorization: bearer ")
-        + kii_strlen(access_token);
+        + kii_strlen(access_token) +1;
     char* ret = malloc(len);
-    kii_memset(ret, '\0', len);
+    ret[len] = '\0';
     kii_sprintf(ret, "authorization: bearer %s", access_token);
     return ret;
 }
@@ -301,7 +276,6 @@ kii_error_code_t prv_execute_curl(CURL* curl,
                                   json_t** response_headers,
                                   kii_error_t** error)
 {
-    prv_kii_http_put_data put_data; /* data container for HTTP PUT method. */
     CURLcode curlCode = CURLE_COULDNT_CONNECT; /* set error code as default. */
 
     M_KII_ASSERT(curl != NULL);
@@ -310,23 +284,22 @@ kii_error_code_t prv_execute_curl(CURL* curl,
     M_KII_ASSERT(response_status_code != NULL);
     M_KII_ASSERT(error != NULL);
 
+    M_KII_DEBUG(prv_log("request url: %s", url));
+    M_KII_DEBUG(prv_log("request method: %d", method));
+    M_KII_DEBUG(prv_log("request body: %s", request_body));
+
     switch (method) {
         case POST:
-            if (request_body != NULL) {
             curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
+            if (request_body == NULL || kii_strlen(request_body) == 0) {
+                curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, 0);
             }
             break;
         case PUT:
-            curl_easy_setopt(curl, CURLOPT_PUT, 1L);
-            if (request_body != NULL) {
-                put_data.request_body = request_body;
-                put_data.position = 0;
-                put_data.length = kii_strlen(request_body);
-                curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
-                curl_easy_setopt(curl, CURLOPT_READFUNCTION, callback_read);
-                curl_easy_setopt(curl, CURLOPT_READDATA, (void*)&put_data);
-                curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE,
-                        (curl_off_t)put_data.length);
+            curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
+            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
+            if (request_body == NULL || kii_strlen(request_body) == 0) {
+                curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, 0);
             }
             break;
         case PATCH:
@@ -660,7 +633,7 @@ kii_error_code_t kii_subscribe_topic(kii_app_t app,
                         "push",
                         "subscriptions",
                         "things",
-                        thingIdPath);
+                        NULL);
     if (url == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
@@ -674,10 +647,13 @@ kii_error_code_t kii_subscribe_topic(kii_app_t app,
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
     }
+    reqHeaders = curl_slist_append(reqHeaders, appIdHdr);
+    reqHeaders = curl_slist_append(reqHeaders, appkeyHdr);
+    reqHeaders = curl_slist_append(reqHeaders, authHdr);
 
     ret = prv_execute_curl(pApp->curl_easy,
                      url,
-                     PUT,
+                     POST,
                      NULL,
                      reqHeaders,
                      &respStatus,
