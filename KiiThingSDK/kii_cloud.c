@@ -44,7 +44,7 @@ kii_app_t kii_init_app(const char* app_id,
                        const char* app_key,
                        const char* site_url)
 {
-    prv_kii_app_t* app = malloc(sizeof(prv_kii_app_t));
+    prv_kii_app_t* app = kii_malloc(sizeof(prv_kii_app_t));
     if (app == NULL) {
         return app;
     }
@@ -204,6 +204,10 @@ static size_t callback_header(
 
     M_KII_ASSERT(userdata != NULL);
 
+    if (line == NULL) {
+        return 0;
+    }
+
     {
         int i = 0;
         kii_memcpy(line, buffer, len);
@@ -243,6 +247,11 @@ char* prv_new_header_string(const char* key, const char* value)
 {
     size_t len = kii_strlen(key) + kii_strlen(":") + kii_strlen(value) +1;
     char* val = kii_malloc(len);
+
+    if (val == NULL) {
+        return NULL;
+    }
+
     val[len] = '\0';
     kii_sprintf(val, "%s:%s", key, value);
     return val;
@@ -769,16 +778,20 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
         installIDJson = json_object_get(respBodyJson, "installationID");
         if (installIDJson != NULL) {
             *out_installation_id = kii_strdup(json_string_value(installIDJson));
-            ret = KIIE_OK;
-            goto ON_EXIT;
+            if (*out_installation_id != NULL) {
+                ret = KIIE_OK;
+                goto ON_EXIT;
+            } else {
+                ret = KIIE_LOWMEMORY;
+                goto ON_EXIT;
+            }
         }
     }
-    if (*out_installation_id == NULL) { /* parse error */
-        error = prv_construct_kii_error((int)respCode, KII_ECODE_PARSE);
-        prv_kii_set_error(app, error);
-        ret = KIIE_FAIL;
-        goto ON_EXIT;
-    }
+
+    error = prv_construct_kii_error((int)respCode, KII_ECODE_PARSE);
+    prv_kii_set_error(app, error);
+    ret = KIIE_FAIL;
+    goto ON_EXIT;
 
 ON_EXIT:
     kii_json_decref(respBodyJson);
@@ -882,12 +895,38 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
             ret = KIIE_FAIL;
             goto ON_EXIT;
         }
-        *out_endpoint = kii_malloc(sizeof(kii_mqtt_endpoint_t));
-        (*out_endpoint)->username = kii_strdup(json_string_value(userNameJson));
-        (*out_endpoint)->password = kii_strdup(json_string_value(passwordJson));
-        (*out_endpoint)->topic = kii_strdup(json_string_value(mqttTopicJson));
-        (*out_endpoint)->host = kii_strdup(json_string_value(hostJson));
-        (*out_endpoint)->ttl = (kii_ulong_t)json_integer_value(mqttTtlJson);
+
+        {
+            kii_mqtt_endpoint_t* endpoint =
+                kii_malloc(sizeof(kii_mqtt_endpoint_t));
+            char* username = kii_strdup(json_string_value(userNameJson));
+            char* password = kii_strdup(json_string_value(passwordJson));
+            char* topic = kii_strdup(json_string_value(mqttTopicJson));
+            char* host = kii_strdup(json_string_value(hostJson));
+            kii_ulong_t ttl = (kii_ulong_t)json_integer_value(mqttTtlJson);
+
+            if (endpoint == NULL ||
+                    username == NULL ||
+                    password == NULL ||
+                    topic == NULL ||
+                    host == NULL) {
+                M_KII_FREE_NULLIFY(endpoint);
+                M_KII_FREE_NULLIFY(username);
+                M_KII_FREE_NULLIFY(password);
+                M_KII_FREE_NULLIFY(topic);
+                M_KII_FREE_NULLIFY(host);
+                ret = KIIE_LOWMEMORY;
+                goto ON_EXIT;
+            }
+
+            endpoint->username = username;
+            endpoint->password = password;
+            endpoint->topic = topic;
+            endpoint->host = host;
+            endpoint->ttl = ttl;
+            *out_endpoint = endpoint;
+        }
+
         ret = KIIE_OK;
         goto ON_EXIT;
     }
