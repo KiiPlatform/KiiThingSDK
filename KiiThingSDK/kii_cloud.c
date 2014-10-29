@@ -346,7 +346,7 @@ kii_error_code_t prv_execute_curl(CURL* curl,
     curlCode = curl_easy_perform(curl);
     if (curlCode != CURLE_OK) {
         *error = prv_construct_kii_error(0, KII_ECODE_CONNECTION);
-        return KIIE_FAIL;
+        return *error != NULL ? KIIE_FAIL : KIIE_LOWMEMORY;
     } else {
         M_KII_DEBUG(prv_log("response: %s", *response_body));
         curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, response_status_code);
@@ -368,7 +368,7 @@ kii_error_code_t prv_execute_curl(CURL* curl,
             if (error_code != NULL) {
                 M_KII_FREE_NULLIFY(error_code);
             }
-            return KIIE_FAIL;
+            return *error != NULL ? KIIE_FAIL : KIIE_LOWMEMORY;
         }
     }
 }
@@ -465,8 +465,12 @@ kii_error_code_t kii_register_thing(kii_app_t app,
                 *out_access_token = temp;
             } else {
                 err = prv_construct_kii_error((int)respCode, KII_ECODE_PARSE);
-                prv_kii_set_error(pApp, err);
-                ret = KIIE_FAIL;
+                if (err == NULL) {
+                    ret = KIIE_LOWMEMORY;
+                } else {
+                    prv_kii_set_error(pApp, err);
+                    ret = KIIE_FAIL;
+                }
                 goto ON_EXIT;
             }
             kii_json_decref(respJson);
@@ -822,8 +826,12 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
     }
 
     error = prv_construct_kii_error((int)respCode, KII_ECODE_PARSE);
-    prv_kii_set_error(app, error);
-    ret = KIIE_FAIL;
+    if (error == NULL) {
+        ret = KIIE_LOWMEMORY;
+    } else {
+        prv_kii_set_error(app, error);
+        ret = KIIE_FAIL;
+    }
     goto ON_EXIT;
 
 ON_EXIT:
@@ -935,8 +943,12 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
         if (userNameJson == NULL || passwordJson == NULL ||
             mqttTopicJson == NULL || hostJson == NULL || mqttTtlJson == NULL) {
             error = prv_construct_kii_error(0, KII_ECODE_PARSE);
-            prv_kii_set_error(app, error);
-            ret = KIIE_FAIL;
+            if (error == NULL) {
+                ret = KIIE_LOWMEMORY;
+            } else {
+                prv_kii_set_error(app, error);
+                ret = KIIE_FAIL;
+            }
             goto ON_EXIT;
         }
 
@@ -976,8 +988,12 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
     }
     /* if body not present : parse error */
     error = prv_construct_kii_error((int)respCode, KII_ECODE_PARSE);
-    prv_kii_set_error(app, error);
-    ret = KIIE_FAIL;
+    if (error == NULL) {
+        ret = KIIE_LOWMEMORY;
+    } else {
+        prv_kii_set_error(app, error);
+        ret = KIIE_FAIL;
+    }
     goto ON_EXIT;
 
 ON_EXIT:
