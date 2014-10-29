@@ -97,8 +97,16 @@ static kii_error_t* prv_construct_kii_error(
         const char* error_code)
 {
     kii_error_t* retval = kii_malloc(sizeof(kii_error_t));
+    char* tmp_error_code = kii_strdup(error_code == NULL ? "" : error_code);
+
+    if (retval == NULL || tmp_error_code == NULL) {
+        M_KII_FREE_NULLIFY(tmp_error_code);
+        M_KII_FREE_NULLIFY(retval);
+        return NULL;
+    }
+
     retval->status_code = status_code;
-    retval->error_code = kii_strdup(error_code == NULL ? "" : error_code);
+    retval->error_code = tmp_error_code;
     return retval;
 }
 
