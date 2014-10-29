@@ -897,19 +897,20 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
         }
 
         {
-            *out_endpoint = kii_malloc(sizeof(kii_mqtt_endpoint_t));
+            kii_mqtt_endpoint_t* endpoint =
+                kii_malloc(sizeof(kii_mqtt_endpoint_t));
             char* username = kii_strdup(json_string_value(userNameJson));
             char* password = kii_strdup(json_string_value(passwordJson));
             char* topic = kii_strdup(json_string_value(mqttTopicJson));
             char* host = kii_strdup(json_string_value(hostJson));
             kii_ulong_t ttl = (kii_ulong_t)json_integer_value(mqttTtlJson);
 
-            if (*out_endpoint == NULL ||
+            if (endpoint == NULL ||
                     username == NULL ||
                     password == NULL ||
                     topic == NULL ||
                     host == NULL) {
-                M_KII_FREE_NULLIFY(*out_endpoint);
+                M_KII_FREE_NULLIFY(endpoint);
                 M_KII_FREE_NULLIFY(username);
                 M_KII_FREE_NULLIFY(password);
                 M_KII_FREE_NULLIFY(topic);
@@ -918,11 +919,12 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
                 goto ON_EXIT;
             }
 
-            (*out_endpoint)->username = username;
-            (*out_endpoint)->password = password;
-            (*out_endpoint)->topic = topic;
-            (*out_endpoint)->host = host;
-            (*out_endpoint)->ttl = ttl;
+            endpoint->username = username;
+            endpoint->password = password;
+            endpoint->topic = topic;
+            endpoint->host = host;
+            endpoint->ttl = ttl;
+            *out_endpoint = endpoint;
         }
 
         ret = KIIE_OK;
