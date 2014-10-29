@@ -313,7 +313,7 @@ kii_error_code_t prv_execute_curl(CURL* curl,
     switch (method) {
         case POST:
             if (request_body != NULL) {
-                curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
+            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
             }
             break;
         case PUT:
@@ -597,7 +597,7 @@ kii_error_code_t kii_is_bucket_subscribed(kii_app_t app,
 kii_topic_t kii_init_thing_topic(const kii_char_t* vendor_thing_id,
                                  const kii_char_t* topic_name)
 {
-    prv_kii_topic_t* topic =NULL;
+    prv_kii_topic_t* topic = NULL;
     char* tempThingId = NULL;
     char* tempTopicName = NULL;
 
