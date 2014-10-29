@@ -406,6 +406,10 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     /* prepare URL */
     reqUrl = prv_build_url(pApp->site_url, "apps", pApp->app_id, "things",
             NULL);
+    if (reqUrl == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
     
     /* prepare headers */
     appIdHdr = prv_new_header_string("x-kii-appid", pApp->app_id);
@@ -754,6 +758,10 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
                         pApp->app_id,
                         "installations",
                         NULL);
+    if (url == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
     
     /* Prepare body */
     reqBodyJson = json_object();
@@ -868,6 +876,10 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
                         installation_id,
                         "mqtt-endpoint",
                         NULL);
+    if (url == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
 
     M_KII_DEBUG(prv_log("mqtt endpoint url: %s", url));
     /* Prepare Headers */
