@@ -37,6 +37,10 @@ char* prv_build_url(const char* first, ...)
 
     /* alloc size. */
     retval = kii_malloc(size);
+    if (retval == NULL) {
+        return NULL;
+    }
+
     kii_memset(retval, 0, size);
 
     /* copy elements. */
