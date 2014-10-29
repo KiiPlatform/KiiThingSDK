@@ -603,9 +603,10 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
     char* appkeyHdr = NULL;
     char* contentTypeHdr = NULL;
     char* reqStr = NULL;
-    kii_json_t* respHdr = NULL;
+    json_t* respHdr = NULL;
     long respCode = 0;
     char* respData = NULL;
+    json_t* respJson = NULL;
     kii_error_t* err = NULL;
     kii_error_code_t exeCurlRet = KIIE_FAIL;
     kii_error_code_t ret = KIIE_FAIL;
@@ -620,6 +621,8 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
     M_KII_ASSERT(kii_strlen(pBucket->bucket_name) > 0);
     M_KII_ASSERT(access_token != NULL);
     M_KII_ASSERT(contents != NULL);
+
+    prv_kii_set_error(pApp, NULL);
 
     /* prepare URL */
     reqUrl = prv_build_url(pApp->site_url, "apps", pApp->app_id, "things",
@@ -662,13 +665,21 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
     }
 
     /* Check response header */
-    if (out_etag != NULL) {
-        kii_json_t* eTagJson = json_object_get(respHdr, "ETag");
+    if (out_etag != NULL && respHdr != NULL) {
+        kii_json_t* eTagJson = json_object_get(respHdr, "etag");
         if (eTagJson != NULL) {
-            *out_etag = json_dumps(eTagJson, JSON_ENCODE_ANY);
-            kii_json_decref(eTagJson);
+            char* temp = kii_strdup(json_string_value(eTagJson));
+            if (temp == NULL) {
+                ret = KIIE_LOWMEMORY;
+                goto ON_EXIT;
+            }
+            *out_etag = temp;
         } else {
             err = prv_construct_kii_error((int)respCode, KII_ECODE_PARSE);
+            if (err == NULL) {
+                ret = KIIE_LOWMEMORY;
+                goto ON_EXIT;
+            }
             prv_kii_set_error(pApp, err);
             ret = KIIE_FAIL;
             goto ON_EXIT;
@@ -678,34 +689,42 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
     /* Check response data */
     if (out_object_id != NULL) {
         json_error_t jErr;
-        json_t* respJson = NULL;
         M_KII_DEBUG(prv_log("response: %s", respData));
         respJson = json_loads(respData, 0, &jErr);
         if (respJson != NULL) {
             json_t* objectIDJson = json_object_get(respJson, "objectID");
-            kii_json_decref(respJson);
             if (objectIDJson != NULL) {
-                char* temp = json_dumps(objectIDJson, JSON_ENCODE_ANY);
-                kii_json_decref(objectIDJson);
+                char* temp = kii_strdup(json_string_value(objectIDJson));
+                if (temp == NULL) {
+                    ret = KIIE_LOWMEMORY;
+                    goto ON_EXIT;
+                }
                 *out_object_id = temp;
-                prv_kii_set_error(pApp, NULL);
                 ret = KIIE_OK;
             } else {
                 err = prv_construct_kii_error((int)respCode, KII_ECODE_PARSE);
+                if (err == NULL) {
+                    ret = KIIE_LOWMEMORY;
+                    goto ON_EXIT;
+                }
                 prv_kii_set_error(pApp, err);
                 ret = KIIE_FAIL;
             }
         } else {
             err = prv_construct_kii_error((int)respCode, KII_ECODE_PARSE);
+            if (err == NULL) {
+                ret = KIIE_LOWMEMORY;
+                goto ON_EXIT;
+            }
             prv_kii_set_error(pApp, err);
             ret = KIIE_FAIL;
         }
     } else {
-        prv_kii_set_error(pApp, NULL);
         ret = KIIE_OK;
     }
 
 ON_EXIT:
+    kii_json_decref(respJson);
     kii_json_decref(respHdr);
     M_KII_FREE_NULLIFY(respData);
     M_KII_FREE_NULLIFY(reqStr);
