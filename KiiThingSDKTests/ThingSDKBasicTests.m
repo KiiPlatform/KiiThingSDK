@@ -31,6 +31,7 @@ static const char* ACCESS_TOKEN = "Xk899v8Jp9A5bX9__2WTZ8TBkJlHx1nUmjpp0lBprpI";
 static const char* APPID = "84fff36e";
 static const char* APPKEY = "e45fcc2d31d6aca675af639bc5f04a26";
 static const char* BASEURL = "https://api-development-jp.internal.kii.com/api";
+static const char* REGISTERED_THING_VID = "BB7213C9-65F7-4040-87A5-C9A99A08B5F9";
 
 - (void)testRegisterThing {
     kii_app_t app = kii_init_app(APPID,
@@ -75,6 +76,7 @@ static const char* BASEURL = "https://api-development-jp.internal.kii.com/api";
     kii_mqtt_endpoint_t* endpoint = NULL;
     kii_uint_t retryAfter = 0;
     
+    int retryCount = 0;
     do {
         NSLog(@"Retry after: %d ....", retryAfter);
         [NSThread sleepForTimeInterval:retryAfter];
@@ -83,7 +85,8 @@ static const char* BASEURL = "https://api-development-jp.internal.kii.com/api";
                                     installId,
                                     &endpoint,
                                     &retryAfter);
-    } while (ret != KIIE_OK);
+        ++retryCount;
+    } while (ret != KIIE_OK || retryCount < 3);
     if (ret != KIIE_OK) {
         kii_error_t* err = kii_get_last_error(app);
         NSLog(@"code: %s", err->error_code);

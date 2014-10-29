@@ -313,7 +313,7 @@ kii_error_code_t prv_execute_curl(CURL* curl,
     switch (method) {
         case POST:
             if (request_body != NULL) {
-                curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
+            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
             }
             break;
         case PUT:
@@ -597,16 +597,109 @@ kii_error_code_t kii_is_bucket_subscribed(kii_app_t app,
 kii_topic_t kii_init_thing_topic(const kii_char_t* vendor_thing_id,
                                  const kii_char_t* topic_name)
 {
-    /* TODO: implement it. */
-    return NULL;
+    prv_kii_topic_t* topic = NULL;
+    char* tempThingId = NULL;
+    char* tempTopicName = NULL;
+
+    topic = kii_malloc(sizeof(prv_kii_topic_t));
+    if (topic == NULL) {
+        return NULL;
+    }
+
+    tempThingId = kii_strdup(vendor_thing_id);
+    if (tempThingId == NULL) {
+        M_KII_FREE_NULLIFY(topic);
+        return NULL;
+    }
+
+    tempTopicName= kii_strdup(topic_name);
+    if (tempTopicName == NULL) {
+        M_KII_FREE_NULLIFY(tempThingId);
+        M_KII_FREE_NULLIFY(topic);
+        return NULL;
+    }
+
+    topic->vendor_thing_id = tempThingId;
+    topic->topic_name = tempTopicName;
+    return topic;
 }
 
 kii_error_code_t kii_subscribe_topic(kii_app_t app,
                                      const kii_char_t* access_token,
                                      const kii_topic_t topic)
 {
-    /* TODO: implement it. */
-    return KIIE_FAIL;
+    prv_kii_topic_t* pTopic = (prv_kii_topic_t*)topic;
+    prv_kii_app_t* pApp = (prv_kii_app_t*)app;
+    const char* thingId = pTopic->vendor_thing_id;
+    const char* topicName = pTopic->topic_name;
+    char* url = NULL;
+    struct curl_slist* reqHeaders = NULL;
+    char* appIdHdr = NULL;
+    char* appkeyHdr = NULL;
+    char* authHdr = NULL;
+    kii_error_t* error;
+    kii_error_code_t ret = KIIE_FAIL;
+    char* thingIdPath = NULL;
+    long respStatus = 0;
+    char* respBodyStr = NULL;
+    
+    thingIdPath = prv_new_header_string("VENDOR_THING_ID", thingId);
+    if (thingIdPath == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+
+    /* Prepare Url */
+    url = prv_build_url(pApp->site_url,
+                        "apps",
+                        pApp->app_id,
+                        "things",
+                        thingIdPath,
+                        "topics",
+                        topicName,
+                        "push",
+                        "subscriptions",
+                        "things",
+                        thingIdPath);
+    if (url == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+
+    /* Prepare headers */
+    appIdHdr = prv_new_header_string("x-kii-appid", pApp->app_id);
+    appkeyHdr = prv_new_header_string("x-kii-appkey", pApp->app_key);
+    authHdr = prv_new_auth_header_string(access_token);
+    if (appIdHdr == NULL || appkeyHdr == NULL || authHdr == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+
+    ret = prv_execute_curl(pApp->curl_easy,
+                     url,
+                     PUT,
+                     NULL,
+                     reqHeaders,
+                     &respStatus,
+                     &respBodyStr,
+                     NULL,
+                     &error);
+    if (ret != KIIE_OK) {
+        ret = KIIE_FAIL;
+        prv_kii_set_error(app, error);
+        goto ON_EXIT;
+    }
+    ret = KIIE_OK;
+
+ON_EXIT:
+    M_KII_FREE_NULLIFY(thingIdPath);
+    M_KII_FREE_NULLIFY(url);
+    M_KII_FREE_NULLIFY(appIdHdr);
+    M_KII_FREE_NULLIFY(appkeyHdr);
+    M_KII_FREE_NULLIFY(authHdr);
+    curl_slist_free_all(reqHeaders);
+    M_KII_FREE_NULLIFY(respBodyStr);
+    return ret;
 }
 
 kii_error_code_t kii_unsubscribe_topic(kii_app_t app,
