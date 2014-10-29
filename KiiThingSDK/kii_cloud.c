@@ -268,7 +268,7 @@ char* prv_new_header_string(const char* key, const char* value)
 {
     size_t len = kii_strlen(key) + kii_strlen(":") + kii_strlen(value) +1;
     char* val = kii_malloc(len);
-    kii_memset(val, '\0', len);
+    val[len] = '\0';
     kii_sprintf(val, "%s:%s", key, value);
     return val;
 }
@@ -276,9 +276,9 @@ char* prv_new_header_string(const char* key, const char* value)
 char* prv_new_auth_header_string(const char* access_token)
 {
     size_t len = kii_strlen("authorization: bearer ")
-        + kii_strlen(access_token);
+        + kii_strlen(access_token) +1;
     char* ret = malloc(len);
-    kii_memset(ret, '\0', len);
+    ret[len] = '\0';
     kii_sprintf(ret, "authorization: bearer %s", access_token);
     return ret;
 }
@@ -674,6 +674,9 @@ kii_error_code_t kii_subscribe_topic(kii_app_t app,
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
     }
+    reqHeaders = curl_slist_append(reqHeaders, appIdHdr);
+    reqHeaders = curl_slist_append(reqHeaders, appkeyHdr);
+    reqHeaders = curl_slist_append(reqHeaders, authHdr);
 
     ret = prv_execute_curl(pApp->curl_easy,
                      url,
