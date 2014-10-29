@@ -412,6 +412,13 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     appkeyHdr = prv_new_header_string("x-kii-appkey", pApp->app_key);
     contentTypeHdr = prv_new_header_string("content-type",
                                                  "application/vnd.kii.ThingRegistrationAndAuthorizationRequest+json");
+    if (appIdHdr == NULL ||
+            appkeyHdr == NULL ||
+            contentTypeHdr == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+
     headers = curl_slist_append(headers, appIdHdr);
     headers = curl_slist_append(headers, appkeyHdr);
     headers = curl_slist_append(headers, contentTypeHdr);
@@ -761,6 +768,13 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
     contentTypeHdr = prv_new_header_string("content-type",
                                            "application/vnd.kii.InstallationCreationRequest+json");
     authHdr = prv_new_auth_header_string(access_token);
+    if (appIdHdr == NULL ||
+            appkeyHdr == NULL ||
+            contentTypeHdr == NULL ||
+            authHdr == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
     
     reqHeaders = curl_slist_append(reqHeaders, appIdHdr);
     reqHeaders = curl_slist_append(reqHeaders, appkeyHdr);
@@ -860,6 +874,13 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
     appIdHdr = prv_new_header_string("x-kii-appid", pApp->app_id);
     appkeyHdr = prv_new_header_string("x-kii-appkey", pApp->app_key);
     authHdr = prv_new_auth_header_string(access_token);
+    if (appIdHdr == NULL ||
+            appkeyHdr == NULL ||
+            authHdr == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+
     reqHeaders = curl_slist_append(reqHeaders, appIdHdr);
     reqHeaders = curl_slist_append(reqHeaders, appkeyHdr);
     reqHeaders = curl_slist_append(reqHeaders, authHdr);
