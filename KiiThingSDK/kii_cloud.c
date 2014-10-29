@@ -320,8 +320,10 @@ kii_error_code_t prv_execute_curl(CURL* curl,
             }
             break;
         case PATCH:
-            request_headers = curl_slist_append(request_headers,
-                    "X-HTTP-METHOD-OVERRIDE: PATCH");
+            if (prv_curl_slist_append(&request_headers,
+                        "X-HTTP-METHOD-OVERRIDE: PATCH", NULL) == KII_FALSE) {
+                return KIIE_LOWMEMORY;
+            }
             if (request_body != NULL) {
                 curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
             }
@@ -431,9 +433,11 @@ kii_error_code_t kii_register_thing(kii_app_t app,
         goto ON_EXIT;
     }
 
-    headers = curl_slist_append(headers, appIdHdr);
-    headers = curl_slist_append(headers, appkeyHdr);
-    headers = curl_slist_append(headers, contentTypeHdr);
+    if (prv_curl_slist_append(&headers, appIdHdr, appkeyHdr,
+                    contentTypeHdr, NULL) == KII_FALSE) {;
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
     
     /* prepare request data */
     if (user_data != NULL) {
@@ -690,9 +694,12 @@ kii_error_code_t kii_subscribe_topic(kii_app_t app,
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
     }
-    reqHeaders = curl_slist_append(reqHeaders, appIdHdr);
-    reqHeaders = curl_slist_append(reqHeaders, appkeyHdr);
-    reqHeaders = curl_slist_append(reqHeaders, authHdr);
+
+    if (prv_curl_slist_append(&reqHeaders, appIdHdr, appkeyHdr,
+                    authHdr, NULL) == KII_FALSE) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
 
     ret = prv_execute_curl(pApp->curl_easy,
                      url,
@@ -795,11 +802,12 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
     }
-    
-    reqHeaders = curl_slist_append(reqHeaders, appIdHdr);
-    reqHeaders = curl_slist_append(reqHeaders, appkeyHdr);
-    reqHeaders = curl_slist_append(reqHeaders, contentTypeHdr);
-    reqHeaders = curl_slist_append(reqHeaders, authHdr);
+
+    if (prv_curl_slist_append(&reqHeaders, appIdHdr, appkeyHdr,
+                    contentTypeHdr, authHdr, NULL) == KII_FALSE) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
 
     exeCurlRet = prv_execute_curl(pApp->curl_easy,
                                   url,
@@ -909,9 +917,11 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
         goto ON_EXIT;
     }
 
-    reqHeaders = curl_slist_append(reqHeaders, appIdHdr);
-    reqHeaders = curl_slist_append(reqHeaders, appkeyHdr);
-    reqHeaders = curl_slist_append(reqHeaders, authHdr);
+    if (prv_curl_slist_append(&reqHeaders, appIdHdr, appkeyHdr,
+                    authHdr, NULL) == KII_FALSE) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
 
     exeCurlRet = prv_execute_curl(pApp->curl_easy,
                                   url,
