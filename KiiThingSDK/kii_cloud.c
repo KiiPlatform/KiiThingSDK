@@ -660,7 +660,7 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
             reqStr, headers, &respCode, &respData, &respHdr, &err);
     if (exeCurlRet != KIIE_OK) {
         prv_kii_set_error(pApp, err);
-        ret = KIIE_FAIL;
+        ret = exeCurlRet;
         goto ON_EXIT;
     }
 
@@ -675,7 +675,7 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
             }
             *out_etag = temp;
         } else {
-            err = prv_construct_kii_error((int)respCode, KII_ECODE_PARSE);
+            err = prv_kii_error_init((int)respCode, KII_ECODE_PARSE);
             if (err == NULL) {
                 ret = KIIE_LOWMEMORY;
                 goto ON_EXIT;
@@ -702,7 +702,7 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
                 *out_object_id = temp;
                 ret = KIIE_OK;
             } else {
-                err = prv_construct_kii_error((int)respCode, KII_ECODE_PARSE);
+                err = prv_kii_error_init((int)respCode, KII_ECODE_PARSE);
                 if (err == NULL) {
                     ret = KIIE_LOWMEMORY;
                     goto ON_EXIT;
@@ -711,7 +711,7 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
                 ret = KIIE_FAIL;
             }
         } else {
-            err = prv_construct_kii_error((int)respCode, KII_ECODE_PARSE);
+            err = prv_kii_error_init((int)respCode, KII_ECODE_PARSE);
             if (err == NULL) {
                 ret = KIIE_LOWMEMORY;
                 goto ON_EXIT;
