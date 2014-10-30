@@ -179,6 +179,7 @@ static const char* REGISTERED_THING_TOPIC = "myTopic";
     kii_dispose_kii_char(out_object_id);
     kii_json_decref(contents);
     kii_dispose_bucket(bucket);
+    kii_dispose_thing(thing);
     kii_dispose_app(app);
 }
 
