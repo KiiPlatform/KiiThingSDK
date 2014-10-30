@@ -320,8 +320,9 @@ kii_error_code_t prv_execute_curl(CURL* curl,
             }
             break;
         case PATCH:
-            if (prv_curl_slist_append(&request_headers,
-                        "X-HTTP-METHOD-OVERRIDE: PATCH", NULL) == KII_FALSE) {
+            request_headers = curl_slist_append(request_headers,
+                    "X-HTTP-METHOD-OVERRIDE: PATCH");
+            if (request_headers == NULL) {
                 return KIIE_LOWMEMORY;
             }
             if (request_body != NULL) {
@@ -433,8 +434,8 @@ kii_error_code_t kii_register_thing(kii_app_t app,
         goto ON_EXIT;
     }
 
-    if (prv_curl_slist_append(&headers, appIdHdr, appkeyHdr,
-                    contentTypeHdr, NULL) == KII_FALSE) {;
+    headers = prv_curl_slist_create(appIdHdr, appkeyHdr, contentTypeHdr, NULL);
+    if (headers == NULL) {;
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
     }
@@ -695,8 +696,8 @@ kii_error_code_t kii_subscribe_topic(kii_app_t app,
         goto ON_EXIT;
     }
 
-    if (prv_curl_slist_append(&reqHeaders, appIdHdr, appkeyHdr,
-                    authHdr, NULL) == KII_FALSE) {
+    reqHeaders = prv_curl_slist_create(appIdHdr, appkeyHdr, authHdr, NULL);
+    if (reqHeaders == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
     }
@@ -803,8 +804,9 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
         goto ON_EXIT;
     }
 
-    if (prv_curl_slist_append(&reqHeaders, appIdHdr, appkeyHdr,
-                    contentTypeHdr, authHdr, NULL) == KII_FALSE) {
+    reqHeaders = prv_curl_slist_create(appIdHdr, appkeyHdr, contentTypeHdr,
+            authHdr, NULL);
+    if (reqHeaders == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
     }
@@ -917,8 +919,8 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
         goto ON_EXIT;
     }
 
-    if (prv_curl_slist_append(&reqHeaders, appIdHdr, appkeyHdr,
-                    authHdr, NULL) == KII_FALSE) {
+    reqHeaders = prv_curl_slist_create(appIdHdr, appkeyHdr, authHdr, NULL);
+    if (reqHeaders == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
     }

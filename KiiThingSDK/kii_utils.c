@@ -82,20 +82,20 @@ static char* prv_url_encoded_copy(char* s1, const char* s2)
     return kii_strcpy(s1, s2);
 }
 
-kii_bool_t prv_curl_slist_append(struct curl_slist** header_list, ...)
+struct curl_slist* prv_curl_slist_create(const char* first, ...)
 {
-    kii_bool_t retval = KII_TRUE;
+    struct curl_slist* retval = NULL;
     const char* header = NULL;
     va_list list;
-    va_start(list, header_list);
-    for (header = va_arg(list, char*);
-            header != NULL; header = va_arg(list, char*)) {
-        struct curl_slist* tmp = curl_slist_append(*header_list, header);
+    va_start(list, first);
+    for (header = first; header != NULL; header = va_arg(list, char*)) {
+        struct curl_slist* tmp = curl_slist_append(retval, header);
         if (tmp == NULL) {
-            retval = KII_FALSE;
+            curl_slist_free_all(retval);
+            retval = NULL;
             break;
         }
-        *header_list = tmp;
+        retval = tmp;
     }
     va_end(list);
     return retval;
