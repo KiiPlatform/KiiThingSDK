@@ -112,7 +112,7 @@ void prv_kii_set_error(prv_kii_app_t* app, kii_error_t* new_error)
     app->last_error = new_error;
 }
 
-static kii_error_t* prv_construct_kii_error(
+static kii_error_t* prv_kii_error_init(
         int status_code,
         const char* error_code)
 {
@@ -394,7 +394,7 @@ kii_error_code_t prv_execute_curl(CURL* curl,
                     }
                     json_decref(errJson);
                 }
-                *error = prv_construct_kii_error((int)(*response_status_code),
+                *error = prv_kii_error_init((int)(*response_status_code),
                         error_code);
                 if (error_code != NULL) {
                     M_KII_FREE_NULLIFY(error_code);
@@ -404,7 +404,7 @@ kii_error_code_t prv_execute_curl(CURL* curl,
         case CURLE_WRITE_ERROR:
             return KIIE_RESPWRITE;
         default:
-            *error = prv_construct_kii_error(0, KII_ECODE_CONNECTION);
+            *error = prv_kii_error_init(0, KII_ECODE_CONNECTION);
             return *error != NULL ? KIIE_FAIL : KIIE_LOWMEMORY;
     }
 }
@@ -532,7 +532,7 @@ kii_error_code_t kii_register_thing(kii_app_t app,
                 char* temp = json_dumps(accessTokenJson, JSON_ENCODE_ANY);
                 *out_access_token = temp;
             } else {
-                err = prv_construct_kii_error((int)respCode, KII_ECODE_PARSE);
+                err = prv_kii_error_init((int)respCode, KII_ECODE_PARSE);
                 prv_kii_set_error(pApp, err);
                 ret = err != NULL ? KIIE_FAIL : KIIE_LOWMEMORY;
                 goto ON_EXIT;
@@ -951,7 +951,7 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
         }
     }
 
-    error = prv_construct_kii_error((int)respCode, KII_ECODE_PARSE);
+    error = prv_kii_error_init((int)respCode, KII_ECODE_PARSE);
     prv_kii_set_error(app, error);
     ret = error != NULL ? KIIE_FAIL : KIIE_LOWMEMORY;
     goto ON_EXIT;
@@ -1066,7 +1066,7 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
         mqttTtlJson = json_object_get(respBodyJson, "X-MQTT-TTL");
         if (userNameJson == NULL || passwordJson == NULL ||
             mqttTopicJson == NULL || hostJson == NULL || mqttTtlJson == NULL) {
-            error = prv_construct_kii_error(0, KII_ECODE_PARSE);
+            error = prv_kii_error_init(0, KII_ECODE_PARSE);
             if (error == NULL) {
                 ret = KIIE_LOWMEMORY;
             } else {
@@ -1111,7 +1111,7 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
         goto ON_EXIT;
     }
     /* if body not present : parse error */
-    error = prv_construct_kii_error((int)respCode, KII_ECODE_PARSE);
+    error = prv_kii_error_init((int)respCode, KII_ECODE_PARSE);
     prv_kii_set_error(app, error);
     ret = error != NULL ? KIIE_FAIL : KIIE_LOWMEMORY;
     goto ON_EXIT;
