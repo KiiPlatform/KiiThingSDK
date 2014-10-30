@@ -532,17 +532,19 @@ ON_EXIT:
 kii_bucket_t kii_init_thing_bucket(const kii_thing_t thing,
                                    const kii_char_t* bucket_name)
 {
+    prv_kii_thing_t* pThing = (prv_kii_thing_t*)thing;
     prv_kii_bucket_t* retval = kii_malloc(sizeof(prv_kii_bucket_t));
-    char* vendor_thing_id_str = kii_strdup(vendor_thing_id);
+    char* thing_id = kii_strdup(pThing->kii_thing_id);
     char* bucket_name_str = kii_strdup(bucket_name);
-    if (retval == NULL || vendor_thing_id_str == NULL ||
+
+    if (retval == NULL || thing_id == NULL ||
             bucket_name_str == NULL) {
         M_KII_FREE_NULLIFY(retval);
-        M_KII_FREE_NULLIFY(vendor_thing_id_str);
+        M_KII_FREE_NULLIFY(thing_id);
         M_KII_FREE_NULLIFY(bucket_name_str);
         return NULL;
     }
-    retval->vendor_thing_id = vendor_thing_id_str;
+    retval->kii_thing_id = thing_id;
     retval->bucket_name = bucket_name_str;
     return retval;
 }
