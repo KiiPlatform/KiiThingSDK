@@ -81,3 +81,22 @@ static char* prv_url_encoded_copy(char* s1, const char* s2)
     /* TODO: copy url encoded s2 string to s1. */
     return kii_strcpy(s1, s2);
 }
+
+struct curl_slist* prv_curl_slist_create(const char* first, ...)
+{
+    struct curl_slist* retval = NULL;
+    const char* header = NULL;
+    va_list list;
+    va_start(list, first);
+    for (header = first; header != NULL; header = va_arg(list, char*)) {
+        struct curl_slist* tmp = curl_slist_append(retval, header);
+        if (tmp == NULL) {
+            curl_slist_free_all(retval);
+            retval = NULL;
+            break;
+        }
+        retval = tmp;
+    }
+    va_end(list);
+    return retval;
+}

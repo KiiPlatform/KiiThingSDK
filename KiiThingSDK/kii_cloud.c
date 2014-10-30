@@ -97,8 +97,16 @@ static kii_error_t* prv_construct_kii_error(
         const char* error_code)
 {
     kii_error_t* retval = kii_malloc(sizeof(kii_error_t));
+    char* tmp_error_code = kii_strdup(error_code == NULL ? "" : error_code);
+
+    if (retval == NULL || tmp_error_code == NULL) {
+        M_KII_FREE_NULLIFY(tmp_error_code);
+        M_KII_FREE_NULLIFY(retval);
+        return NULL;
+    }
+
     retval->status_code = status_code;
-    retval->error_code = kii_strdup(error_code == NULL ? "" : error_code);
+    retval->error_code = tmp_error_code;
     return retval;
 }
 
@@ -314,6 +322,9 @@ kii_error_code_t prv_execute_curl(CURL* curl,
         case PATCH:
             request_headers = curl_slist_append(request_headers,
                     "X-HTTP-METHOD-OVERRIDE: PATCH");
+            if (request_headers == NULL) {
+                return KIIE_LOWMEMORY;
+            }
             if (request_body != NULL) {
                 curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
             }
@@ -346,7 +357,7 @@ kii_error_code_t prv_execute_curl(CURL* curl,
     curlCode = curl_easy_perform(curl);
     if (curlCode != CURLE_OK) {
         *error = prv_construct_kii_error(0, KII_ECODE_CONNECTION);
-        return KIIE_FAIL;
+        return *error != NULL ? KIIE_FAIL : KIIE_LOWMEMORY;
     } else {
         M_KII_DEBUG(prv_log("response: %s", *response_body));
         curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, response_status_code);
@@ -368,7 +379,7 @@ kii_error_code_t prv_execute_curl(CURL* curl,
             if (error_code != NULL) {
                 M_KII_FREE_NULLIFY(error_code);
             }
-            return KIIE_FAIL;
+            return *error != NULL ? KIIE_FAIL : KIIE_LOWMEMORY;
         }
     }
 }
@@ -406,15 +417,28 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     /* prepare URL */
     reqUrl = prv_build_url(pApp->site_url, "apps", pApp->app_id, "things",
             NULL);
+    if (reqUrl == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
     
     /* prepare headers */
     appIdHdr = prv_new_header_string("x-kii-appid", pApp->app_id);
     appkeyHdr = prv_new_header_string("x-kii-appkey", pApp->app_key);
     contentTypeHdr = prv_new_header_string("content-type",
                                                  "application/vnd.kii.ThingRegistrationAndAuthorizationRequest+json");
-    headers = curl_slist_append(headers, appIdHdr);
-    headers = curl_slist_append(headers, appkeyHdr);
-    headers = curl_slist_append(headers, contentTypeHdr);
+    if (appIdHdr == NULL ||
+            appkeyHdr == NULL ||
+            contentTypeHdr == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+
+    headers = prv_curl_slist_create(appIdHdr, appkeyHdr, contentTypeHdr, NULL);
+    if (headers == NULL) {;
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
     
     /* prepare request data */
     if (user_data != NULL) {
@@ -454,8 +478,12 @@ kii_error_code_t kii_register_thing(kii_app_t app,
                 *out_access_token = temp;
             } else {
                 err = prv_construct_kii_error((int)respCode, KII_ECODE_PARSE);
-                prv_kii_set_error(pApp, err);
-                ret = KIIE_FAIL;
+                if (err == NULL) {
+                    ret = KIIE_LOWMEMORY;
+                } else {
+                    prv_kii_set_error(pApp, err);
+                    ret = KIIE_FAIL;
+                }
                 goto ON_EXIT;
             }
             kii_json_decref(respJson);
@@ -667,9 +695,12 @@ kii_error_code_t kii_subscribe_topic(kii_app_t app,
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
     }
-    reqHeaders = curl_slist_append(reqHeaders, appIdHdr);
-    reqHeaders = curl_slist_append(reqHeaders, appkeyHdr);
-    reqHeaders = curl_slist_append(reqHeaders, authHdr);
+
+    reqHeaders = prv_curl_slist_create(appIdHdr, appkeyHdr, authHdr, NULL);
+    if (reqHeaders == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
 
     ret = prv_execute_curl(pApp->curl_easy,
                      url,
@@ -747,6 +778,10 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
                         pApp->app_id,
                         "installations",
                         NULL);
+    if (url == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
     
     /* Prepare body */
     reqBodyJson = json_object();
@@ -761,11 +796,20 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
     contentTypeHdr = prv_new_header_string("content-type",
                                            "application/vnd.kii.InstallationCreationRequest+json");
     authHdr = prv_new_auth_header_string(access_token);
-    
-    reqHeaders = curl_slist_append(reqHeaders, appIdHdr);
-    reqHeaders = curl_slist_append(reqHeaders, appkeyHdr);
-    reqHeaders = curl_slist_append(reqHeaders, contentTypeHdr);
-    reqHeaders = curl_slist_append(reqHeaders, authHdr);
+    if (appIdHdr == NULL ||
+            appkeyHdr == NULL ||
+            contentTypeHdr == NULL ||
+            authHdr == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+
+    reqHeaders = prv_curl_slist_create(appIdHdr, appkeyHdr, contentTypeHdr,
+            authHdr, NULL);
+    if (reqHeaders == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
 
     exeCurlRet = prv_execute_curl(pApp->curl_easy,
                                   url,
@@ -800,8 +844,12 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
     }
 
     error = prv_construct_kii_error((int)respCode, KII_ECODE_PARSE);
-    prv_kii_set_error(app, error);
-    ret = KIIE_FAIL;
+    if (error == NULL) {
+        ret = KIIE_LOWMEMORY;
+    } else {
+        prv_kii_set_error(app, error);
+        ret = KIIE_FAIL;
+    }
     goto ON_EXIT;
 
 ON_EXIT:
@@ -854,15 +902,28 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
                         installation_id,
                         "mqtt-endpoint",
                         NULL);
+    if (url == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
 
     M_KII_DEBUG(prv_log("mqtt endpoint url: %s", url));
     /* Prepare Headers */
     appIdHdr = prv_new_header_string("x-kii-appid", pApp->app_id);
     appkeyHdr = prv_new_header_string("x-kii-appkey", pApp->app_key);
     authHdr = prv_new_auth_header_string(access_token);
-    reqHeaders = curl_slist_append(reqHeaders, appIdHdr);
-    reqHeaders = curl_slist_append(reqHeaders, appkeyHdr);
-    reqHeaders = curl_slist_append(reqHeaders, authHdr);
+    if (appIdHdr == NULL ||
+            appkeyHdr == NULL ||
+            authHdr == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+
+    reqHeaders = prv_curl_slist_create(appIdHdr, appkeyHdr, authHdr, NULL);
+    if (reqHeaders == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
 
     exeCurlRet = prv_execute_curl(pApp->curl_easy,
                                   url,
@@ -902,8 +963,12 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
         if (userNameJson == NULL || passwordJson == NULL ||
             mqttTopicJson == NULL || hostJson == NULL || mqttTtlJson == NULL) {
             error = prv_construct_kii_error(0, KII_ECODE_PARSE);
-            prv_kii_set_error(app, error);
-            ret = KIIE_FAIL;
+            if (error == NULL) {
+                ret = KIIE_LOWMEMORY;
+            } else {
+                prv_kii_set_error(app, error);
+                ret = KIIE_FAIL;
+            }
             goto ON_EXIT;
         }
 
@@ -943,8 +1008,12 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
     }
     /* if body not present : parse error */
     error = prv_construct_kii_error((int)respCode, KII_ECODE_PARSE);
-    prv_kii_set_error(app, error);
-    ret = KIIE_FAIL;
+    if (error == NULL) {
+        ret = KIIE_LOWMEMORY;
+    } else {
+        prv_kii_set_error(app, error);
+        ret = KIIE_FAIL;
+    }
     goto ON_EXIT;
 
 ON_EXIT:
