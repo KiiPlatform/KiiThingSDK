@@ -691,8 +691,82 @@ kii_error_code_t kii_unsubscribe_topic(kii_app_t app,
                                        const kii_char_t* access_token,
                                        const kii_topic_t topic)
 {
-    /* TODO: implement it. */
-    return KIIE_FAIL;
+    prv_kii_topic_t* pTopic = (prv_kii_topic_t*)topic;
+    prv_kii_app_t* pApp = (prv_kii_app_t*)app;
+    const char* thingId = pTopic->vendor_thing_id;
+    const char* topicName = pTopic->topic_name;
+    char* url = NULL;
+    struct curl_slist* reqHeaders = NULL;
+    char* appIdHdr = NULL;
+    char* appkeyHdr = NULL;
+    char* authHdr = NULL;
+    kii_error_t* error;
+    kii_error_code_t ret = KIIE_FAIL;
+    char* thingIdPath = NULL;
+    long respStatus = 0;
+    char* respBodyStr = NULL;
+    
+    thingIdPath = prv_new_header_string("VENDOR_THING_ID", thingId);
+    if (thingIdPath == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+
+    /* Prepare Url */
+    url = prv_build_url(pApp->site_url,
+                        "apps",
+                        pApp->app_id,
+                        "things",
+                        thingIdPath,
+                        "topics",
+                        topicName,
+                        "push",
+                        "subscriptions",
+                        "things",
+                        thingIdPath,
+                        NULL);
+    if (url == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+
+    /* Prepare headers */
+    appIdHdr = prv_new_header_string("x-kii-appid", pApp->app_id);
+    appkeyHdr = prv_new_header_string("x-kii-appkey", pApp->app_key);
+    authHdr = prv_new_auth_header_string(access_token);
+    if (appIdHdr == NULL || appkeyHdr == NULL || authHdr == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+    reqHeaders = curl_slist_append(reqHeaders, appIdHdr);
+    reqHeaders = curl_slist_append(reqHeaders, appkeyHdr);
+    reqHeaders = curl_slist_append(reqHeaders, authHdr);
+
+    ret = prv_execute_curl(pApp->curl_easy,
+                           url,
+                           DELETE,
+                           NULL,
+                           reqHeaders,
+                           &respStatus,
+                           &respBodyStr,
+                           NULL,
+                           &error);
+    if (ret != KIIE_OK) {
+        ret = KIIE_FAIL;
+        prv_kii_set_error(app, error);
+        goto ON_EXIT;
+    }
+    ret = KIIE_OK;
+
+ON_EXIT:
+    M_KII_FREE_NULLIFY(thingIdPath);
+    M_KII_FREE_NULLIFY(url);
+    M_KII_FREE_NULLIFY(appIdHdr);
+    M_KII_FREE_NULLIFY(appkeyHdr);
+    M_KII_FREE_NULLIFY(authHdr);
+    curl_slist_free_all(reqHeaders);
+    M_KII_FREE_NULLIFY(respBodyStr);
+    return ret;
 }
 
 kii_error_code_t kii_is_topic_subscribed(kii_app_t app,

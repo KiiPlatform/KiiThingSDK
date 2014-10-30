@@ -110,7 +110,23 @@ static const char* REGISTERED_THING_VID = "266738FA-BEFF-4805-AE08-D816E3C154A4"
 -(void) testSubscribeTopic {
     kii_app_t app = kii_init_app(APPID, APPKEY, BASEURL);
     kii_topic_t topic = kii_init_thing_topic(REGISTERED_THING_VID, "myTopic");
+    
     kii_error_code_t ret = kii_subscribe_topic(app, ACCESS_TOKEN, topic);
+    if (ret != KIIE_OK) {
+        kii_error_t* err = kii_get_last_error(app);
+        NSLog(@"code: %s", err->error_code);
+        NSLog(@"resp code: %d", err->status_code);
+    }
+    XCTAssertEqual(ret, KIIE_OK, "subscribe topic failed");
+    kii_dispose_topic(topic);
+    kii_dispose_app(app);
+}
+
+-(void) testUnsubscribeTopic {
+    kii_app_t app = kii_init_app(APPID, APPKEY, BASEURL);
+    kii_topic_t topic = kii_init_thing_topic(REGISTERED_THING_VID, "myTopic");
+
+    kii_error_code_t ret = kii_unsubscribe_topic(app, ACCESS_TOKEN, topic);
     if (ret != KIIE_OK) {
         kii_error_t* err = kii_get_last_error(app);
         NSLog(@"code: %s", err->error_code);
