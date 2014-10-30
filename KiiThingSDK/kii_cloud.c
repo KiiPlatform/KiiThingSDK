@@ -467,6 +467,8 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     M_KII_ASSERT(thing_password != NULL);
     M_KII_ASSERT(out_thing !=NULL);
 
+    prv_kii_set_error(pApp, NULL);
+
     /* prepare URL */
     reqUrl = prv_build_url(pApp->site_url, "apps", pApp->app_id, "things",
             NULL);
@@ -512,49 +514,35 @@ kii_error_code_t kii_register_thing(kii_app_t app,
 
     exeCurlRet = prv_execute_curl(pApp->curl_easy, reqUrl, POST,
             reqStr, headers, &respCode, &respData, NULL, &err);
-    switch (exeCurlRet) {
-        case KIIE_OK:
-            /* Check response code */
-            {
-                json_error_t jErr;
-                json_t* respJson = NULL;
-                M_KII_DEBUG(prv_log("response: %s", respData));
-                respJson = json_loads(respData, 0, &jErr);
-                if (respJson != NULL) {
-                    json_t* accessTokenJson = json_object_get(respJson,
-                            "_accessToken");
-                    if (out_access_token != NULL) {
-                        char* temp = json_dumps(accessTokenJson,
-                                JSON_ENCODE_ANY);
-                        *out_access_token = temp;
-                    } else {
-                        err = prv_construct_kii_error((int)respCode,
-                                KII_ECODE_PARSE);
-                        if (err == NULL) {
-                            ret = KIIE_LOWMEMORY;
-                        } else {
-                            prv_kii_set_error(pApp, err);
-                            ret = KIIE_FAIL;
-                        }
-                        goto ON_EXIT;
-                    }
-                    kii_json_decref(respJson);
-                }
-                prv_kii_set_error(pApp, NULL);
-                ret = KIIE_OK;
+    if (exeCurlRet != KIIE_OK) {
+        prv_kii_set_error(pApp, err);
+        ret = exeCurlRet;
+        goto ON_EXIT;
+    }
+
+    /* Check response code */
+    {
+        json_error_t jErr;
+        json_t* respJson = NULL;
+        M_KII_DEBUG(prv_log("response: %s", respData));
+        respJson = json_loads(respData, 0, &jErr);
+        if (respJson != NULL) {
+            json_t* accessTokenJson = json_object_get(respJson, "_accessToken");
+            if (accessTokenJson != NULL) {
+                char* temp = json_dumps(accessTokenJson, JSON_ENCODE_ANY);
+                *out_access_token = temp;
+            } else {
+                err = prv_construct_kii_error((int)respCode, KII_ECODE_PARSE);
+                prv_kii_set_error(pApp, err);
+                ret = err != NULL ? KIIE_FAIL : KIIE_LOWMEMORY;
                 goto ON_EXIT;
             }
-        case KIIE_LOWMEMORY:
-            goto ON_EXIT;
-        case KIIE_RESPWRITE:
-            goto ON_EXIT;
-        default:
-            prv_kii_set_error(pApp, err);
-            ret = KIIE_FAIL;
-            goto ON_EXIT;
-    }
             /* TODO: parse thing id */
-          // kii_json_decref(respJson);
+            kii_json_decref(respJson);
+        }
+        ret = KIIE_OK;
+        goto ON_EXIT;
+    }
     
 ON_EXIT:
     M_KII_FREE_NULLIFY(appIdHdr);
@@ -774,20 +762,8 @@ kii_error_code_t kii_subscribe_topic(kii_app_t app,
                      &respBodyStr,
                      NULL,
                      &error);
-    switch (ret) {
-        case KIIE_OK:
-            /* Nothing to do. */
-            goto ON_EXIT;
-        case KIIE_LOWMEMORY:
-            /* Nothing to do. */
-            goto ON_EXIT;
-        case KIIE_RESPWRITE:
-            /* Nothing to do. */
-            goto ON_EXIT;
-        default:
-            ret = KIIE_FAIL;
-            prv_kii_set_error(app, error);
-            goto ON_EXIT;
+    if (ret != KIIE_OK) {
+        prv_kii_set_error(app, error);
     }
 
 ON_EXIT:
@@ -957,44 +933,28 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
                                   &respBodyStr,
                                   NULL,
                                   &error);
-    switch (exeCurlRet) {
-        case KIIE_OK:
-            /* Parse body */
-            respBodyJson = json_loads(respBodyStr, 0, &jErr);
-            if (respBodyJson != NULL) {
-                json_t* installIDJson = NULL;
-                installIDJson = json_object_get(respBodyJson,
-                        "installationID");
-                if (installIDJson != NULL) {
-                    *out_installation_id =
-                        kii_strdup(json_string_value(installIDJson));
-                    if (*out_installation_id != NULL) {
-                        ret = KIIE_OK;
-                        goto ON_EXIT;
-                    } else {
-                        ret = KIIE_LOWMEMORY;
-                        goto ON_EXIT;
-                    }
-                }
-            } else {
-                error = prv_construct_kii_error((int)respCode, KII_ECODE_PARSE);
-                if (error == NULL) {
-                    ret = KIIE_LOWMEMORY;
-                } else {
-                    prv_kii_set_error(app, error);
-                    ret = KIIE_FAIL;
-                }
-                goto ON_EXIT;
-            }
-        case KIIE_LOWMEMORY:
-            goto ON_EXIT;
-        case KIIE_RESPWRITE:
-            goto ON_EXIT;
-        default:
-            prv_kii_set_error(app, error);
-            ret = KIIE_FAIL;
-            goto ON_EXIT;
+    if (exeCurlRet != KIIE_OK) {
+        prv_kii_set_error(app, error);
+        ret = exeCurlRet;
+        goto ON_EXIT;
     }
+
+    /* Parse body */
+    respBodyJson = json_loads(respBodyStr, 0, &jErr);
+    if (respBodyJson != NULL) {
+        json_t* installIDJson = NULL;
+        installIDJson = json_object_get(respBodyJson, "installationID");
+        if (installIDJson != NULL) {
+            *out_installation_id = kii_strdup(json_string_value(installIDJson));
+            ret = *out_installation_id != NULL ? KIIE_OK : KIIE_LOWMEMORY;
+            goto ON_EXIT;
+        }
+    }
+
+    error = prv_construct_kii_error((int)respCode, KII_ECODE_PARSE);
+    prv_kii_set_error(app, error);
+    ret = error != NULL ? KIIE_FAIL : KIIE_LOWMEMORY;
+    goto ON_EXIT;
 
 ON_EXIT:
     kii_json_decref(respBodyJson);
@@ -1078,97 +1038,83 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
                                   &respBodyStr,
                                   NULL,
                                   &error);
-    switch (exeCurlRet) {
-        case KIIE_OK:
-            /* Parse body */
+    if (exeCurlRet != KIIE_OK) {
+        if (error->status_code == 503) {
+            json_t* retryAfterJson = NULL;
             respBodyJson = json_loads(respBodyStr, 0, &jErr);
-            if (respBodyJson != NULL) {
-                userNameJson = json_object_get(respBodyJson, "username");
-                passwordJson = json_object_get(respBodyJson, "password");
-                mqttTopicJson = json_object_get(respBodyJson, "mqttTopic");
-                hostJson = json_object_get(respBodyJson, "host");
-                mqttTtlJson = json_object_get(respBodyJson, "X-MQTT-TTL");
-                if (userNameJson == NULL || passwordJson == NULL ||
-                        mqttTopicJson == NULL || hostJson == NULL ||
-                        mqttTtlJson == NULL) {
-                    error = prv_construct_kii_error(0, KII_ECODE_PARSE);
-                    if (error == NULL) {
-                        ret = KIIE_LOWMEMORY;
-                    } else {
-                        prv_kii_set_error(app, error);
-                        ret = KIIE_FAIL;
-                    }
-                    goto ON_EXIT;
-                } else {
-                    kii_mqtt_endpoint_t* endpoint =
-                      kii_malloc(sizeof(kii_mqtt_endpoint_t));
-                    char* username =
-                        kii_strdup(json_string_value(userNameJson));
-                    char* password =
-                        kii_strdup(json_string_value(passwordJson));
-                    char* topic =
-                        kii_strdup(json_string_value(mqttTopicJson));
-                    char* host = kii_strdup(json_string_value(hostJson));
-                    kii_ulong_t ttl =
-                        (kii_ulong_t)json_integer_value(mqttTtlJson);
-
-                    if (endpoint == NULL ||
-                            username == NULL ||
-                            password == NULL ||
-                            topic == NULL ||
-                            host == NULL) {
-                        M_KII_FREE_NULLIFY(endpoint);
-                        M_KII_FREE_NULLIFY(username);
-                        M_KII_FREE_NULLIFY(password);
-                        M_KII_FREE_NULLIFY(topic);
-                        M_KII_FREE_NULLIFY(host);
-                        ret = KIIE_LOWMEMORY;
-                        goto ON_EXIT;
-                    }
-
-                    endpoint->username = username;
-                    endpoint->password = password;
-                    endpoint->topic = topic;
-                    endpoint->host = host;
-                    endpoint->ttl = ttl;
-                    *out_endpoint = endpoint;
-                }
-
-                ret = KIIE_OK;
-                goto ON_EXIT;
-            }
-        case KIIE_LOWMEMORY:
-            goto ON_EXIT;
-        case KIIE_RESPWRITE:
-            goto ON_EXIT;
-        default:
-            if (error->status_code == 503) {
-                json_t* retryAfterJson = NULL;
-                respBodyJson = json_loads(respBodyStr, 0, &jErr);
-                if (respBodyJson) {
-                    int retryAfterInt = 0;
-                    retryAfterJson =
-                        json_object_get(respBodyJson, "retryAfter");
-                    retryAfterInt = (int)json_integer_value(retryAfterJson);
-                    if (retryAfterInt) {
-                        *out_retry_after_in_second = retryAfterInt;
-                    }
-                }
-                prv_kii_set_error(app, error);
-                ret = KIIE_FAIL;
-            } else {
-                /* if body not present : parse error */
-                error = prv_construct_kii_error((int)respCode, KII_ECODE_PARSE);
-                if (error == NULL) {
-                    ret = KIIE_LOWMEMORY;
-                } else {
-                    prv_kii_set_error(app, error);
-                    ret = KIIE_FAIL;
+            if (respBodyJson) {
+                int retryAfterInt = 0;
+                retryAfterJson = json_object_get(respBodyJson, "retryAfter");
+                retryAfterInt = (int)json_integer_value(retryAfterJson);
+                if (retryAfterInt) {
+                    *out_retry_after_in_second = retryAfterInt;
                 }
             }
-            goto ON_EXIT;
+        }
+        prv_kii_set_error(app, error);
+        ret = exeCurlRet;
+        goto ON_EXIT;
     }
 
+    /* Parse body */
+    respBodyJson = json_loads(respBodyStr, 0, &jErr);
+    if (respBodyJson != NULL) {
+        userNameJson = json_object_get(respBodyJson, "username");
+        passwordJson = json_object_get(respBodyJson, "password");
+        mqttTopicJson = json_object_get(respBodyJson, "mqttTopic");
+        hostJson = json_object_get(respBodyJson, "host");
+        mqttTtlJson = json_object_get(respBodyJson, "X-MQTT-TTL");
+        if (userNameJson == NULL || passwordJson == NULL ||
+            mqttTopicJson == NULL || hostJson == NULL || mqttTtlJson == NULL) {
+            error = prv_construct_kii_error(0, KII_ECODE_PARSE);
+            if (error == NULL) {
+                ret = KIIE_LOWMEMORY;
+            } else {
+                prv_kii_set_error(app, error);
+                ret = KIIE_FAIL;
+            }
+            goto ON_EXIT;
+        }
+
+        {
+            kii_mqtt_endpoint_t* endpoint =
+                kii_malloc(sizeof(kii_mqtt_endpoint_t));
+            char* username = kii_strdup(json_string_value(userNameJson));
+            char* password = kii_strdup(json_string_value(passwordJson));
+            char* topic = kii_strdup(json_string_value(mqttTopicJson));
+            char* host = kii_strdup(json_string_value(hostJson));
+            kii_ulong_t ttl = (kii_ulong_t)json_integer_value(mqttTtlJson);
+
+            if (endpoint == NULL ||
+                    username == NULL ||
+                    password == NULL ||
+                    topic == NULL ||
+                    host == NULL) {
+                M_KII_FREE_NULLIFY(endpoint);
+                M_KII_FREE_NULLIFY(username);
+                M_KII_FREE_NULLIFY(password);
+                M_KII_FREE_NULLIFY(topic);
+                M_KII_FREE_NULLIFY(host);
+                ret = KIIE_LOWMEMORY;
+                goto ON_EXIT;
+            }
+
+            endpoint->username = username;
+            endpoint->password = password;
+            endpoint->topic = topic;
+            endpoint->host = host;
+            endpoint->ttl = ttl;
+            *out_endpoint = endpoint;
+        }
+
+        ret = KIIE_OK;
+        goto ON_EXIT;
+    }
+    /* if body not present : parse error */
+    error = prv_construct_kii_error((int)respCode, KII_ECODE_PARSE);
+    prv_kii_set_error(app, error);
+    ret = error != NULL ? KIIE_FAIL : KIIE_LOWMEMORY;
+    goto ON_EXIT;
 
 ON_EXIT:
     M_KII_FREE_NULLIFY(url);
