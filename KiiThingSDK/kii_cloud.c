@@ -35,12 +35,12 @@ typedef struct prv_kii_thing_t {
 } prv_kii_thing_t;
 
 typedef struct prv_kii_bucket_t {
-    char* vendor_thing_id;
+    char* kii_thing_id;
     char* bucket_name;
 } prv_kii_bucket_t;
 
 typedef struct prv_kii_topic_t {
-    char* vendor_thing_id;
+    char* kii_thing_id;
     char* topic_name;
 } prv_kii_topic_t;
 
@@ -130,7 +130,7 @@ void kii_dispose_bucket(kii_bucket_t bucket)
 {
     prv_kii_bucket_t* pBucket = (prv_kii_bucket_t*) bucket;
     M_KII_FREE_NULLIFY(pBucket->bucket_name);
-    M_KII_FREE_NULLIFY(pBucket->vendor_thing_id);
+    M_KII_FREE_NULLIFY(pBucket->kii_thing_id);
     M_KII_FREE_NULLIFY(bucket);
 }
 
@@ -138,7 +138,7 @@ void kii_dispose_topic(kii_topic_t topic)
 {
     prv_kii_topic_t* pTopic = (prv_kii_topic_t*) topic;
     M_KII_FREE_NULLIFY(pTopic->topic_name);
-    M_KII_FREE_NULLIFY(pTopic->vendor_thing_id);
+    M_KII_FREE_NULLIFY(pTopic->kii_thing_id);
     M_KII_FREE_NULLIFY(topic);
 }
 
@@ -377,12 +377,29 @@ kii_error_code_t prv_execute_curl(CURL* curl,
     }
 }
 
+void kii_dispose_thing(kii_thing_t thing)
+{
+    /* TODO: implement */
+}
+
+const char* kii_thing_serialize(const kii_thing_t thing)
+{
+    /* TODO: implement */
+    return NULL;
+}
+
+kii_thing_t* kii_thing_deserialize(const char* serialized_thing)
+{
+    /* TODO: implement */
+    return NULL;
+}
 
 kii_error_code_t kii_register_thing(kii_app_t app,
                                     const kii_char_t* vendor_thing_id,
                                     const kii_char_t* thing_password,
                                     const kii_char_t* opt_thing_type,
                                     const kii_json_t* user_data,
+                                    kii_thing_t* out_thing,
                                     kii_char_t** out_access_token)
 {
     prv_kii_app_t* pApp = (prv_kii_app_t*)app;
@@ -406,6 +423,7 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     M_KII_ASSERT(pApp->curl_easy != NULL);
     M_KII_ASSERT(vendor_thing_id != NULL);
     M_KII_ASSERT(thing_password != NULL);
+    M_KII_ASSERT(out_thing !=NULL);
 
     /* prepare URL */
     reqUrl = prv_build_url(pApp->site_url, "apps", pApp->app_id, "things",
@@ -462,6 +480,7 @@ kii_error_code_t kii_register_thing(kii_app_t app,
                 ret = KIIE_FAIL;
                 goto ON_EXIT;
             }
+            /* TODO: parse thing id */
             kii_json_decref(respJson);
         }
         prv_kii_set_error(pApp, NULL);
@@ -481,7 +500,8 @@ ON_EXIT:
     return ret;
 }
 
-kii_bucket_t kii_init_thing_bucket(const kii_char_t* vendor_thing_id,
+
+kii_bucket_t kii_init_thing_bucket(const kii_thing_t thing,
                                    const kii_char_t* bucket_name)
 {
     /* TODO: implement it. */
@@ -580,19 +600,23 @@ kii_error_code_t kii_is_bucket_subscribed(kii_app_t app,
     return KIIE_FAIL;
 }
 
-kii_topic_t kii_init_thing_topic(const kii_char_t* vendor_thing_id,
+kii_topic_t kii_init_thing_topic(const kii_thing_t thing,
                                  const kii_char_t* topic_name)
 {
     prv_kii_topic_t* topic = NULL;
     char* tempThingId = NULL;
     char* tempTopicName = NULL;
+    prv_kii_thing_t* pThing = (prv_kii_thing_t*)thing;
+    
+    M_KII_ASSERT(pThing->kii_thing_id != NULL);
+    M_KII_ASSERT(strlen(pThing->kii_thing_id) > 0);
 
     topic = kii_malloc(sizeof(prv_kii_topic_t));
     if (topic == NULL) {
         return NULL;
     }
 
-    tempThingId = kii_strdup(vendor_thing_id);
+    tempThingId = kii_strdup(pThing->kii_thing_id);
     if (tempThingId == NULL) {
         M_KII_FREE_NULLIFY(topic);
         return NULL;
@@ -605,7 +629,7 @@ kii_topic_t kii_init_thing_topic(const kii_char_t* vendor_thing_id,
         return NULL;
     }
 
-    topic->vendor_thing_id = tempThingId;
+    topic->kii_thing_id = tempThingId;
     topic->topic_name = tempTopicName;
     return topic;
 }
@@ -616,7 +640,7 @@ kii_error_code_t kii_subscribe_topic(kii_app_t app,
 {
     prv_kii_topic_t* pTopic = (prv_kii_topic_t*)topic;
     prv_kii_app_t* pApp = (prv_kii_app_t*)app;
-    const char* thingId = pTopic->vendor_thing_id;
+    const char* thingId = pTopic->kii_thing_id;
     const char* topicName = pTopic->topic_name;
     char* url = NULL;
     struct curl_slist* reqHeaders = NULL;
@@ -625,22 +649,15 @@ kii_error_code_t kii_subscribe_topic(kii_app_t app,
     char* authHdr = NULL;
     kii_error_t* error;
     kii_error_code_t ret = KIIE_FAIL;
-    char* thingIdPath = NULL;
     long respStatus = 0;
     char* respBodyStr = NULL;
-    
-    thingIdPath = prv_new_header_string("VENDOR_THING_ID", thingId);
-    if (thingIdPath == NULL) {
-        ret = KIIE_LOWMEMORY;
-        goto ON_EXIT;
-    }
 
     /* Prepare Url */
     url = prv_build_url(pApp->site_url,
                         "apps",
                         pApp->app_id,
                         "things",
-                        thingIdPath,
+                        thingId,
                         "topics",
                         topicName,
                         "push",
@@ -681,7 +698,6 @@ kii_error_code_t kii_subscribe_topic(kii_app_t app,
     ret = KIIE_OK;
 
 ON_EXIT:
-    M_KII_FREE_NULLIFY(thingIdPath);
     M_KII_FREE_NULLIFY(url);
     M_KII_FREE_NULLIFY(appIdHdr);
     M_KII_FREE_NULLIFY(appkeyHdr);
@@ -697,7 +713,7 @@ kii_error_code_t kii_unsubscribe_topic(kii_app_t app,
 {
     prv_kii_topic_t* pTopic = (prv_kii_topic_t*)topic;
     prv_kii_app_t* pApp = (prv_kii_app_t*)app;
-    const char* thingId = pTopic->vendor_thing_id;
+    const char* thingId = pTopic->kii_thing_id;
     const char* topicName = pTopic->topic_name;
     char* url = NULL;
     struct curl_slist* reqHeaders = NULL;
@@ -706,28 +722,21 @@ kii_error_code_t kii_unsubscribe_topic(kii_app_t app,
     char* authHdr = NULL;
     kii_error_t* error;
     kii_error_code_t ret = KIIE_FAIL;
-    char* thingIdPath = NULL;
     long respStatus = 0;
     char* respBodyStr = NULL;
-    
-    thingIdPath = prv_new_header_string("VENDOR_THING_ID", thingId);
-    if (thingIdPath == NULL) {
-        ret = KIIE_LOWMEMORY;
-        goto ON_EXIT;
-    }
 
     /* Prepare Url */
     url = prv_build_url(pApp->site_url,
                         "apps",
                         pApp->app_id,
                         "things",
-                        thingIdPath,
+                        thingId,
                         "topics",
                         topicName,
                         "push",
                         "subscriptions",
                         "things",
-                        thingIdPath,
+                        thingId,
                         NULL);
     if (url == NULL) {
         ret = KIIE_LOWMEMORY;
@@ -763,7 +772,6 @@ kii_error_code_t kii_unsubscribe_topic(kii_app_t app,
     ret = KIIE_OK;
 
 ON_EXIT:
-    M_KII_FREE_NULLIFY(thingIdPath);
     M_KII_FREE_NULLIFY(url);
     M_KII_FREE_NULLIFY(appIdHdr);
     M_KII_FREE_NULLIFY(appkeyHdr);
