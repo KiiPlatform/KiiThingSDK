@@ -33,8 +33,10 @@ static const char* APPKEY = "e45fcc2d31d6aca675af639bc5f04a26";
 static const char* BASEURL = "https://api-development-jp.internal.kii.com/api";
 
 // Pre registered thing.
-static const char* ACCESS_TOKEN = "2ELl7D5hVQAY_IxuGc3LY5yhu_GWBBd3EBP0hl1cw_s";
-static const char* REGISTERED_THING_VID = "266738FA-BEFF-4805-AE08-D816E3C154A4";
+static const char* ACCESS_TOKEN = "t6cV3HB65osoG9i0Yndkphk75F7XdswTt8KvL874-wY";
+static const char* REGISTERED_THING_TID = "th.53ae324be5a0-f808-4e11-d106-0241b0da";
+//static const char* REGISTERED_THING_VID = "96AAF4E6-0E30-472A-A3EC-902C914CBAB7";
+static const char* REGISTERED_THING_TOPIC = "myTopic";
 
 - (void)testRegisterThing {
     kii_app_t app = kii_init_app(APPID,
@@ -113,8 +115,8 @@ static const char* REGISTERED_THING_VID = "266738FA-BEFF-4805-AE08-D816E3C154A4"
 
 -(void) testSubscribeTopic {
     kii_app_t app = kii_init_app(APPID, APPKEY, BASEURL);
-    kii_thing_t myThing = kii_thing_deserialize(""); /* TODO: need real string */
-    kii_topic_t topic = kii_init_thing_topic(myThing, "myTopic");
+    kii_thing_t myThing = kii_thing_deserialize(REGISTERED_THING_TID);
+    kii_topic_t topic = kii_init_thing_topic(myThing, REGISTERED_THING_TOPIC);
 
     kii_error_code_t ret = kii_subscribe_topic(app, ACCESS_TOKEN, topic);
     if (ret != KIIE_OK) {
@@ -129,8 +131,8 @@ static const char* REGISTERED_THING_VID = "266738FA-BEFF-4805-AE08-D816E3C154A4"
 
 -(void) testUnsubscribeTopic {
     kii_app_t app = kii_init_app(APPID, APPKEY, BASEURL);
-    kii_thing_t myThing = kii_thing_deserialize(""); /* TODO: need real string */
-    kii_topic_t topic = kii_init_thing_topic(myThing, "myTopic");
+    kii_thing_t myThing = kii_thing_deserialize(REGISTERED_THING_TID);
+    kii_topic_t topic = kii_init_thing_topic(myThing, REGISTERED_THING_TOPIC);
 
     kii_error_code_t ret = kii_unsubscribe_topic(app, ACCESS_TOKEN, topic);
     if (ret != KIIE_OK) {
