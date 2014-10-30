@@ -399,13 +399,13 @@ kii_error_code_t prv_execute_curl(CURL* curl,
                 if (error_code != NULL) {
                     M_KII_FREE_NULLIFY(error_code);
                 }
-                return *error != NULL ? KIIE_FAIL : KIIE_LOWMEMORY;
+                return ((*error != NULL) ? KIIE_FAIL : KIIE_LOWMEMORY);
             }
         case CURLE_WRITE_ERROR:
             return KIIE_RESPWRITE;
         default:
             *error = prv_kii_error_init(0, KII_ECODE_CONNECTION);
-            return *error != NULL ? KIIE_FAIL : KIIE_LOWMEMORY;
+            return ((*error != NULL) ? KIIE_FAIL : KIIE_LOWMEMORY);
     }
 }
 
@@ -534,7 +534,7 @@ kii_error_code_t kii_register_thing(kii_app_t app,
             } else {
                 err = prv_kii_error_init((int)respCode, KII_ECODE_PARSE);
                 prv_kii_set_error(pApp, err);
-                ret = err != NULL ? KIIE_FAIL : KIIE_LOWMEMORY;
+                ret = ((err != NULL) ? KIIE_FAIL : KIIE_LOWMEMORY);
                 goto ON_EXIT;
             }
             /* TODO: parse thing id */
@@ -953,7 +953,7 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
 
     error = prv_kii_error_init((int)respCode, KII_ECODE_PARSE);
     prv_kii_set_error(app, error);
-    ret = error != NULL ? KIIE_FAIL : KIIE_LOWMEMORY;
+    ret = ((error != NULL) ? KIIE_FAIL : KIIE_LOWMEMORY);
     goto ON_EXIT;
 
 ON_EXIT:
@@ -1113,7 +1113,7 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
     /* if body not present : parse error */
     error = prv_kii_error_init((int)respCode, KII_ECODE_PARSE);
     prv_kii_set_error(app, error);
-    ret = error != NULL ? KIIE_FAIL : KIIE_LOWMEMORY;
+    ret = ((error != NULL) ? KIIE_FAIL : KIIE_LOWMEMORY);
     goto ON_EXIT;
 
 ON_EXIT:
