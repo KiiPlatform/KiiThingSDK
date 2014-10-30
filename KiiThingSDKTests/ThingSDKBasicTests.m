@@ -150,4 +150,36 @@ static const char* REGISTERED_THING_TOPIC = "myTopic";
     kii_dispose_app(app);
 }
 
+-(void) testCreateNewObject {
+    kii_app_t app = kii_init_app(APPID, APPKEY, BASEURL);
+    kii_bucket_t bucket = kii_init_thing_bucket(REGISTERED_THING_VID,
+            "myBucket");
+    json_t* contents = json_object();
+    kii_char_t* out_object_id = NULL;
+    kii_char_t* out_etag = NULL;
+    kii_error_code_t ret = kii_create_new_object(app, ACCESS_TOKEN, bucket,
+            contents, &out_object_id, &out_etag);
+    if (ret != KIIE_OK) {
+        kii_error_t* err = kii_get_last_error(app);
+        NSLog(@"code: %s", err->error_code);
+        NSLog(@"resp code: %d", err->status_code);
+    }
+    XCTAssertEqual(ret, KIIE_OK, "create new object failed.");
+    if (out_object_id != NULL) {
+        NSLog(@"objectID: %s", out_object_id);
+    } else {
+        XCTFail("out_object_id is NULL.");
+    }
+    if (out_etag != NULL) {
+        NSLog(@"ETag: %s", out_etag);
+    } else {
+        XCTFail("out_etag is NULL.");
+    }
+    kii_dispose_kii_char(out_etag);
+    kii_dispose_kii_char(out_object_id);
+    kii_json_decref(contents);
+    kii_dispose_bucket(bucket);
+    kii_dispose_app(app);
+}
+
 @end
