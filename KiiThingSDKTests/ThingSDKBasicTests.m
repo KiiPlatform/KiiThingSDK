@@ -152,8 +152,8 @@ static const char* REGISTERED_THING_TOPIC = "myTopic";
 
 -(void) testCreateNewObject {
     kii_app_t app = kii_init_app(APPID, APPKEY, BASEURL);
-    kii_bucket_t bucket = kii_init_thing_bucket(REGISTERED_THING_VID,
-            "myBucket");
+    kii_thing_t thing = kii_thing_deserialize(REGISTERED_THING_VID);
+    kii_bucket_t bucket = kii_init_thing_bucket(thing, "myBucket");
     json_t* contents = json_object();
     kii_char_t* out_object_id = NULL;
     kii_char_t* out_etag = NULL;
