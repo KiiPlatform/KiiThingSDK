@@ -30,6 +30,10 @@ typedef struct prv_kii_app_t {
     kii_error_t* last_error;
 } prv_kii_app_t;
 
+typedef struct prv_kii_thing_t {
+    char* kii_thing_id; /* thing id assigned by kii cloud */
+} prv_kii_thing_t;
+
 typedef struct prv_kii_bucket_t {
     char* vendor_thing_id;
     char* bucket_name;
