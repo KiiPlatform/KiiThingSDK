@@ -650,7 +650,7 @@ kii_topic_t kii_init_thing_topic(const kii_thing_t thing,
     prv_kii_thing_t* pThing = (prv_kii_thing_t*)thing;
     
     M_KII_ASSERT(pThing->kii_thing_id != NULL);
-    M_KII_ASSERT(strlen(pThing->kii_thing_id) > 0);
+    M_KII_ASSERT(kii_strlen(pThing->kii_thing_id) > 0);
 
     topic = kii_malloc(sizeof(prv_kii_topic_t));
     if (topic == NULL) {
