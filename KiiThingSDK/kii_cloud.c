@@ -526,15 +526,16 @@ kii_error_code_t kii_register_thing(kii_app_t app,
         json_t* respJson = NULL;
         M_KII_DEBUG(prv_log("response: %s", respData));
         respJson = json_loads(respData, 0, &jErr);
+
         if (respJson != NULL) {
-            json_t* accessTokenJson = json_object_get(respJson, "_accessToken");
-            json_t* thingIdJson = json_object_get(respJson, "_thingID");
-            ret = KIIE_OK;
-            if (accessTokenJson != NULL && thingIdJson != NULL) {
-                *out_access_token =
-                    kii_strdup(json_string_value(accessTokenJson));
-                *out_thing = (kii_thing_t)prv_kii_init_thing(
-                        json_string_value(thingIdJson));
+            const char* accessToken =
+                json_string_value(json_object_get(respJson, "_accessToken"));
+            const char* thingId =
+                json_string_value(json_object_get(respJson, "_thingID"));
+            if (accessToken != NULL && thingId != NULL) {
+                ret = KIIE_OK;
+                *out_access_token = kii_strdup(accessToken);
+                *out_thing = (kii_thing_t)prv_kii_init_thing(thingId);
                 if (*out_access_token == NULL || *out_thing == NULL) {
                     M_KII_FREE_NULLIFY(*out_access_token);
                     M_KII_FREE_NULLIFY(*out_thing);
