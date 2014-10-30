@@ -69,7 +69,7 @@ void kii_dispose_thing(kii_thing_t thing);
  * persistent storage to operate thing scope bucket, object and topic, etc.
  * to avoid getting thing information from cloud after the application
  * restart.
- * @return string to be stored.
+ * @return string to be stored. should be freed by application.
  * @see kii_thing_deserialize(const char*)
  */
 const char* kii_thing_serialize(const kii_thing_t thing);
@@ -84,7 +84,7 @@ const char* kii_thing_serialize(const kii_thing_t thing);
  * @return kii_thing_t instance restored from the string.
  * @see kii_thing_serialize(const kii_thing_t)
  */
-kii_thing_t* kii_thing_deserialize(const char* serialized_thing);
+kii_thing_t kii_thing_deserialize(const char* serialized_thing);
 
 /** Represents error.
  * should be disposed by kii_dispose_error(kii_error_t)

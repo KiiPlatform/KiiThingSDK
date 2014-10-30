@@ -34,6 +34,22 @@ typedef struct prv_kii_thing_t {
     char* kii_thing_id; /* thing id assigned by kii cloud */
 } prv_kii_thing_t;
 
+prv_kii_thing_t* prv_kii_init_thing(const char* kii_thing_id)
+{
+    prv_kii_thing_t* ret = kii_malloc(sizeof(prv_kii_thing_t));
+    char* thingIdCopy = NULL;
+    if (ret == NULL) {
+        return NULL;
+    }
+    thingIdCopy = kii_strdup(kii_thing_id);
+    if (thingIdCopy == NULL) {
+        M_KII_FREE_NULLIFY(ret);
+        return NULL;
+    }
+    ret->kii_thing_id = thingIdCopy;
+    return ret;
+}
+
 typedef struct prv_kii_bucket_t {
     char* kii_thing_id;
     char* bucket_name;
@@ -390,19 +406,29 @@ kii_error_code_t prv_execute_curl(CURL* curl,
 
 void kii_dispose_thing(kii_thing_t thing)
 {
-    /* TODO: implement */
+    prv_kii_thing_t* pThing = (prv_kii_thing_t*) thing;
+    M_KII_FREE_NULLIFY(pThing->kii_thing_id);
+    M_KII_FREE_NULLIFY(thing);
 }
 
-const char* kii_thing_serialize(const kii_thing_t thing)
+const kii_char_t* kii_thing_serialize(const kii_thing_t thing)
 {
-    /* TODO: implement */
-    return NULL;
+    prv_kii_thing_t* pThing = (prv_kii_thing_t*)thing;
+    kii_char_t* ret = NULL;
+
+    M_KII_ASSERT(pThing != NULL);
+    M_KII_ASSERT(pThing->kii_thing_id != NULL);
+    M_KII_ASSERT(kii_strlen(pThing->kii_thing_id) > 0);
+
+    ret = kii_strdup(pThing->kii_thing_id);
+    return ret;
 }
 
-kii_thing_t* kii_thing_deserialize(const char* serialized_thing)
+kii_thing_t kii_thing_deserialize(const char* serialized_thing)
 {
-    /* TODO: implement */
-    return NULL;
+    M_KII_ASSERT(serialized_thing != NULL);
+    M_KII_ASSERT(kii_strlen(serialized_thing) > 0);
+    return (kii_thing_t) prv_kii_init_thing(serialized_thing);
 }
 
 kii_error_code_t kii_register_thing(kii_app_t app,
