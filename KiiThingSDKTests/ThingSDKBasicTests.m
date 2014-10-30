@@ -45,10 +45,14 @@ static const char* REGISTERED_THING_VID = "266738FA-BEFF-4805-AE08-D816E3C154A4"
                              cStringUsingEncoding:NSUTF8StringEncoding];
     
     char* accessToken = NULL;
+    kii_thing_t myThing = NULL;
     kii_error_code_t ret = kii_register_thing(app,
                                               thing_id,
                                               "THERMOMETER",
-                                              "1234", NULL, &accessToken);
+                                              "1234", NULL,
+                                              &myThing,
+                                              &accessToken);
+    /* TODO examin myThing */
     XCTAssertEqual(ret, KIIE_OK, "register failed");
     XCTAssertTrue(strlen(accessToken) > 0, "access token invalid");
     if (ret != KIIE_OK) {
@@ -109,8 +113,26 @@ static const char* REGISTERED_THING_VID = "266738FA-BEFF-4805-AE08-D816E3C154A4"
 
 -(void) testSubscribeTopic {
     kii_app_t app = kii_init_app(APPID, APPKEY, BASEURL);
-    kii_topic_t topic = kii_init_thing_topic(REGISTERED_THING_VID, "myTopic");
+    kii_thing_t myThing = kii_thing_deserialize(""); /* TODO: need real string */
+    kii_topic_t topic = kii_init_thing_topic(myThing, "myTopic");
+
     kii_error_code_t ret = kii_subscribe_topic(app, ACCESS_TOKEN, topic);
+    if (ret != KIIE_OK) {
+        kii_error_t* err = kii_get_last_error(app);
+        NSLog(@"code: %s", err->error_code);
+        NSLog(@"resp code: %d", err->status_code);
+    }
+    XCTAssertEqual(ret, KIIE_OK, "subscribe topic failed");
+    kii_dispose_topic(topic);
+    kii_dispose_app(app);
+}
+
+-(void) testUnsubscribeTopic {
+    kii_app_t app = kii_init_app(APPID, APPKEY, BASEURL);
+    kii_thing_t myThing = kii_thing_deserialize(""); /* TODO: need real string */
+    kii_topic_t topic = kii_init_thing_topic(myThing, "myTopic");
+
+    kii_error_code_t ret = kii_unsubscribe_topic(app, ACCESS_TOKEN, topic);
     if (ret != KIIE_OK) {
         kii_error_t* err = kii_get_last_error(app);
         NSLog(@"code: %s", err->error_code);

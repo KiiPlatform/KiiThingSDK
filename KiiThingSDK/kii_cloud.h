@@ -50,6 +50,42 @@ typedef unsigned long kii_ulong_t;
 typedef char kii_char_t;
 typedef json_t kii_json_t;
 
+/** Represents thing.
+ * should be disposed by kii_dispose_thing(const kii_thing_t).
+ * Can be serialized by kii_thing_serialize(const kii_thing_t).
+ * Can be deserialized by kii_thing_deserialize(const char*)
+ * with serialized string obtained by kii_thing_serialize(const kii_thing_t).
+ */
+typedef void* kii_thing_t;
+
+/** Dispose kii_thing_t instance.
+ * @param [in] thing kii_thing_t instance should be disposed.
+ */
+void kii_dispose_thing(kii_thing_t thing);
+
+/** Serialize kii_thing_t instance into string.
+ * @param [in] thing kii_thing_t instance should be serialized.
+ * After the registration of thing, you will need to store string in 
+ * persistent storage to operate thing scope bucket, object and topic, etc.
+ * to avoid getting thing information from cloud after the application
+ * restart.
+ * @return string to be stored.
+ * @see kii_thing_deserialize(const char*)
+ */
+const char* kii_thing_serialize(const kii_thing_t thing);
+
+/** Deserialize kii_thing_t instance from serialized string.
+ * @param [in] serialized_thing string obtaied by
+ * kii_thing_serialize(const kii_thing_t)
+ * After the registration of thing, you will need to store string in
+ * persistent storage to operate thing scope bucket, object and topic, etc.
+ * to avoid getting thing information from cloud after the application
+ * restart.
+ * @return kii_thing_t instance restored from the string.
+ * @see kii_thing_serialize(const kii_thing_t)
+ */
+kii_thing_t* kii_thing_deserialize(const char* serialized_thing);
+
 /** Represents error.
  * should be disposed by kii_dispose_error(kii_error_t)
  */
@@ -170,6 +206,8 @@ void kii_json_decref(kii_json_t* json);
  * specifying NULL.
  * @param [in] user_data additional information about the thing.
  * TODO: details should be linked here.
+ * @param [out] instance represents registered thing. Should be disposed by
+ * kii_dispose_thing(const kii_thing_t*) by application.
  * @param [out] access_token would be used to
  * authorize access to Kii Cloud by the thing. (CRUD object, etc.)
  * NULL if failed to register.
@@ -181,14 +219,15 @@ kii_error_code_t kii_register_thing(kii_app_t app,
                                     const kii_char_t* thing_password,
                                     const kii_char_t* opt_thing_type,
                                     const kii_json_t* user_data,
+                                    kii_thing_t* out_thing,
                                     kii_char_t** out_access_token);
 
 /** Init thing scope bucket.
- * @param [in] vendor_thing_id identifier of the thing
+ * @param [in] registered thing instance
  * @return kii bucket instance. Should be disposed by
  * kii_dispose_bucket(kii_bucket_t)
  */
-kii_bucket_t kii_init_thing_bucket(const kii_char_t* vendor_thing_id,
+kii_bucket_t kii_init_thing_bucket(const kii_thing_t thing,
                                    const kii_char_t* bucket_name);
 
 /** Create new object.
@@ -383,11 +422,11 @@ kii_error_code_t kii_is_bucket_subscribed(kii_app_t app,
 
 
 /** Init thing scope topic.
- * @param [in] vendor_thing_id identifier of the thing
+ * @param [in] registered thing instance
  * @return kii topic instance. Should be disposed by
  * kii_dispose_topic(kii_topic_t)
  */
-kii_topic_t kii_init_thing_topic(const kii_char_t* vendor_thing_id,
+kii_topic_t kii_init_thing_topic(const kii_thing_t thing,
                                    const kii_char_t* topic_name);
 
 
