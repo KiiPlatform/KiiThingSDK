@@ -617,7 +617,7 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
     M_KII_ASSERT(kii_strlen(pApp->site_url)>0);
     M_KII_ASSERT(pApp->curl_easy != NULL);
     M_KII_ASSERT(pBucket != NULL);
-    M_KII_ASSERT(kii_strlen(pBucket->vendor_thing_id) > 0);
+    M_KII_ASSERT(kii_strlen(pBucket->kii_thing_id) > 0);
     M_KII_ASSERT(kii_strlen(pBucket->bucket_name) > 0);
     M_KII_ASSERT(access_token != NULL);
     M_KII_ASSERT(contents != NULL);
@@ -626,7 +626,7 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
 
     /* prepare URL */
     reqUrl = prv_build_url(pApp->site_url, "apps", pApp->app_id, "things",
-            pBucket->vendor_thing_id, "buckets", pBucket->bucket_name,
+            pBucket->kii_thing_id, "buckets", pBucket->bucket_name,
             "objects", NULL);
     if (reqUrl == NULL) {
         ret = KIIE_LOWMEMORY;
