@@ -528,19 +528,25 @@ kii_error_code_t kii_register_thing(kii_app_t app,
         respJson = json_loads(respData, 0, &jErr);
         if (respJson != NULL) {
             json_t* accessTokenJson = json_object_get(respJson, "_accessToken");
-            if (accessTokenJson != NULL) {
-                char* temp = json_dumps(accessTokenJson, JSON_ENCODE_ANY);
-                *out_access_token = temp;
+            json_t* thingIdJson = json_object_get(respJson, "_thingID");
+            ret = KIIE_OK;
+            if (accessTokenJson != NULL && thingIdJson != NULL) {
+                *out_access_token =
+                    kii_strdup(json_string_value(accessTokenJson));
+                *out_thing = (kii_thing_t)prv_kii_init_thing(
+                        json_string_value(thingIdJson));
+                if (*out_access_token == NULL || *out_thing == NULL) {
+                    M_KII_FREE_NULLIFY(*out_access_token);
+                    M_KII_FREE_NULLIFY(*out_thing);
+                    ret = KIIE_LOWMEMORY;
+                }
             } else {
                 err = prv_kii_error_init((int)respCode, KII_ECODE_PARSE);
                 prv_kii_set_error(pApp, err);
                 ret = ((err != NULL) ? KIIE_FAIL : KIIE_LOWMEMORY);
-                goto ON_EXIT;
             }
-            /* TODO: parse thing id */
             kii_json_decref(respJson);
         }
-        ret = KIIE_OK;
         goto ON_EXIT;
     }
     
