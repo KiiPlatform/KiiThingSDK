@@ -50,6 +50,11 @@ char* kii_strcat(char* s1, const char* s2)
     return strcat(s1, s2);
 }
 
+char* kii_strncat(char* s1, const char* s2, size_t n)
+{
+    return strncat(s1, s2, n);
+}
+
 size_t kii_strlen(const char* str)
 {
     return strlen(str);

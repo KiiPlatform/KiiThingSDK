@@ -205,13 +205,12 @@ static size_t callbackWrite(char* ptr,
         (*respData)[dataLen] = '\0';
     } else {
         size_t lastLen = kii_strlen(*respData);
-        size_t newSize = lastLen + dataLen + 1;
-        char* concat = kii_realloc(*respData, newSize);
+        size_t newLen = lastLen + dataLen;
+        char* concat = kii_realloc(*respData, newLen + 1);
         if (concat == NULL) {
             return 0;
         }
-        kii_strcat(concat, ptr);
-        concat[newSize] = '\0';
+        kii_strncat(concat, ptr, dataLen);
         if (concat != *respData) {
             M_KII_FREE_NULLIFY(*respData);
         }
@@ -273,8 +272,8 @@ static size_t callback_header(
 
 char* prv_new_header_string(const char* key, const char* value)
 {
-    size_t len = kii_strlen(key) + kii_strlen(":") + kii_strlen(value) +1;
-    char* val = kii_malloc(len);
+    size_t len = kii_strlen(key) + kii_strlen(":") + kii_strlen(value);
+    char* val = kii_malloc(len + 1);
 
     if (val == NULL) {
         return NULL;
@@ -288,8 +287,8 @@ char* prv_new_header_string(const char* key, const char* value)
 char* prv_new_auth_header_string(const char* access_token)
 {
     size_t len = kii_strlen("authorization: bearer ")
-        + kii_strlen(access_token) +1;
-    char* ret = malloc(len);
+        + kii_strlen(access_token);
+    char* ret = malloc(len + 1);
     ret[len] = '\0';
     kii_sprintf(ret, "authorization: bearer %s", access_token);
     return ret;
