@@ -454,6 +454,7 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     char* reqStr = NULL;
     long respCode = 0;
     char* respData = NULL;
+    json_t* respJson = NULL;
     kii_error_t* err = NULL;
     kii_error_code_t exeCurlRet = KIIE_FAIL;
     kii_error_code_t ret = KIIE_FAIL;
@@ -523,24 +524,30 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     /* Check response code */
     {
         json_error_t jErr;
-        json_t* respJson = NULL;
         M_KII_DEBUG(prv_log("response: %s", respData));
         respJson = json_loads(respData, 0, &jErr);
+
         if (respJson != NULL) {
-            json_t* accessTokenJson = json_object_get(respJson, "_accessToken");
-            if (accessTokenJson != NULL) {
-                char* temp = json_dumps(accessTokenJson, JSON_ENCODE_ANY);
-                *out_access_token = temp;
+            const char* accessToken =
+                json_string_value(json_object_get(respJson, "_accessToken"));
+            const char* thingId =
+                json_string_value(json_object_get(respJson, "_thingID"));
+            if (accessToken != NULL && thingId != NULL) {
+                ret = KIIE_OK;
+                *out_access_token = kii_strdup(accessToken);
+                *out_thing = (kii_thing_t)prv_kii_init_thing(thingId);
+                if (*out_access_token == NULL || *out_thing == NULL) {
+                    M_KII_FREE_NULLIFY(*out_access_token);
+                    M_KII_FREE_NULLIFY(*out_thing);
+                    ret = KIIE_LOWMEMORY;
+                }
             } else {
                 err = prv_kii_error_init((int)respCode, KII_ECODE_PARSE);
                 prv_kii_set_error(pApp, err);
                 ret = ((err != NULL) ? KIIE_FAIL : KIIE_LOWMEMORY);
                 goto ON_EXIT;
             }
-            /* TODO: parse thing id */
-            kii_json_decref(respJson);
         }
-        ret = KIIE_OK;
         goto ON_EXIT;
     }
     
@@ -552,6 +559,7 @@ ON_EXIT:
     M_KII_FREE_NULLIFY(reqStr);
     M_KII_FREE_NULLIFY(respData);
     M_KII_FREE_NULLIFY(reqUrl);
+    kii_json_decref(respJson);
 
     return ret;
 }

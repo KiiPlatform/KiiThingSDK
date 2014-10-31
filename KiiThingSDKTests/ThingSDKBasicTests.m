@@ -48,6 +48,7 @@ static const char* REGISTERED_THING_TOPIC = "myTopic";
     
     char* accessToken = NULL;
     kii_thing_t myThing = NULL;
+    char* kiiThingId = NULL;
     kii_error_code_t ret = kii_register_thing(app,
                                               thing_id,
                                               "THERMOMETER",
@@ -57,6 +58,8 @@ static const char* REGISTERED_THING_TOPIC = "myTopic";
     /* TODO examin myThing */
     XCTAssertEqual(ret, KIIE_OK, "register failed");
     XCTAssertTrue(strlen(accessToken) > 0, "access token invalid");
+    kiiThingId = kii_thing_serialize(myThing);
+    XCTAssertTrue(strlen(kiiThingId) > 0, "thing id invalid");
     if (ret != KIIE_OK) {
         kii_error_t* err = kii_get_last_error(app);
         NSLog(@"code: %s", err->error_code);
@@ -64,6 +67,8 @@ static const char* REGISTERED_THING_TOPIC = "myTopic";
     }
     kii_dispose_app(app);
     kii_dispose_kii_char(accessToken);
+    kii_dispose_kii_char(kiiThingId);
+    kii_dispose_thing(myThing);
 }
 
 -(void) testInstallPush {
