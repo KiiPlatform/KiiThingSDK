@@ -88,7 +88,6 @@ const char* kii_thing_serialize(const kii_thing_t thing);
 kii_thing_t kii_thing_deserialize(const char* serialized_thing);
 
 /** Represents error.
- * should be disposed by kii_dispose_error(kii_error_t)
  */
 typedef struct kii_error_t {
     int status_code; /**< HTTP status code */
