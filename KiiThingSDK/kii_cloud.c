@@ -709,16 +709,16 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
     }
 
 ON_EXIT:
-    kii_json_decref(respJson);
+    M_KII_FREE_NULLIFY(reqUrl);
+    curl_slist_free_all(headers);
+    M_KII_FREE_NULLIFY(authHdr);
+    M_KII_FREE_NULLIFY(appIdHdr);
+    M_KII_FREE_NULLIFY(appkeyHdr);
+    M_KII_FREE_NULLIFY(contentTypeHdr);
+    M_KII_FREE_NULLIFY(reqStr);
     kii_json_decref(respHdr);
     M_KII_FREE_NULLIFY(respData);
-    M_KII_FREE_NULLIFY(reqStr);
-    curl_slist_free_all(headers);
-    M_KII_FREE_NULLIFY(contentTypeHdr);
-    M_KII_FREE_NULLIFY(appkeyHdr);
-    M_KII_FREE_NULLIFY(appIdHdr);
-    M_KII_FREE_NULLIFY(authHdr);
-    M_KII_FREE_NULLIFY(reqUrl);
+    kii_json_decref(respJson);
 
     prv_kii_set_last_error(pApp, ret, &err);
 
