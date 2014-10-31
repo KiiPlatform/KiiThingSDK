@@ -255,8 +255,8 @@ ON_EXIT:
     }
     XCTAssertEqual(ret, KIIE_OK, @"get object failed.");
     const char* object_id =
-        json_string_value(json_object_get(out_contents, "objectID"));
-    XCAssertTrue(strcmp(out_object_id, object_id,
+        json_string_value(json_object_get(out_contents, "_id"));
+    XCTAssertTrue(strcmp(out_object_id, object_id) == 0 ? YES : NO,
             @"object id unmatached: %s %s", out_object_id, object_id);
 
 ON_EXIT:

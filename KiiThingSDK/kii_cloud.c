@@ -768,7 +768,7 @@ kii_error_code_t kii_get_object(kii_app_t app,
                                 const kii_char_t* access_token,
                                 const kii_bucket_t bucket,
                                 const kii_char_t* object_id,
-                                const kii_json_t** out_contents)
+                                kii_json_t** out_contents)
 {
     prv_kii_app_t* pApp = (prv_kii_app_t*)app;
     prv_kii_bucket_t* pBucket = (prv_kii_bucket_t*)bucket;
@@ -790,7 +790,7 @@ kii_error_code_t kii_get_object(kii_app_t app,
     M_KII_ASSERT(pApp->curl_easy != NULL);
     M_KII_ASSERT(bucket != NULL);
     M_KII_ASSERT(object_id != NULL);
-    M_KII_ASSERT(out_contents !=NULL);
+    M_KII_ASSERT(out_contents != NULL);
 
     kii_memset(&err, 0, sizeof(kii_error_t));
 
