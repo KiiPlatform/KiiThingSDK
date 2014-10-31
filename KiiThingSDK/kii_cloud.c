@@ -667,14 +667,13 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
 
     /* Check response header */
     if (out_etag != NULL && respHdr != NULL) {
-        kii_json_t* eTagJson = json_object_get(respHdr, "etag");
-        if (eTagJson != NULL) {
-            char* temp = kii_strdup(json_string_value(eTagJson));
-            if (temp == NULL) {
+        const char* etag = json_string_value(json_object_get(respHdr, "etag"));
+        if (etag != NULL) {
+            *out_etag = kii_strdup(etag);
+            if (*out_etag == NULL) {
                 ret = KIIE_LOWMEMORY;
                 goto ON_EXIT;
             }
-            *out_etag = temp;
         } else {
             prv_kii_set_info_in_error(&err, (int)respCode, KII_ECODE_PARSE);
             ret = KIIE_FAIL;
@@ -688,14 +687,14 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
         M_KII_DEBUG(prv_log("response: %s", respData));
         respJson = json_loads(respData, 0, &jErr);
         if (respJson != NULL) {
-            json_t* objectIDJson = json_object_get(respJson, "objectID");
-            if (objectIDJson != NULL) {
-                char* temp = kii_strdup(json_string_value(objectIDJson));
-                if (temp == NULL) {
+            const char* objectID = json_string_value(json_object_get(respJson,
+                    "objectID"));
+            if (objectID != NULL) {
+                *out_object_id = kii_strdup(objectID);
+                if (*out_object_id == NULL) {
                     ret = KIIE_LOWMEMORY;
                     goto ON_EXIT;
                 }
-                *out_object_id = temp;
                 ret = KIIE_OK;
             } else {
                 prv_kii_set_info_in_error(&err, (int)respCode, KII_ECODE_PARSE);
