@@ -760,7 +760,7 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
     json_t* respHdr = NULL;
     long respCode = 0;
     char* respData = NULL;
-    kii_error_t* err = NULL;
+    kii_error_t err;
     kii_error_code_t exeCurlRet = KIIE_FAIL;
     kii_error_code_t ret = KIIE_FAIL;
 
@@ -776,7 +776,7 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
     M_KII_ASSERT(object_id != NULL);
     M_KII_ASSERT(contents != NULL);
 
-    prv_kii_set_error(pApp, NULL);
+    kii_memset(&err, 0, sizeof(kii_error_t));
 
     /* prepare URL */
     baseUrl = prv_build_url(pApp->site_url, "apps", pApp->app_id, "things",
@@ -822,32 +822,26 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
         goto ON_EXIT;
     }
 
-    exeCurlRet = prv_execute_curl(pApp->curl_easy, reqUrl, POST,
+    exeCurlRet = prv_execute_curl(pApp->curl_easy, reqUrl, PUT,
             reqStr, headers, &respCode, &respData, &respHdr, &err);
     if (exeCurlRet != KIIE_OK) {
-        prv_kii_set_error(pApp, err);
         ret = exeCurlRet;
         goto ON_EXIT;
     }
 
     /* Check response header */
     if (out_etag != NULL && respHdr != NULL) {
-        kii_json_t* eTagJson = json_object_get(respHdr, "etag");
-        if (eTagJson != NULL) {
-            char* temp = kii_strdup(json_string_value(eTagJson));
-            if (temp == NULL) {
+        const char* etag = json_string_value(json_object_get(respHdr,
+                "etag"));
+        if (etag != NULL) {
+            *out_etag = kii_strdup(etag);
+            if (*out_etag == NULL) {
                 ret = KIIE_LOWMEMORY;
                 goto ON_EXIT;
             }
-            *out_etag = temp;
             ret = KIIE_OK;
         } else {
-            err = prv_kii_error_init((int)respCode, KII_ECODE_PARSE);
-            if (err == NULL) {
-                ret = KIIE_LOWMEMORY;
-                goto ON_EXIT;
-            }
-            prv_kii_set_error(pApp, err);
+            prv_kii_set_info_in_error(&err, (int)respCode, KII_ECODE_PARSE);
             ret = KIIE_FAIL;
         }
     } else {
@@ -855,17 +849,20 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
     }
 
 ON_EXIT:
+    M_KII_FREE_NULLIFY(baseUrl);
+    M_KII_FREE_NULLIFY(query);
+    M_KII_FREE_NULLIFY(reqUrl);
+    curl_slist_free_all(headers);
+    M_KII_FREE_NULLIFY(authHdr);
+    M_KII_FREE_NULLIFY(appIdHdr);
+    M_KII_FREE_NULLIFY(appkeyHdr);
+    M_KII_FREE_NULLIFY(contentTypeHdr);
+    M_KII_FREE_NULLIFY(reqStr);
     kii_json_decref(respHdr);
     M_KII_FREE_NULLIFY(respData);
-    M_KII_FREE_NULLIFY(reqStr);
-    curl_slist_free_all(headers);
-    M_KII_FREE_NULLIFY(contentTypeHdr);
-    M_KII_FREE_NULLIFY(appkeyHdr);
-    M_KII_FREE_NULLIFY(appIdHdr);
-    M_KII_FREE_NULLIFY(authHdr);
-    M_KII_FREE_NULLIFY(reqUrl);
-    M_KII_FREE_NULLIFY(query);
-    M_KII_FREE_NULLIFY(baseUrl);
+
+    prv_kii_set_last_error(pApp, ret, &err);
+
     return ret;
 }
 

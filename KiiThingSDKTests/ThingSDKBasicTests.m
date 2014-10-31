@@ -93,14 +93,14 @@ static const char* REGISTERED_THING_TOPIC = "myTopic";
         }
     }
     bucket = kii_init_thing_bucket(thing, "myBucket");
-    ret = kii_create_new_object_with_id(app,
-            accessToken, bucket, "DummyObjectID", contents, &out_etag);
+    ret = kii_create_new_object_with_id(app, accessToken, bucket,
+            "myObjectID", contents, &out_etag);
     if (ret != KIIE_OK) {
         kii_error_t* err = kii_get_last_error(app);
         NSLog(@"code: %s", err->error_code);
         NSLog(@"resp code: %d", err->status_code);
     }
-    XCTAssertEqual(ret, KIIE_OK, "create new object failed.");
+    XCTAssertEqual(ret, KIIE_OK, "kii_create_new_object_with_id failed.");
     if (out_etag != NULL) {
         NSLog(@"ETag: %s", out_etag);
     } else {
@@ -108,12 +108,12 @@ static const char* REGISTERED_THING_TOPIC = "myTopic";
     }
 
 ON_EXIT:
-    kii_dispose_kii_char(out_etag);
-    kii_json_decref(contents);
-    kii_dispose_bucket(bucket);
-    kii_dispose_thing(thing);
-    kii_dispose_kii_char(accessToken);
     kii_dispose_app(app);
+    kii_dispose_kii_char(accessToken);
+    kii_dispose_thing(thing);
+    kii_dispose_bucket(bucket);
+    kii_json_decref(contents);
+    kii_dispose_kii_char(out_etag);
 }
 
 -(void) testInstallPush {
