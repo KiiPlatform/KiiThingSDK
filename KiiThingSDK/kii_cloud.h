@@ -92,7 +92,7 @@ kii_thing_t kii_thing_deserialize(const char* serialized_thing);
  */
 typedef struct kii_error_t {
     int status_code; /**< HTTP status code */
-    kii_char_t* error_code; /**< Error code returned from kii cloud */
+    kii_char_t error_code[50]; /**< Error code returned from kii cloud */
 } kii_error_t;
 
 
