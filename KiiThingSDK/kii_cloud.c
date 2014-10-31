@@ -684,7 +684,6 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
     /* Check response data */
     if (out_object_id != NULL) {
         json_error_t jErr;
-        M_KII_DEBUG(prv_log("response: %s", respData));
         respJson = json_loads(respData, 0, &jErr);
         if (respJson != NULL) {
             const char* objectID = json_string_value(json_object_get(respJson,
