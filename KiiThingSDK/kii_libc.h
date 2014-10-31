@@ -35,6 +35,7 @@ char* kii_strcat(char* s1, const char* s2);
 char* kii_strncat(char* s1, const char* s2, size_t n);
 size_t kii_strlen(const char* str);
 char* kii_strcpy(char* s1, const char* s2);
+char* kii_strncpy(char *s1, const char *s2, size_t n);
 void* kii_realloc(void* ptr, size_t size);
 int kii_strncmp(const char *s1, const char *s2, size_t n);
 int kii_tolower(int c);

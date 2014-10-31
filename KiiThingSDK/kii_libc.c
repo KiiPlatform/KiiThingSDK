@@ -62,7 +62,12 @@ size_t kii_strlen(const char* str)
 
 char* kii_strcpy(char* s1, const char* s2)
 {
-  return strcpy(s1, s2);
+    return strcpy(s1, s2);
+}
+
+char* kii_strncpy(char *s1, const char *s2, size_t n)
+{
+    return strncpy(s1, s2, n);
 }
 
 void* kii_realloc(void* ptr, size_t size)
