@@ -454,6 +454,7 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     char* reqStr = NULL;
     long respCode = 0;
     char* respData = NULL;
+    json_t* respJson = NULL;
     kii_error_t* err = NULL;
     kii_error_code_t exeCurlRet = KIIE_FAIL;
     kii_error_code_t ret = KIIE_FAIL;
@@ -523,7 +524,6 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     /* Check response code */
     {
         json_error_t jErr;
-        json_t* respJson = NULL;
         M_KII_DEBUG(prv_log("response: %s", respData));
         respJson = json_loads(respData, 0, &jErr);
 
@@ -545,8 +545,8 @@ kii_error_code_t kii_register_thing(kii_app_t app,
                 err = prv_kii_error_init((int)respCode, KII_ECODE_PARSE);
                 prv_kii_set_error(pApp, err);
                 ret = ((err != NULL) ? KIIE_FAIL : KIIE_LOWMEMORY);
+                goto ON_EXIT;
             }
-            kii_json_decref(respJson);
         }
         goto ON_EXIT;
     }
@@ -559,6 +559,7 @@ ON_EXIT:
     M_KII_FREE_NULLIFY(reqStr);
     M_KII_FREE_NULLIFY(respData);
     M_KII_FREE_NULLIFY(reqUrl);
+    kii_json_decref(respJson);
 
     return ret;
 }
