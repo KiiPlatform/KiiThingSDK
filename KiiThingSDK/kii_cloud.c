@@ -746,8 +746,109 @@ kii_error_code_t kii_patch_object(kii_app_t app,
                                   const kii_char_t* opt_etag,
                                   kii_char_t** out_etag)
 {
-    /* TODO: implement it. */
-    return KIIE_FAIL;
+    prv_kii_app_t* pApp = (prv_kii_app_t*)app;
+    prv_kii_bucket_t* pBucket = (prv_kii_bucket_t*)bucket;
+    kii_char_t *reqUrl = NULL;
+    struct curl_slist* headers = NULL;
+    char* authHdr = NULL;
+    char* appIdHdr = NULL;
+    char* appkeyHdr = NULL;
+    char* contentTypeHdr = NULL;
+    char* matchHdr = NULL;
+    char* reqStr = NULL;
+    json_t* respHdr = NULL;
+    long respCode = 0;
+    char* respData = NULL;
+    json_t* respJson = NULL;
+    kii_error_t err;
+    kii_error_code_t ret = KIIE_FAIL;
+
+    M_KII_ASSERT(pApp != NULL);
+    M_KII_ASSERT(kii_strlen(pApp->app_id)>0);
+    M_KII_ASSERT(kii_strlen(pApp->app_key)>0);
+    M_KII_ASSERT(kii_strlen(pApp->site_url)>0);
+    M_KII_ASSERT(pApp->curl_easy != NULL);
+    M_KII_ASSERT(pBucket != NULL);
+    M_KII_ASSERT(kii_strlen(pBucket->kii_thing_id) > 0);
+    M_KII_ASSERT(kii_strlen(pBucket->bucket_name) > 0);
+    M_KII_ASSERT(access_token != NULL);
+
+    kii_memset(&err, 0, sizeof(kii_error_t));
+
+    /* prepare URL */
+    reqUrl = prv_build_url(pApp->site_url, "apps", pApp->app_id, "things",
+            pBucket->kii_thing_id, "buckets", pBucket->bucket_name,
+            "objects", NULL);
+    if (reqUrl == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+
+    /* prepare headers */
+    authHdr = prv_new_auth_header_string(access_token);
+    appIdHdr = prv_new_header_string("x-kii-appid", pApp->app_id);
+    appkeyHdr = prv_new_header_string("x-kii-appkey", pApp->app_key);
+    contentTypeHdr = prv_new_header_string("content-type",
+            "application/json");
+    matchHdr = (opt_etag == NULL) ?
+        prv_new_header_string("If-None-Match", "*") :
+        prv_new_header_string("If-Match", opt_etag);
+    if (authHdr == NULL || appIdHdr == NULL || appkeyHdr == NULL ||
+            contentTypeHdr == NULL || matchHdr == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+
+    headers = prv_curl_slist_create(authHdr, appIdHdr, appkeyHdr,
+            contentTypeHdr, matchHdr, NULL);
+    if (headers == NULL) {;
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+
+    reqStr = json_dumps(patch, 0);
+    if (reqStr == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+
+    ret = prv_execute_curl(pApp->curl_easy, reqUrl, PATCH,
+            reqStr, headers, &respCode, &respData, &respHdr, &err);
+    if (ret != KIIE_OK) {
+        goto ON_EXIT;
+    }
+
+    /* Check response header */
+    if (out_etag != NULL && respHdr != NULL) {
+        const char* etag = json_string_value(json_object_get(respHdr, "etag"));
+        if (etag != NULL) {
+            *out_etag = kii_strdup(etag);
+            if (*out_etag == NULL) {
+                ret = KIIE_LOWMEMORY;
+                goto ON_EXIT;
+            }
+        } else {
+            prv_kii_set_info_in_error(&err, (int)respCode, KII_ECODE_PARSE);
+            ret = KIIE_FAIL;
+            goto ON_EXIT;
+        }
+    }
+
+ON_EXIT:
+    M_KII_FREE_NULLIFY(reqUrl);
+    curl_slist_free_all(headers);
+    M_KII_FREE_NULLIFY(authHdr);
+    M_KII_FREE_NULLIFY(appIdHdr);
+    M_KII_FREE_NULLIFY(appkeyHdr);
+    M_KII_FREE_NULLIFY(contentTypeHdr);
+    M_KII_FREE_NULLIFY(reqStr);
+    kii_json_decref(respHdr);
+    M_KII_FREE_NULLIFY(respData);
+    kii_json_decref(respJson);
+
+    prv_kii_set_last_error(pApp, ret, &err);
+
+    return ret;
 }
 
 kii_error_code_t kii_replace_object(kii_app_t app,
