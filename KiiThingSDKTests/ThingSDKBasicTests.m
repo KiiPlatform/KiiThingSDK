@@ -214,13 +214,14 @@ ON_EXIT:
     kii_bucket_t bucket = NULL;
     json_t* contents = json_object();
     kii_char_t* out_object_id = NULL;
-    kii_char_t* out_etag = NULL;
+    kii_char_t* create_etag = NULL;
+    kii_char_t* get_etag = NULL;
     kii_json_t* out_contents = NULL;
     kii_error_code_t ret =  KIIE_FAIL;
 
     bucket = kii_init_thing_bucket(thing, "myBucket");
     ret = kii_create_new_object(app, ACCESS_TOKEN, bucket,
-            contents, &out_object_id, &out_etag);
+            contents, &out_object_id, &create_etag);
     if (ret != KIIE_OK) {
         kii_error_t* err = kii_get_last_error(app);
         NSLog(@"code: %s", err->error_code);
@@ -232,14 +233,14 @@ ON_EXIT:
     } else {
         XCTFail(@"out_object_id is NULL.");
     }
-    if (out_etag != NULL) {
-        NSLog(@"ETag: %s", out_etag);
+    if (create_etag != NULL) {
+        NSLog(@"ETag: %s", create_etag);
     } else {
-        XCTFail(@"out_etag is NULL.");
+        XCTFail(@"create_etag is NULL.");
     }
 
     ret = kii_get_object(app, ACCESS_TOKEN, bucket, out_object_id,
-            &out_contents);
+            &out_contents, &get_etag);
     if (ret != KIIE_OK) {
         kii_error_t* err = kii_get_last_error(app);
         NSLog(@"code: %s", err->error_code);
@@ -250,6 +251,7 @@ ON_EXIT:
         json_string_value(json_object_get(out_contents, "_id"));
     XCTAssertTrue(strcmp(out_object_id, object_id) == 0 ? YES : NO,
             @"object id unmatached: %s %s", out_object_id, object_id);
+    XCTAssertTrue(get_etag != NULL ? YES : NO, @"get_etag must not be NULL");
 
 ON_EXIT:
     kii_dispose_app(app);
@@ -257,7 +259,8 @@ ON_EXIT:
     kii_dispose_bucket(bucket);
     kii_json_decref(contents);
     kii_dispose_kii_char(out_object_id);
-    kii_dispose_kii_char(out_etag);
+    kii_dispose_kii_char(create_etag);
+    kii_dispose_kii_char(get_etag);
     kii_json_decref(out_contents);
 }
 

@@ -768,7 +768,8 @@ kii_error_code_t kii_get_object(kii_app_t app,
                                 const kii_char_t* access_token,
                                 const kii_bucket_t bucket,
                                 const kii_char_t* object_id,
-                                kii_json_t** out_contents)
+                                kii_json_t** out_contents,
+                                kii_char_t** out_etag)
 {
     prv_kii_app_t* pApp = (prv_kii_app_t*)app;
     prv_kii_bucket_t* pBucket = (prv_kii_bucket_t*)bucket;
@@ -779,6 +780,7 @@ kii_error_code_t kii_get_object(kii_app_t app,
     char* authHdr = NULL;
     long respCode = 0;
     char* respData = NULL;
+    json_t* respHdr = NULL;
     json_error_t jErr;
     kii_error_t err;
     kii_error_code_t ret = KIIE_FAIL;
@@ -791,6 +793,7 @@ kii_error_code_t kii_get_object(kii_app_t app,
     M_KII_ASSERT(bucket != NULL);
     M_KII_ASSERT(object_id != NULL);
     M_KII_ASSERT(out_contents != NULL);
+    M_KII_ASSERT(out_etag != NULL);
 
     kii_memset(&err, 0, sizeof(kii_error_t));
 
@@ -821,7 +824,7 @@ kii_error_code_t kii_get_object(kii_app_t app,
     }
 
     ret = prv_execute_curl(pApp->curl_easy, reqUrl, GET,
-            NULL, headers, &respCode, &respData, NULL, &err);
+            NULL, headers, &respCode, &respData, &respHdr, &err);
     if (ret != KIIE_OK) {
         goto ON_EXIT;
     }
@@ -832,6 +835,22 @@ kii_error_code_t kii_get_object(kii_app_t app,
         goto ON_EXIT;
     }
 
+    /* Check response header */
+    if (respHdr != NULL) {
+        const char* etag = json_string_value(json_object_get(respHdr, "etag"));
+        if (etag != NULL) {
+            *out_etag = kii_strdup(etag);
+            if (*out_etag == NULL) {
+                ret = KIIE_LOWMEMORY;
+                goto ON_EXIT;
+            }
+        } else {
+            prv_kii_set_info_in_error(&err, (int)respCode, KII_ECODE_PARSE);
+            ret = KIIE_FAIL;
+            goto ON_EXIT;
+        }
+    }
+
 ON_EXIT:
     M_KII_FREE_NULLIFY(reqUrl);
     curl_slist_free_all(headers);
@@ -839,6 +858,7 @@ ON_EXIT:
     M_KII_FREE_NULLIFY(appkeyHdr);
     M_KII_FREE_NULLIFY(authHdr);
     M_KII_FREE_NULLIFY(respData);
+    kii_json_decref(respHdr);
 
     prv_kii_set_last_error(pApp, ret, &err);
 
