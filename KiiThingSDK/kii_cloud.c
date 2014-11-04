@@ -303,18 +303,6 @@ char* prv_new_auth_header_string(const char* access_token)
     return ret;
 }
 
-char* prv_new_string_concat(const char* pre, const char* post)
-{
-    size_t len = kii_strlen(pre) + kii_strlen(post) +1;
-    char* ret = kii_malloc(len);
-    if (ret == NULL) {
-        return NULL;
-    }
-    ret[len] = '\0';
-    kii_sprintf(ret, "%s%s", pre, post);
-    return ret;
-}
-
 typedef enum {
     POST,
     PUT,
@@ -748,8 +736,6 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
 {
     prv_kii_app_t* pApp = (prv_kii_app_t*)app;
     prv_kii_bucket_t* pBucket = (prv_kii_bucket_t*)bucket;
-    kii_char_t* baseUrl = NULL;
-    kii_char_t* query = NULL;
     kii_char_t* reqUrl = NULL;
     struct curl_slist* headers = NULL;
     char* authHdr = NULL;
@@ -779,19 +765,9 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
     kii_memset(&err, 0, sizeof(kii_error_t));
 
     /* prepare URL */
-    baseUrl = prv_build_url(pApp->site_url, "apps", pApp->app_id, "things",
+    reqUrl = prv_build_url(pApp->site_url, "apps", pApp->app_id, "things",
             pBucket->kii_thing_id, "buckets", pBucket->bucket_name,
             "objects", object_id, NULL);
-    if (baseUrl == NULL) {
-        ret = KIIE_LOWMEMORY;
-        goto ON_EXIT;
-    }
-    query = prv_new_string_concat("?objectID=", object_id);
-    if (query == NULL) {
-        ret = KIIE_LOWMEMORY;
-        goto ON_EXIT;
-    }
-    reqUrl = prv_new_string_concat(baseUrl, query);
     if (reqUrl == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
@@ -849,8 +825,6 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
     }
 
 ON_EXIT:
-    M_KII_FREE_NULLIFY(baseUrl);
-    M_KII_FREE_NULLIFY(query);
     M_KII_FREE_NULLIFY(reqUrl);
     curl_slist_free_all(headers);
     M_KII_FREE_NULLIFY(authHdr);
