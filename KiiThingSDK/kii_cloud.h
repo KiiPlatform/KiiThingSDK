@@ -357,7 +357,7 @@ kii_error_code_t kii_get_object(kii_app_t app,
                                 const kii_char_t* access_token,
                                 const kii_bucket_t bucket,
                                 const kii_char_t* object_id,
-                                const kii_json_t** out_contents);
+                                kii_json_t** out_contents);
 
 /** Delete object with specified id.
  * This api performes the entire request in a blocking manner

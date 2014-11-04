@@ -172,28 +172,15 @@ static const char* REGISTERED_THING_TOPIC = "myTopic";
 
 -(void) testCreateNewObject {
     kii_app_t app = kii_init_app(APPID, APPKEY, BASEURL);
-    kii_char_t* accessToken = NULL;
-    kii_thing_t thing = NULL;
+    kii_thing_t thing = kii_thing_deserialize(REGISTERED_THING_TID);
     kii_bucket_t bucket = NULL;
     json_t* contents = json_object();
     kii_char_t* out_object_id = NULL;
     kii_char_t* out_etag = NULL;
     kii_error_code_t ret =  KIIE_FAIL;
-    {
-        NSUUID* id = [[NSUUID alloc] init];
-        const char* thing_id = [id.UUIDString
-                cStringUsingEncoding:NSUTF8StringEncoding];
-        ret = kii_register_thing(app, thing_id, "THWEMOMETER", "1234",
-                NULL, &thing, &accessToken);
-        if (ret != KIIE_OK) {
-            kii_error_t* err = kii_get_last_error(app);
-            NSLog(@"code: %s", err->error_code);
-            NSLog(@"resp code: %d", err->status_code);
-            goto ON_EXIT;
-        }
-    }
+
     bucket = kii_init_thing_bucket(thing, "myBucket");
-    ret = kii_create_new_object(app, accessToken, bucket,
+    ret = kii_create_new_object(app, ACCESS_TOKEN, bucket,
             contents, &out_object_id, &out_etag);
     if (ret != KIIE_OK) {
         kii_error_t* err = kii_get_last_error(app);
@@ -218,8 +205,60 @@ ON_EXIT:
     kii_json_decref(contents);
     kii_dispose_bucket(bucket);
     kii_dispose_thing(thing);
-    kii_dispose_kii_char(accessToken);
     kii_dispose_app(app);
+}
+
+- (void)testGetObject {
+    kii_app_t app = kii_init_app(APPID, APPKEY, BASEURL);
+    kii_thing_t thing = kii_thing_deserialize(REGISTERED_THING_TID);
+    kii_bucket_t bucket = NULL;
+    json_t* contents = json_object();
+    kii_char_t* out_object_id = NULL;
+    kii_char_t* out_etag = NULL;
+    kii_json_t* out_contents = NULL;
+    kii_error_code_t ret =  KIIE_FAIL;
+
+    bucket = kii_init_thing_bucket(thing, "myBucket");
+    ret = kii_create_new_object(app, ACCESS_TOKEN, bucket,
+            contents, &out_object_id, &out_etag);
+    if (ret != KIIE_OK) {
+        kii_error_t* err = kii_get_last_error(app);
+        NSLog(@"code: %s", err->error_code);
+        NSLog(@"resp code: %d", err->status_code);
+    }
+    XCTAssertEqual(ret, KIIE_OK, @"create new object failed.");
+    if (out_object_id != NULL) {
+        NSLog(@"objectID: %s", out_object_id);
+    } else {
+        XCTFail(@"out_object_id is NULL.");
+    }
+    if (out_etag != NULL) {
+        NSLog(@"ETag: %s", out_etag);
+    } else {
+        XCTFail(@"out_etag is NULL.");
+    }
+
+    ret = kii_get_object(app, ACCESS_TOKEN, bucket, out_object_id,
+            &out_contents);
+    if (ret != KIIE_OK) {
+        kii_error_t* err = kii_get_last_error(app);
+        NSLog(@"code: %s", err->error_code);
+        NSLog(@"resp code: %d", err->status_code);
+    }
+    XCTAssertEqual(ret, KIIE_OK, @"get object failed.");
+    const char* object_id =
+        json_string_value(json_object_get(out_contents, "_id"));
+    XCTAssertTrue(strcmp(out_object_id, object_id) == 0 ? YES : NO,
+            @"object id unmatached: %s %s", out_object_id, object_id);
+
+ON_EXIT:
+    kii_dispose_app(app);
+    kii_dispose_thing(thing);
+    kii_dispose_bucket(bucket);
+    kii_json_decref(contents);
+    kii_dispose_kii_char(out_object_id);
+    kii_dispose_kii_char(out_etag);
+    kii_json_decref(out_contents);
 }
 
 @end
