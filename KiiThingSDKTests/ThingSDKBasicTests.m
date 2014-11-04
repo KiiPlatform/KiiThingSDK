@@ -149,7 +149,7 @@ static const char* REGISTERED_THING_TOPIC = "myTopic";
         NSLog(@"code: %s", err->error_code);
         NSLog(@"resp code: %d", err->status_code);
     }
-    XCTAssertEqual(ret, KIIE_OK, "subscribe topic failed");
+    XCTAssertEqual(ret, KIIE_OK, @"subscribe topic failed");
     kii_dispose_topic(topic);
     kii_dispose_app(app);
 }
