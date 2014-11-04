@@ -73,27 +73,14 @@ static const char* REGISTERED_THING_TOPIC = "myTopic";
 
 -(void) testCreateNewObjectWithID {
     kii_app_t app = kii_init_app(APPID, APPKEY, BASEURL);
-    kii_char_t* accessToken = NULL;
-    kii_thing_t thing = NULL;
+    kii_thing_t thing = kii_thing_deserialize(REGISTERED_THING_TID);
     kii_bucket_t bucket = NULL;
     json_t* contents = json_object();
     kii_char_t* out_etag = NULL;
     kii_error_code_t ret = KIIE_FAIL;
-    {
-        NSUUID* id = [[NSUUID alloc]init];
-        const char* thing_id = [id.UUIDString
-                cStringUsingEncoding:NSUTF8StringEncoding];
-        ret = kii_register_thing(app, thing_id, "THERMOMETER",
-                "1234", NULL, &thing, &accessToken);
-        if (ret != KIIE_OK) {
-            kii_error_t* err = kii_get_last_error(app);
-            NSLog(@"kii_register_thing code: %s", err->error_code);
-            NSLog(@"kii_register_thing status: %d", err->status_code);
-            goto ON_EXIT;
-        }
-    }
+
     bucket = kii_init_thing_bucket(thing, "myBucket");
-    ret = kii_create_new_object_with_id(app, accessToken, bucket,
+    ret = kii_create_new_object_with_id(app, ACCESS_TOKEN, bucket,
             "myObjectID", contents, &out_etag);
     if (ret != KIIE_OK) {
         kii_error_t* err = kii_get_last_error(app);
@@ -109,7 +96,6 @@ static const char* REGISTERED_THING_TOPIC = "myTopic";
 
 ON_EXIT:
     kii_dispose_app(app);
-    kii_dispose_kii_char(accessToken);
     kii_dispose_thing(thing);
     kii_dispose_bucket(bucket);
     kii_json_decref(contents);
