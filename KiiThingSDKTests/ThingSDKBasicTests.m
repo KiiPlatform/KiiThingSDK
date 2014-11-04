@@ -56,10 +56,10 @@ static const char* REGISTERED_THING_TOPIC = "myTopic";
                                               &myThing,
                                               &accessToken);
     /* TODO examin myThing */
-    XCTAssertEqual(ret, KIIE_OK, "register failed");
-    XCTAssertTrue(strlen(accessToken) > 0, "access token invalid");
+    XCTAssertEqual(ret, KIIE_OK, @"register failed");
+    XCTAssertTrue(strlen(accessToken) > 0, @"access token invalid");
     kiiThingId = kii_thing_serialize(myThing);
-    XCTAssertTrue(strlen(kiiThingId) > 0, "thing id invalid");
+    XCTAssertTrue(strlen(kiiThingId) > 0, @"thing id invalid");
     if (ret != KIIE_OK) {
         kii_error_t* err = kii_get_last_error(app);
         NSLog(@"code: %s", err->error_code);
@@ -78,8 +78,8 @@ static const char* REGISTERED_THING_TOPIC = "myTopic";
     char* installId = NULL;
     kii_error_code_t ret =
         kii_install_thing_push(app, ACCESS_TOKEN, true, &installId);
-    XCTAssertEqual(ret, KIIE_OK, "install failed");
-    XCTAssertTrue(strlen(installId) > 0, "installId invalid");
+    XCTAssertEqual(ret, KIIE_OK, @"install failed");
+    XCTAssertTrue(strlen(installId) > 0, @"installId invalid");
     if (ret != KIIE_OK) {
         kii_error_t* err = kii_get_last_error(app);
         NSLog(@"code: %s", err->error_code);
@@ -106,7 +106,7 @@ static const char* REGISTERED_THING_TOPIC = "myTopic";
         NSLog(@"resp code: %d", err->status_code);
     }
 
-    XCTAssertEqual(ret, KIIE_OK, "get endpoint failed");
+    XCTAssertEqual(ret, KIIE_OK, @"get endpoint failed");
     XCTAssert(strlen(endpoint->username) > 0);
     XCTAssert(strlen(endpoint->password) > 0);
     XCTAssert(strlen(endpoint->host) > 0);
@@ -133,7 +133,7 @@ static const char* REGISTERED_THING_TOPIC = "myTopic";
         NSLog(@"code: %s", err->error_code);
         NSLog(@"resp code: %d", err->status_code);
     }
-    XCTAssertEqual(ret, KIIE_OK, "subscribe bucket failed");
+    XCTAssertEqual(ret, KIIE_OK, @"subscribe bucket failed");
     kii_dispose_bucket(bucket);
     kii_dispose_app(app);
 }
@@ -165,7 +165,7 @@ static const char* REGISTERED_THING_TOPIC = "myTopic";
         NSLog(@"code: %s", err->error_code);
         NSLog(@"resp code: %d", err->status_code);
     }
-    XCTAssertEqual(ret, KIIE_OK, "subscribe topic failed");
+    XCTAssertEqual(ret, KIIE_OK, @"subscribe topic failed");
     kii_dispose_topic(topic);
     kii_dispose_app(app);
 }
@@ -200,7 +200,7 @@ static const char* REGISTERED_THING_TOPIC = "myTopic";
         NSLog(@"code: %s", err->error_code);
         NSLog(@"resp code: %d", err->status_code);
     }
-    XCTAssertEqual(ret, KIIE_OK, "create new object failed.");
+    XCTAssertEqual(ret, KIIE_OK, @"create new object failed.");
     if (out_object_id != NULL) {
         NSLog(@"objectID: %s", out_object_id);
     } else {
