@@ -549,4 +549,40 @@ ON_EXIT:
     kii_dispose_kii_char(second_get_etag);
 }
 
+-(void)testIsSubscribedTopic {
+    kii_app_t app = kii_init_app(APPID, APPKEY, BASEURL);
+    kii_topic_t topic = kii_init_thing_topic(
+            kii_thing_deserialize(REGISTERED_THING_TID),
+            REGISTERED_THING_TOPIC);
+
+    kii_bool_t is_subscribed = KII_FALSE;
+    kii_error_code_t ret = kii_is_topic_subscribed(app, ACCESS_TOKEN, topic, &is_subscribed);
+    if (ret != KIIE_OK) {
+        kii_error_t* err = kii_get_last_error(app);
+        NSLog(@"code: %s", err->error_code);
+        NSLog(@"resp code: %d", err->status_code);
+    }
+    XCTAssertEqual(ret, KIIE_OK, @"is topic subscribed failed");
+    XCTAssertEqual(is_subscribed, KII_FALSE, @"topic must not be subscribed.");
+
+    ret = kii_subscribe_topic(app, ACCESS_TOKEN, topic);
+    if (ret != KIIE_OK) {
+        kii_error_t* err = kii_get_last_error(app);
+        NSLog(@"code: %s", err->error_code);
+        NSLog(@"resp code: %d", err->status_code);
+    }
+    XCTAssertEqual(ret, KIIE_OK, @"subscribe topic failed");
+
+    ret = kii_is_topic_subscribed(app, ACCESS_TOKEN, topic, &is_subscribed);
+    if (ret != KIIE_OK) {
+        kii_error_t* err = kii_get_last_error(app);
+        NSLog(@"code: %s", err->error_code);
+        NSLog(@"resp code: %d", err->status_code);
+    }
+    XCTAssertEqual(ret, KIIE_OK, @"is topic subscribed failed");
+    XCTAssertEqual(is_subscribed, KII_TRUE, @"topic must be subscribed.");
+
+    kii_dispose_app(app);
+    kii_dispose_topic(topic);
+}
 @end
