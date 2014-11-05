@@ -350,6 +350,7 @@ kii_error_code_t kii_replace_object(kii_app_t app,
  * @param [in] bucket specify bucket contains object.
  * @param [in] bucket_name specify name of the bucket.
  * @param [in] object_id specify id of the object.
+ * @param [out] out_etag etag of server object.
  * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
  * calling kii_get_last_error(kii_app_t).
  */
@@ -357,7 +358,8 @@ kii_error_code_t kii_get_object(kii_app_t app,
                                 const kii_char_t* access_token,
                                 const kii_bucket_t bucket,
                                 const kii_char_t* object_id,
-                                kii_json_t** out_contents);
+                                kii_json_t** out_contents,
+                                kii_char_t** out_etag);
 
 /** Delete object with specified id.
  * This api performes the entire request in a blocking manner
