@@ -274,6 +274,7 @@ ON_EXIT:
     kii_bucket_t bucket = NULL;
     kii_json_t* contents = json_object();
     kii_json_t* out_contents = NULL;
+    kii_char_t* opt_etag = NULL;
     kii_char_t* out_etag = NULL;
     kii_char_t* out_etag2 = NULL;
     kii_error_code_t ret = KIIE_FAIL;
@@ -292,7 +293,7 @@ ON_EXIT:
     }
     json_object_set_new(contents, "test_field", json_string("test_value"));
     ret = kii_replace_object(app, ACCESS_TOKEN, bucket,
-            "myObjectID", contents, KII_FALSE, NULL, &out_etag);
+            "myObjectID", contents, NULL, &out_etag);
     if (ret != KIIE_OK) {
         kii_error_t* err = kii_get_last_error(app);
         NSLog(@"code: %s", err->error_code);
@@ -304,6 +305,23 @@ ON_EXIT:
     } else {
         XCTFail("out_etag is NULL.");
     }
+    opt_etag = out_etag;
+    out_etag = NULL;
+    ret = kii_replace_object(app, ACCESS_TOKEN, bucket,
+            "myObjectID", contents, opt_etag, &out_etag);
+    if (ret != KIIE_OK) {
+        kii_error_t* err = kii_get_last_error(app);
+        NSLog(@"code: %s", err->error_code);
+        NSLog(@"resp code: %d", err->status_code);
+    }
+    XCTAssertEqual(ret, KIIE_OK, "kii_replace_object failed.");
+    if (out_etag != NULL) {
+        NSLog(@"ETag: %s", out_etag);
+    } else {
+        XCTFail("out_etag is NULL.");
+    }
+    XCTAssertTrue(strcmp(opt_etag, out_etag) != 0 ? YES : NO,
+            @"update failed: %s %s", opt_etag, out_etag);
 
     ret = kii_get_object(app, ACCESS_TOKEN, bucket, "myObjectID",
             &out_contents, &out_etag2);
@@ -330,6 +348,7 @@ ON_EXIT:
     kii_dispose_bucket(bucket);
     kii_json_decref(contents);
     kii_json_decref(out_contents);
+    kii_dispose_kii_char(opt_etag);
     kii_dispose_kii_char(out_etag);
     kii_dispose_kii_char(out_etag2);
 }
