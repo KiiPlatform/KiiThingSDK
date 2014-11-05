@@ -1238,8 +1238,73 @@ kii_error_code_t kii_unsubscribe_bucket(kii_app_t app,
                                         const kii_char_t* access_token,
                                         const kii_bucket_t bucket)
 {
-    /* TODO: implement it. */
-    return KIIE_FAIL;
+    prv_kii_bucket_t* pBucket = (prv_kii_bucket_t*)bucket;
+    prv_kii_app_t* pApp = (prv_kii_app_t*)app;
+    const kii_char_t* thingId = pBucket->kii_thing_id;
+    const kii_char_t* bucketName = pBucket->bucket_name;
+    kii_char_t* url = NULL;
+    kii_char_t* appIdHdr = NULL;
+    kii_char_t* appkeyHdr = NULL;
+    kii_char_t* authHdr = NULL;
+    struct curl_slist* reqHeaders = NULL;
+    kii_char_t* respBodyStr = NULL;
+    kii_error_t error;
+    kii_error_code_t ret = KIIE_FAIL;
+    long respStatus = 0;
+
+    kii_memset(&error, 0, sizeof(kii_error_t));
+
+    /* Prepare Url */
+    url = prv_build_url(pApp->site_url,
+                        "apps",
+                        pApp->app_id,
+                        "things",
+                        thingId,
+                        "buckets",
+                        bucketName,
+                        "filters/all/push/subscriptions/things",
+                        thingId,
+                        NULL);
+    if (url == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+
+    /* Prepare headers */
+    appIdHdr = prv_new_header_string("x-kii-appid", pApp->app_id);
+    appkeyHdr = prv_new_header_string("x-kii-appkey", pApp->app_key);
+    authHdr = prv_new_auth_header_string(access_token);
+    if (appIdHdr == NULL || appkeyHdr == NULL || authHdr == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+
+    reqHeaders = prv_curl_slist_create(appIdHdr, appkeyHdr, authHdr, NULL);
+    if (reqHeaders == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+
+    ret = prv_execute_curl(pApp->curl_easy,
+                           url,
+                           DELETE,
+                           NULL,
+                           reqHeaders,
+                           &respStatus,
+                           &respBodyStr,
+                           NULL,
+                           &error);
+
+ON_EXIT:
+    M_KII_FREE_NULLIFY(url);
+    M_KII_FREE_NULLIFY(appIdHdr);
+    M_KII_FREE_NULLIFY(appkeyHdr);
+    M_KII_FREE_NULLIFY(authHdr);
+    curl_slist_free_all(reqHeaders);
+    M_KII_FREE_NULLIFY(respBodyStr);
+
+    prv_kii_set_last_error(pApp, ret, &error);
+    return ret;
 }
 
 kii_error_code_t kii_is_bucket_subscribed(kii_app_t app,

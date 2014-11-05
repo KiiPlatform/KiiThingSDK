@@ -198,6 +198,35 @@ ON_EXIT:
     kii_dispose_app(app);
 }
 
+-(void) testUnsubscribeBucket {
+    kii_app_t app = kii_init_app(APPID, APPKEY, BASEURL);
+    kii_thing_t myThing = kii_thing_deserialize(REGISTERED_THING_TID);
+
+    NSUUID* id = [[NSUUID alloc]init];
+    const char* bucketName = [id.UUIDString
+                              cStringUsingEncoding:NSUTF8StringEncoding];
+    kii_bucket_t bucket = kii_init_thing_bucket(myThing, bucketName);
+
+    kii_error_code_t ret = kii_subscribe_bucket(app, ACCESS_TOKEN, bucket);
+    if (ret != KIIE_OK) {
+        kii_error_t* err = kii_get_last_error(app);
+        NSLog(@"code: %s", err->error_code);
+        NSLog(@"resp code: %d", err->status_code);
+    }
+    XCTAssertEqual(ret, KIIE_OK, @"subscribe bucket failed");
+
+    ret = kii_unsubscribe_bucket(app, ACCESS_TOKEN, bucket);
+    if (ret != KIIE_OK) {
+        kii_error_t* err = kii_get_last_error(app);
+        NSLog(@"code: %s", err->error_code);
+        NSLog(@"resp code: %d", err->status_code);
+    }
+    XCTAssertEqual(ret, KIIE_OK, @"unsubscribe bucket failed");
+
+    kii_dispose_bucket(bucket);
+    kii_dispose_app(app);
+}
+
 -(void) testSubscribeTopic {
     kii_app_t app = kii_init_app(APPID, APPKEY, BASEURL);
     kii_thing_t myThing = kii_thing_deserialize(REGISTERED_THING_TID);
