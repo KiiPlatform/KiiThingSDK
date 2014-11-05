@@ -289,10 +289,9 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
  * @param [in] bucket specify bucket contains object.
  * @param [in] object_id specify id of the object.
  * @param [in] patch patch data.
- * @param [in] force_update if kii_true, apply patch regardless of updates on
- * server. If kii_false check opt_etag value and applya patch only if the etag
- * matches.
- * @param [in] opt_etag required if force_update is kii_true.
+ * @param [in] opt_etag if NULL apply patch regardless of updates on
+ * server. if not NULL, check opt_etag value and apply patch only if
+ * the etag matches on server.
  * Specify NULL otherwise.
  * @param [out] out_etag etag of created object.
  * NULL if failed to create.
@@ -306,7 +305,6 @@ kii_error_code_t kii_patch_object(kii_app_t app,
                                   const kii_bucket_t bucket,
                                   const kii_char_t* object_id,
                                   const kii_json_t* patch,
-                                  const kii_bool_t force_update,
                                   const kii_char_t* opt_etag,
                                   kii_char_t** out_etag);
 
