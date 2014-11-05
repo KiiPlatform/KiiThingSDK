@@ -23,22 +23,22 @@ void kii_global_cleanup(void)
 }
 
 typedef struct prv_kii_app_t {
-    char* app_id;
-    char* app_key;
-    char* site_url;
+    kii_char_t* app_id;
+    kii_char_t* app_key;
+    kii_char_t* site_url;
     CURL* curl_easy;
     kii_error_code_t last_result;
     kii_error_t last_error;
 } prv_kii_app_t;
 
 typedef struct prv_kii_thing_t {
-    char* kii_thing_id; /* thing id assigned by kii cloud */
+    kii_char_t* kii_thing_id; /* thing id assigned by kii cloud */
 } prv_kii_thing_t;
 
-prv_kii_thing_t* prv_kii_init_thing(const char* kii_thing_id)
+prv_kii_thing_t* prv_kii_init_thing(const kii_char_t* kii_thing_id)
 {
     prv_kii_thing_t* ret = kii_malloc(sizeof(prv_kii_thing_t));
-    char* thingIdCopy = NULL;
+    kii_char_t* thingIdCopy = NULL;
     if (ret == NULL) {
         return NULL;
     }
@@ -52,18 +52,18 @@ prv_kii_thing_t* prv_kii_init_thing(const char* kii_thing_id)
 }
 
 typedef struct prv_kii_bucket_t {
-    char* kii_thing_id;
-    char* bucket_name;
+    kii_char_t* kii_thing_id;
+    kii_char_t* bucket_name;
 } prv_kii_bucket_t;
 
 typedef struct prv_kii_topic_t {
-    char* kii_thing_id;
-    char* topic_name;
+    kii_char_t* kii_thing_id;
+    kii_char_t* topic_name;
 } prv_kii_topic_t;
 
-kii_app_t kii_init_app(const char* app_id,
-                       const char* app_key,
-                       const char* site_url)
+kii_app_t kii_init_app(const kii_char_t* app_id,
+                       const kii_char_t* app_key,
+                       const kii_char_t* site_url)
 {
     prv_kii_app_t* app = kii_malloc(sizeof(prv_kii_app_t));
     if (app == NULL) {
@@ -122,7 +122,7 @@ kii_error_t* kii_get_last_error(kii_app_t app)
 static void prv_kii_set_info_in_error(
         kii_error_t* error,
         int status_code,
-        const char* error_code)
+        const kii_char_t* error_code)
 {
     size_t max_buffer_size =
         sizeof(error->error_code) / sizeof(error->error_code[0]);
@@ -199,7 +199,7 @@ void kii_json_decref(kii_json_t* json)
 static size_t callbackWrite(char* ptr,
                             size_t size,
                             size_t nmemb,
-                            char** respData)
+                            kii_char_t** respData)
 {
     size_t dataLen = size * nmemb;
     if (dataLen == 0) {
@@ -215,7 +215,7 @@ static size_t callbackWrite(char* ptr,
     } else {
         size_t lastLen = kii_strlen(*respData);
         size_t newLen = lastLen + dataLen;
-        char* concat = kii_realloc(*respData, newLen + 1);
+        kii_char_t* concat = kii_realloc(*respData, newLen + 1);
         if (concat == NULL) {
             return 0;
         }
@@ -236,7 +236,7 @@ static size_t callback_header(
 {
     const char ETAG[] = "etag";
     size_t len = size * nitems;
-    char* line = kii_malloc(len + 1);
+    kii_char_t* line = kii_malloc(len + 1);
 
     M_KII_ASSERT(userdata != NULL);
 
@@ -259,10 +259,10 @@ static size_t callback_header(
     if (kii_strncmp(line, ETAG, kii_strlen(ETAG)) == 0) {
         json_t** json = (json_t**)userdata;
         int i = 0;
-        char* value = line;
+        kii_char_t* value = line;
 
         /* change line feed code lasting end of this array to '\0'. */
-        for (i = len; i >= 0; --i) {
+        for (i = (int)len; i >= 0; --i) {
             if (line[i] == '\0') {
                 continue;
             } else if (line[i] == '\r' || line[i] == '\n') {
@@ -293,10 +293,10 @@ static size_t callback_header(
     return len;
 }
 
-char* prv_new_header_string(const char* key, const char* value)
+kii_char_t* prv_new_header_string(const kii_char_t* key, const kii_char_t* value)
 {
     size_t len = kii_strlen(key) + kii_strlen(":") + kii_strlen(value);
-    char* val = kii_malloc(len + 1);
+    kii_char_t* val = kii_malloc(len + 1);
 
     if (val == NULL) {
         return NULL;
@@ -307,11 +307,11 @@ char* prv_new_header_string(const char* key, const char* value)
     return val;
 }
 
-char* prv_new_auth_header_string(const char* access_token)
+kii_char_t* prv_new_auth_header_string(const kii_char_t* access_token)
 {
     size_t len = kii_strlen("authorization: bearer ")
         + kii_strlen(access_token);
-    char* ret = malloc(len + 1);
+    kii_char_t* ret = malloc(len + 1);
     ret[len] = '\0';
     kii_sprintf(ret, "authorization: bearer %s", access_token);
     return ret;
@@ -334,12 +334,12 @@ static void prv_log_req_heder(struct curl_slist* header)
 }
 
 kii_error_code_t prv_execute_curl(CURL* curl,
-                                  const char* url,
+                                  const kii_char_t* url,
                                   prv_kii_req_method_t method,
-                                  const char* request_body,
+                                  const kii_char_t* request_body,
                                   struct curl_slist* request_headers,
                                   long* response_status_code,
-                                  char** response_body,
+                                  kii_char_t** response_body,
                                   json_t** response_headers,
                                   kii_error_t* error)
 {
@@ -418,7 +418,7 @@ kii_error_code_t prv_execute_curl(CURL* curl,
                     (*response_status_code < 300)) {
                 return KIIE_OK;
             } else {
-                const char* error_code = NULL;
+                const kii_char_t* error_code = NULL;
                 json_error_t jErr;
                 json_t* errJson = json_loads(*response_body, 0, &jErr);
                 if (errJson != NULL) {
@@ -444,7 +444,7 @@ void kii_dispose_thing(kii_thing_t thing)
     M_KII_FREE_NULLIFY(thing);
 }
 
-const kii_char_t* kii_thing_serialize(const kii_thing_t thing)
+kii_char_t* kii_thing_serialize(const kii_thing_t thing)
 {
     prv_kii_thing_t* pThing = (prv_kii_thing_t*)thing;
     kii_char_t* ret = NULL;
@@ -457,7 +457,7 @@ const kii_char_t* kii_thing_serialize(const kii_thing_t thing)
     return ret;
 }
 
-kii_thing_t kii_thing_deserialize(const char* serialized_thing)
+kii_thing_t kii_thing_deserialize(const kii_char_t* serialized_thing)
 {
     M_KII_ASSERT(serialized_thing != NULL);
     M_KII_ASSERT(kii_strlen(serialized_thing) > 0);
@@ -475,13 +475,13 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     prv_kii_app_t* pApp = (prv_kii_app_t*)app;
     kii_char_t *reqUrl = NULL;
     struct curl_slist* headers = NULL;
-    char* appIdHdr = NULL;
-    char* appkeyHdr = NULL;
-    char* contentTypeHdr = NULL;
+    kii_char_t* appIdHdr = NULL;
+    kii_char_t* appkeyHdr = NULL;
+    kii_char_t* contentTypeHdr = NULL;
     json_t* reqJson = NULL;
-    char* reqStr = NULL;
+    kii_char_t* reqStr = NULL;
     long respCode = 0;
-    char* respData = NULL;
+    kii_char_t* respData = NULL;
     json_t* respJson = NULL;
     kii_error_t err;
     kii_error_code_t exeCurlRet = KIIE_FAIL;
@@ -555,9 +555,9 @@ kii_error_code_t kii_register_thing(kii_app_t app,
         respJson = json_loads(respData, 0, &jErr);
 
         if (respJson != NULL) {
-            const char* accessToken =
+            const kii_char_t* accessToken =
                 json_string_value(json_object_get(respJson, "_accessToken"));
-            const char* thingId =
+            const kii_char_t* thingId =
                 json_string_value(json_object_get(respJson, "_thingID"));
             if (accessToken != NULL && thingId != NULL) {
                 ret = KIIE_OK;
@@ -598,8 +598,8 @@ kii_bucket_t kii_init_thing_bucket(const kii_thing_t thing,
 {
     prv_kii_thing_t* pThing = (prv_kii_thing_t*)thing;
     prv_kii_bucket_t* retval = kii_malloc(sizeof(prv_kii_bucket_t));
-    char* thing_id = kii_strdup(pThing->kii_thing_id);
-    char* bucket_name_str = kii_strdup(bucket_name);
+    kii_char_t* thing_id = kii_strdup(pThing->kii_thing_id);
+    kii_char_t* bucket_name_str = kii_strdup(bucket_name);
 
     if (retval == NULL || thing_id == NULL ||
             bucket_name_str == NULL) {
@@ -624,14 +624,14 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
     prv_kii_bucket_t* pBucket = (prv_kii_bucket_t*)bucket;
     kii_char_t *reqUrl = NULL;
     struct curl_slist* headers = NULL;
-    char* authHdr = NULL;
-    char* appIdHdr = NULL;
-    char* appkeyHdr = NULL;
-    char* contentTypeHdr = NULL;
-    char* reqStr = NULL;
+    kii_char_t* authHdr = NULL;
+    kii_char_t* appIdHdr = NULL;
+    kii_char_t* appkeyHdr = NULL;
+    kii_char_t* contentTypeHdr = NULL;
+    kii_char_t* reqStr = NULL;
     json_t* respHdr = NULL;
     long respCode = 0;
-    char* respData = NULL;
+    kii_char_t* respData = NULL;
     json_t* respJson = NULL;
     kii_error_t err;
     kii_error_code_t exeCurlRet = KIIE_FAIL;
@@ -693,7 +693,7 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
 
     /* Check response header */
     if (out_etag != NULL && respHdr != NULL) {
-        const char* etag = json_string_value(json_object_get(respHdr, "etag"));
+        const kii_char_t* etag = json_string_value(json_object_get(respHdr, "etag"));
         if (etag != NULL) {
             *out_etag = kii_strdup(etag);
             if (*out_etag == NULL) {
@@ -712,7 +712,7 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
         json_error_t jErr;
         respJson = json_loads(respData, 0, &jErr);
         if (respJson != NULL) {
-            const char* objectID = json_string_value(json_object_get(respJson,
+            const kii_char_t* objectID = json_string_value(json_object_get(respJson,
                     "objectID"));
             if (objectID != NULL) {
                 *out_object_id = kii_strdup(objectID);
@@ -761,14 +761,14 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
     prv_kii_bucket_t* pBucket = (prv_kii_bucket_t*)bucket;
     kii_char_t* reqUrl = NULL;
     struct curl_slist* headers = NULL;
-    char* authHdr = NULL;
-    char* appIdHdr = NULL;
-    char* appkeyHdr = NULL;
-    char* contentTypeHdr = NULL;
-    char* reqStr = NULL;
+    kii_char_t* authHdr = NULL;
+    kii_char_t* appIdHdr = NULL;
+    kii_char_t* appkeyHdr = NULL;
+    kii_char_t* contentTypeHdr = NULL;
+    kii_char_t* reqStr = NULL;
     json_t* respHdr = NULL;
     long respCode = 0;
-    char* respData = NULL;
+    kii_char_t* respData = NULL;
     kii_error_t err;
     kii_error_code_t exeCurlRet = KIIE_FAIL;
     kii_error_code_t ret = KIIE_FAIL;
@@ -830,7 +830,7 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
 
     /* Check response header */
     if (out_etag != NULL && respHdr != NULL) {
-        const char* etag = json_string_value(json_object_get(respHdr,
+        const kii_char_t* etag = json_string_value(json_object_get(respHdr,
                 "etag"));
         if (etag != NULL) {
             *out_etag = kii_strdup(etag);
@@ -875,15 +875,15 @@ kii_error_code_t kii_patch_object(kii_app_t app,
     prv_kii_bucket_t* pBucket = (prv_kii_bucket_t*)bucket;
     kii_char_t *reqUrl = NULL;
     struct curl_slist* headers = NULL;
-    char* authHdr = NULL;
-    char* appIdHdr = NULL;
-    char* appkeyHdr = NULL;
-    char* contentTypeHdr = NULL;
-    char* matchHdr = NULL;
-    char* reqStr = NULL;
+    kii_char_t* authHdr = NULL;
+    kii_char_t* appIdHdr = NULL;
+    kii_char_t* appkeyHdr = NULL;
+    kii_char_t* contentTypeHdr = NULL;
+    kii_char_t* matchHdr = NULL;
+    kii_char_t* reqStr = NULL;
     json_t* respHdr = NULL;
     long respCode = 0;
-    char* respData = NULL;
+    kii_char_t* respData = NULL;
     json_t* respJson = NULL;
     kii_error_t err;
     kii_error_code_t ret = KIIE_FAIL;
@@ -948,7 +948,7 @@ kii_error_code_t kii_patch_object(kii_app_t app,
 
     /* Check response header */
     if (out_etag != NULL && respHdr != NULL) {
-        const char* etag = json_string_value(json_object_get(respHdr, "etag"));
+        const kii_char_t* etag = json_string_value(json_object_get(respHdr, "etag"));
         if (etag != NULL) {
             *out_etag = kii_strdup(etag);
             if (*out_etag == NULL) {
@@ -1003,11 +1003,11 @@ kii_error_code_t kii_get_object(kii_app_t app,
     prv_kii_bucket_t* pBucket = (prv_kii_bucket_t*)bucket;
     kii_char_t *reqUrl = NULL;
     struct curl_slist* headers = NULL;
-    char* appIdHdr = NULL;
-    char* appkeyHdr = NULL;
-    char* authHdr = NULL;
+    kii_char_t* appIdHdr = NULL;
+    kii_char_t* appkeyHdr = NULL;
+    kii_char_t* authHdr = NULL;
     long respCode = 0;
-    char* respData = NULL;
+    kii_char_t* respData = NULL;
     json_t* respHdr = NULL;
     json_error_t jErr;
     kii_error_t err;
@@ -1065,7 +1065,7 @@ kii_error_code_t kii_get_object(kii_app_t app,
 
     /* Check response header */
     if (respHdr != NULL) {
-        const char* etag = json_string_value(json_object_get(respHdr, "etag"));
+        const kii_char_t* etag = json_string_value(json_object_get(respHdr, "etag"));
         if (etag != NULL) {
             *out_etag = kii_strdup(etag);
             if (*out_etag == NULL) {
@@ -1102,11 +1102,11 @@ kii_error_code_t kii_delete_object(kii_app_t app,
     prv_kii_bucket_t* pBucket = (prv_kii_bucket_t*)bucket;
     kii_char_t *reqUrl = NULL;
     struct curl_slist* headers = NULL;
-    char* appIdHdr = NULL;
-    char* appkeyHdr = NULL;
-    char* authHdr = NULL;
+    kii_char_t* appIdHdr = NULL;
+    kii_char_t* appkeyHdr = NULL;
+    kii_char_t* authHdr = NULL;
     long respCode = 0;
-    char* respData = NULL;
+    kii_char_t* respData = NULL;
     kii_error_t err;
     kii_error_code_t ret = KIIE_FAIL;
 
@@ -1255,8 +1255,8 @@ kii_topic_t kii_init_thing_topic(const kii_thing_t thing,
                                  const kii_char_t* topic_name)
 {
     prv_kii_topic_t* topic = NULL;
-    char* tempThingId = NULL;
-    char* tempTopicName = NULL;
+    kii_char_t* tempThingId = NULL;
+    kii_char_t* tempTopicName = NULL;
     prv_kii_thing_t* pThing = (prv_kii_thing_t*)thing;
     
     M_KII_ASSERT(pThing->kii_thing_id != NULL);
@@ -1291,17 +1291,17 @@ kii_error_code_t kii_subscribe_topic(kii_app_t app,
 {
     prv_kii_topic_t* pTopic = (prv_kii_topic_t*)topic;
     prv_kii_app_t* pApp = (prv_kii_app_t*)app;
-    const char* thingId = pTopic->kii_thing_id;
-    const char* topicName = pTopic->topic_name;
-    char* url = NULL;
+    const kii_char_t* thingId = pTopic->kii_thing_id;
+    const kii_char_t* topicName = pTopic->topic_name;
+    kii_char_t* url = NULL;
     struct curl_slist* reqHeaders = NULL;
-    char* appIdHdr = NULL;
-    char* appkeyHdr = NULL;
-    char* authHdr = NULL;
+    kii_char_t* appIdHdr = NULL;
+    kii_char_t* appkeyHdr = NULL;
+    kii_char_t* authHdr = NULL;
     kii_error_t error;
     kii_error_code_t ret = KIIE_FAIL;
     long respStatus = 0;
-    char* respBodyStr = NULL;
+    kii_char_t* respBodyStr = NULL;
 
     kii_memset(&error, 0, sizeof(kii_error_t));
 
@@ -1365,17 +1365,17 @@ kii_error_code_t kii_unsubscribe_topic(kii_app_t app,
 {
     prv_kii_topic_t* pTopic = (prv_kii_topic_t*)topic;
     prv_kii_app_t* pApp = (prv_kii_app_t*)app;
-    const char* thingId = pTopic->kii_thing_id;
-    const char* topicName = pTopic->topic_name;
-    char* url = NULL;
+    const kii_char_t* thingId = pTopic->kii_thing_id;
+    const kii_char_t* topicName = pTopic->topic_name;
+    kii_char_t* url = NULL;
     struct curl_slist* reqHeaders = NULL;
-    char* appIdHdr = NULL;
-    char* appkeyHdr = NULL;
-    char* authHdr = NULL;
+    kii_char_t* appIdHdr = NULL;
+    kii_char_t* appkeyHdr = NULL;
+    kii_char_t* authHdr = NULL;
     kii_error_t error;
     kii_error_code_t ret = KIIE_FAIL;
     long respStatus = 0;
-    char* respBodyStr = NULL;
+    kii_char_t* respBodyStr = NULL;
 
     kii_memset(&error, 0, sizeof(kii_error_t));
 
@@ -1560,9 +1560,9 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
     kii_char_t* url = NULL;
     prv_kii_app_t* pApp = (prv_kii_app_t*) app;
     struct curl_slist* reqHeaders = NULL;
-    char* appIdHdr = NULL;
-    char* appkeyHdr = NULL;
-    char* authHdr = NULL;
+    kii_char_t* appIdHdr = NULL;
+    kii_char_t* appkeyHdr = NULL;
+    kii_char_t* authHdr = NULL;
     kii_error_code_t exeCurlRet = KIIE_FAIL;
     long respCode = 0;
     kii_char_t* respBodyStr = NULL;
@@ -1657,10 +1657,10 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
         {
             kii_mqtt_endpoint_t* endpoint =
                 kii_malloc(sizeof(kii_mqtt_endpoint_t));
-            char* username = kii_strdup(json_string_value(userNameJson));
-            char* password = kii_strdup(json_string_value(passwordJson));
-            char* topic = kii_strdup(json_string_value(mqttTopicJson));
-            char* host = kii_strdup(json_string_value(hostJson));
+            kii_char_t* username = kii_strdup(json_string_value(userNameJson));
+            kii_char_t* password = kii_strdup(json_string_value(passwordJson));
+            kii_char_t* topic = kii_strdup(json_string_value(mqttTopicJson));
+            kii_char_t* host = kii_strdup(json_string_value(hostJson));
             kii_ulong_t ttl = (kii_ulong_t)json_integer_value(mqttTtlJson);
 
             if (endpoint == NULL ||

@@ -54,7 +54,7 @@ typedef json_t kii_json_t;
 /** Represents thing.
  * should be disposed by kii_dispose_thing(const kii_thing_t).
  * Can be serialized by kii_thing_serialize(const kii_thing_t).
- * Can be deserialized by kii_thing_deserialize(const char*)
+ * Can be deserialized by kii_thing_deserialize(const kii_char_t*)
  * with serialized string obtained by kii_thing_serialize(const kii_thing_t).
  */
 typedef void* kii_thing_t;
@@ -71,9 +71,9 @@ void kii_dispose_thing(kii_thing_t thing);
  * to avoid getting thing information from cloud after the application
  * restart.
  * @return string to be stored. should be freed by application.
- * @see kii_thing_deserialize(const char*)
+ * @see kii_thing_deserialize(const kii_char_t*)
  */
-const char* kii_thing_serialize(const kii_thing_t thing);
+kii_char_t* kii_thing_serialize(const kii_thing_t thing);
 
 /** Deserialize kii_thing_t instance from serialized string.
  * @param [in] serialized_thing string obtaied by
@@ -85,7 +85,7 @@ const char* kii_thing_serialize(const kii_thing_t thing);
  * @return kii_thing_t instance restored from the string.
  * @see kii_thing_serialize(const kii_thing_t)
  */
-kii_thing_t kii_thing_deserialize(const char* serialized_thing);
+kii_thing_t kii_thing_deserialize(const kii_char_t* serialized_thing);
 
 /** Represents error.
  */
@@ -156,9 +156,9 @@ void kii_global_cleanup(void);
  * @return kii_app_t instance.
  * @see kii_dispose_app(kii_app_t)
  */
-kii_app_t kii_init_app(const char* app_id,
-                       const char* app_key,
-                       const char* site_url);
+kii_app_t kii_init_app(const kii_char_t* app_id,
+                       const kii_char_t* app_key,
+                       const kii_char_t* site_url);
 
 /** Obtain error detail happens last.
  * @returns error detail.
