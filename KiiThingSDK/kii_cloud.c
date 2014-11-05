@@ -765,6 +765,7 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
     kii_char_t* appIdHdr = NULL;
     kii_char_t* appkeyHdr = NULL;
     kii_char_t* contentTypeHdr = NULL;
+    kii_char_t* ifNoneMatchHdr = NULL;
     kii_char_t* reqStr = NULL;
     json_t* respHdr = NULL;
     long respCode = 0;
@@ -802,14 +803,15 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
     appkeyHdr = prv_new_header_string("x-kii-appkey", pApp->app_key);
     contentTypeHdr = prv_new_header_string("content-type",
             "application/json");
+    ifNoneMatchHdr = prv_new_header_string("if-none-match", "*");
     if (authHdr == NULL || appIdHdr == NULL || appkeyHdr == NULL ||
-        contentTypeHdr == NULL) {
+        contentTypeHdr == NULL || ifNoneMatchHdr == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
     }
 
     headers = prv_curl_slist_create(authHdr, appIdHdr, appkeyHdr,
-            contentTypeHdr);
+            contentTypeHdr, ifNoneMatchHdr, NULL);
     if (headers == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
@@ -854,6 +856,7 @@ ON_EXIT:
     M_KII_FREE_NULLIFY(appIdHdr);
     M_KII_FREE_NULLIFY(appkeyHdr);
     M_KII_FREE_NULLIFY(contentTypeHdr);
+    kii_dispose_kii_char(ifNoneMatchHdr);
     M_KII_FREE_NULLIFY(reqStr);
     kii_json_decref(respHdr);
     M_KII_FREE_NULLIFY(respData);
