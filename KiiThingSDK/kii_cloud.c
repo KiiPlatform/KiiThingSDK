@@ -984,7 +984,6 @@ kii_error_code_t kii_replace_object(kii_app_t app,
                                     const kii_bucket_t bucket,
                                     const kii_char_t* object_id,
                                     const kii_json_t* replace_contents,
-                                    const kii_bool_t force_update,
                                     const kii_char_t* opt_etag,
                                     kii_char_t** out_etag)
 {
