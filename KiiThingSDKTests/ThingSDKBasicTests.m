@@ -118,6 +118,9 @@ static const char* REGISTERED_THING_TOPIC = "myTopic";
         json_string_value(json_object_get(out_contents, "test_field"));
     XCTAssertTrue(strcmp("test_value", test_value) == 0 ? YES : NO,
             @"object test field unmatached: %s %s", "test_value", test_value);
+    XCTAssertTrue([[NSString stringWithUTF8String:create_etag]
+                   isEqualToString:[NSString stringWithUTF8String:get_etag]],
+                  @"Etag is not correct.");
 
 ON_EXIT:
     kii_dispose_app(app);
@@ -355,6 +358,7 @@ ON_EXIT:
 
     ret = kii_get_object(app, ACCESS_TOKEN, bucket, out_object_id,
             &out_contents, &first_get_etag);
+
     if (ret != KIIE_OK) {
         kii_error_t* err = kii_get_last_error(app);
         NSLog(@"code: %s", err->error_code);
@@ -370,6 +374,9 @@ ON_EXIT:
         json_string_value(json_object_get(out_contents, "_id"));
     XCTAssertTrue(strcmp(out_object_id, object_id) == 0 ? YES : NO,
             @"object id unmatached: %s %s", out_object_id, object_id);
+    XCTAssertTrue([[NSString stringWithUTF8String:create_etag]
+                   isEqualToString:[NSString stringWithUTF8String:first_get_etag]]
+                  , @"Etag is not correct.");
 
     ret = kii_delete_object(app, ACCESS_TOKEN, bucket, out_object_id);
     if (ret != KIIE_OK) {
