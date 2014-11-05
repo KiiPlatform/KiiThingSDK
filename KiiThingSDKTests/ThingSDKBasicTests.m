@@ -71,6 +71,56 @@ static const char* REGISTERED_THING_TOPIC = "myTopic";
     kii_dispose_thing(myThing);
 }
 
+-(void) testCreateNewObjectWithID {
+    kii_app_t app = kii_init_app(APPID, APPKEY, BASEURL);
+    kii_thing_t thing = kii_thing_deserialize(REGISTERED_THING_TID);
+    kii_bucket_t bucket = NULL;
+    json_t* contents = json_object();
+    json_t* out_contents = NULL;
+    kii_char_t* out_etag = NULL;
+    kii_error_code_t ret = KIIE_FAIL;
+
+    bucket = kii_init_thing_bucket(thing, "myBucket");
+    json_object_set_new(contents, "test_field", json_string("test_value"));
+    ret = kii_create_new_object_with_id(app, ACCESS_TOKEN, bucket,
+            "myObjectID", contents, &out_etag);
+    if (ret != KIIE_OK) {
+        kii_error_t* err = kii_get_last_error(app);
+        NSLog(@"code: %s", err->error_code);
+        NSLog(@"resp code: %d", err->status_code);
+    }
+    XCTAssertEqual(ret, KIIE_OK, "kii_create_new_object_with_id failed.");
+    if (out_etag != NULL) {
+        NSLog(@"ETag: %s", out_etag);
+    } else {
+        XCTFail("out_etag is NULL.");
+    }
+
+    ret = kii_get_object(app, ACCESS_TOKEN, bucket, "myObjectID",
+            &out_contents);
+    if (ret != KIIE_OK) {
+        kii_error_t* err = kii_get_last_error(app);
+        NSLog(@"code: %s", err->error_code);
+        NSLog(@"resp code: %d", err->status_code);
+    }
+    XCTAssertEqual(ret, KIIE_OK, @"get object failed.");
+    const char* object_id =
+        json_string_value(json_object_get(out_contents, "_id"));
+    XCTAssertTrue(strcmp("myObjectID", object_id) == 0 ? YES : NO,
+            @"object id unmatached: %s %s", "myObjectID", object_id);
+    const char* test_value =
+        json_string_value(json_object_get(out_contents, "test_field"));
+    XCTAssertTrue(strcmp("test_value", test_value) == 0 ? YES : NO,
+            @"object test field unmatached: %s %s", "test_value", test_value);
+
+ON_EXIT:
+    kii_dispose_app(app);
+    kii_dispose_thing(thing);
+    kii_dispose_bucket(bucket);
+    kii_json_decref(contents);
+    kii_dispose_kii_char(out_etag);
+}
+
 -(void) testInstallPush {
     kii_app_t app = kii_init_app(APPID,
                                  APPKEY,
