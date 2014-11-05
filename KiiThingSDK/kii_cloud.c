@@ -258,15 +258,20 @@ static size_t callback_header(
     /* check http header name. */
     if (kii_strncmp(line, ETAG, kii_strlen(ETAG)) == 0) {
         json_t** json = (json_t**)userdata;
-        char* value = NULL;
-        /* fill \r and \n as \0 */
-        for (value = line; *value != '\0'; ++value) {
-            if (*value == '\r' || *value == '\n') {
-                *value = '\0';
+        int i = 0;
+        char* value = line;
+
+        /* change line feed code lasting end of this array to '\0'. */
+        for (i = len; i >= 0; --i) {
+            if (line[i] == '\0') {
+                continue;
+            } else if (line[i] == '\r' || line[i] == '\n') {
+                line[i] = '\0';
+            } else {
+                break;
             }
         }
 
-        value = line;
         /* skip until ":". */
         while (*value != ':') {
             ++value;
