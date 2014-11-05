@@ -248,6 +248,7 @@ static size_t callback_header(
         int i = 0;
         kii_memcpy(line, buffer, len);
         line[len] = '\0';
+        M_KII_ASSERT(prv_log("resp header: %s", line));
         /* Field name becomes upper case. */
         for (i = 0; line[i] != '\0' && line[i] != ':'; ++i) {
             line[i] = (char)kii_tolower(line[i]);
@@ -257,7 +258,15 @@ static size_t callback_header(
     /* check http header name. */
     if (kii_strncmp(line, ETAG, kii_strlen(ETAG)) == 0) {
         json_t** json = (json_t**)userdata;
-        char* value = line;
+        char* value = NULL;
+        /* fill \r and \n as \0 */
+        for (value = line; *value != '\0'; ++value) {
+            if (*value == '\r' || *value == '\n') {
+                *value = '\0';
+            }
+        }
+
+        value = line;
         /* skip until ":". */
         while (*value != ':') {
             ++value;
@@ -311,6 +320,14 @@ typedef enum {
     GET
 } prv_kii_req_method_t;
 
+static void prv_log_req_heder(struct curl_slist* header)
+{
+    while (header != NULL) {
+        prv_log("req header: %s", header->data);
+        header = header->next;
+    }
+}
+
 kii_error_code_t prv_execute_curl(CURL* curl,
                                   const char* url,
                                   prv_kii_req_method_t method,
@@ -329,6 +346,7 @@ kii_error_code_t prv_execute_curl(CURL* curl,
     M_KII_ASSERT(response_status_code != NULL);
     M_KII_ASSERT(error != NULL);
 
+    M_KII_DEBUG(prv_log_req_heder(request_headers));
     M_KII_DEBUG(prv_log("request url: %s", url));
     M_KII_DEBUG(prv_log("request method: %d", method));
     M_KII_DEBUG(prv_log("request body: %s", request_body));
@@ -772,13 +790,16 @@ kii_error_code_t kii_patch_object(kii_app_t app,
     M_KII_ASSERT(kii_strlen(pBucket->kii_thing_id) > 0);
     M_KII_ASSERT(kii_strlen(pBucket->bucket_name) > 0);
     M_KII_ASSERT(access_token != NULL);
+    M_KII_ASSERT(object_id != NULL);
+    M_KII_ASSERT(patch != NULL);
+    M_KII_ASSERT(out_etag != NULL);
 
     kii_memset(&err, 0, sizeof(kii_error_t));
 
     /* prepare URL */
     reqUrl = prv_build_url(pApp->site_url, "apps", pApp->app_id, "things",
-            pBucket->kii_thing_id, "buckets", pBucket->bucket_name,
-            "objects", NULL);
+            pBucket->kii_thing_id, "buckets", pBucket->bucket_name, "objects",
+            object_id, NULL);
     if (reqUrl == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;

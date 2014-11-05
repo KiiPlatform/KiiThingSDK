@@ -261,4 +261,99 @@ ON_EXIT:
     kii_json_decref(out_contents);
 }
 
+- (void)testPatchObject {
+    kii_app_t app = kii_init_app(APPID, APPKEY, BASEURL);
+    kii_thing_t thing = kii_thing_deserialize(REGISTERED_THING_TID);
+    kii_bucket_t bucket = NULL;
+    json_t* contents = json_object();
+    json_t* patch = json_object();
+    kii_char_t* out_object_id = NULL;
+    kii_char_t* create_etag = NULL;
+    kii_char_t* patch_etag = NULL;
+    kii_json_t* first_get = NULL;
+    kii_json_t* second_get = NULL;
+    kii_error_code_t ret =  KIIE_FAIL;
+
+    bucket = kii_init_thing_bucket(thing, "myBucket");
+    ret = kii_create_new_object(app, ACCESS_TOKEN, bucket,
+            contents, &out_object_id, &create_etag);
+    if (ret != KIIE_OK) {
+        kii_error_t* err = kii_get_last_error(app);
+        NSLog(@"code: %s", err->error_code);
+        NSLog(@"resp code: %d", err->status_code);
+    }
+    XCTAssertEqual(ret, KIIE_OK, @"create new object failed.");
+    if (out_object_id != NULL) {
+        NSLog(@"objectID: %s", out_object_id);
+    } else {
+        XCTFail(@"out_object_id is NULL.");
+    }
+    if (create_etag != NULL) {
+        NSLog(@"ETag: %s", create_etag);
+    } else {
+        XCTFail(@"create_etag is NULL.");
+    }
+
+    ret = kii_get_object(app, ACCESS_TOKEN, bucket, out_object_id,
+            &first_get);
+    if (ret != KIIE_OK) {
+        kii_error_t* err = kii_get_last_error(app);
+        NSLog(@"code: %s", err->error_code);
+        NSLog(@"resp code: %d", err->status_code);
+    }
+    XCTAssertEqual(ret, KIIE_OK, @"get object failed.");
+    const char* object_id =
+        json_string_value(json_object_get(first_get, "_id"));
+    XCTAssertTrue(strcmp(out_object_id, object_id) == 0 ? YES : NO,
+            @"object id unmatached: %s %s", out_object_id, object_id);
+    XCTAssertTrue(json_object_get(first_get, "test_field") == NULL ? YES : NO,
+            @"test_field must be null.");
+
+    json_object_set_new(patch, "test_field", json_string("test_value"));
+    ret = kii_patch_object(app, ACCESS_TOKEN, bucket, out_object_id,
+                patch, create_etag, &patch_etag);
+    if (ret != KIIE_OK) {
+        kii_error_t* err = kii_get_last_error(app);
+        NSLog(@"code: %s", err->error_code);
+        NSLog(@"resp code: %d", err->status_code);
+    }
+    XCTAssertEqual(ret, KIIE_OK, @"patch object failed.");
+    if (patch_etag != NULL) {
+        NSLog(@"ETag: %s", patch_etag);
+    } else {
+        XCTFail(@"patch_etag is NULL.");
+    }
+
+    ret = kii_get_object(app, ACCESS_TOKEN, bucket, out_object_id,
+            &second_get);
+    if (ret != KIIE_OK) {
+        kii_error_t* err = kii_get_last_error(app);
+        NSLog(@"code: %s", err->error_code);
+        NSLog(@"resp code: %d", err->status_code);
+    }
+    XCTAssertEqual(ret, KIIE_OK, @"second get object failed.");
+    object_id = json_string_value(json_object_get(second_get, "_id"));
+    XCTAssertTrue(strcmp(out_object_id, object_id) == 0 ? YES : NO,
+            @"object id unmatached: %s %s", out_object_id, object_id);
+    const char* testValue = json_string_value(
+            json_object_get(second_get, "test_field"));
+    XCTAssertTrue(testValue != NULL ? YES : NO, "test_field must not be NULL");
+    if (testValue != NULL) {
+        XCTAssertTrue(strcmp(testValue, "test_value") == 0 ? YES : NO,
+                @"test_field unmatached: test_value %s.", testValue);
+    }
+
+ON_EXIT:
+    kii_dispose_app(app);
+    kii_dispose_thing(thing);
+    kii_dispose_bucket(bucket);
+    kii_json_decref(contents);
+    kii_json_decref(patch);
+    kii_dispose_kii_char(out_object_id);
+    kii_dispose_kii_char(create_etag);
+    kii_dispose_kii_char(patch_etag);
+    kii_json_decref(first_get);
+    kii_json_decref(second_get);
+}
+
 @end
