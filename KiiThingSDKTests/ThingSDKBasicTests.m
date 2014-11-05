@@ -82,6 +82,7 @@ static const char* REGISTERED_THING_TOPIC = "myTopic";
     kii_error_code_t ret = KIIE_FAIL;
 
     bucket = kii_init_thing_bucket(thing, "myBucket");
+    kii_delete_object(app, ACCESS_TOKEN, bucket, "myObjectID");
     json_object_set_new(contents, "test_field", json_string("test_value"));
     ret = kii_create_new_object_with_id(app, ACCESS_TOKEN, bucket,
             "myObjectID", contents, &create_etag);
