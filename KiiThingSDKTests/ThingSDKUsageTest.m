@@ -164,9 +164,10 @@
     NSLog(@"password: %s", endpoint->password);
     NSLog(@"topic: %s", endpoint->topic);
     NSLog(@"host: %s", endpoint->host);
-    NSLog(@"port: %s", endpoint->port);
+    NSLog(@"port tcp: %d", endpoint->port_tcp);
+    NSLog(@"port ssl: %d", endpoint->port_ssl);
     NSLog(@"ttl: %ld", endpoint->ttl);
-    
+
     // Connect to MQTT with some library. (paho, etc.)
 
     // Rerease resources.

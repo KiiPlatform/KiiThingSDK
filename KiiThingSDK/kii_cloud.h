@@ -103,7 +103,8 @@ typedef struct kii_mqtt_endpoint_t {
     kii_char_t* password; /**< password for connecting MQTT endpoint. */
     kii_char_t* topic; /** topic for subscription. */
     kii_char_t* host; /** hostname of MQTT endpoint. */
-    kii_char_t* port; /** port number of MQTT endpoint. */
+    kii_uint_t port_tcp; /** port number of MQTT endpoint for tcp. */
+    kii_uint_t port_ssl; /** port number of MQTT endpoint for ssl. */
     /** valid period of this MQTT endpoint in second.
      * You need to get new endpoint information when this
      * period has elapsed.
