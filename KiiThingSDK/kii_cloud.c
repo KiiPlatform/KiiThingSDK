@@ -236,6 +236,7 @@ static size_t callback_header(
 {
     const char ETAG[] = "etag";
     size_t len = size * nitems;
+    size_t ret = len;
     kii_char_t* line = kii_malloc(len + 1);
 
     M_KII_ASSERT(userdata != NULL);
@@ -285,12 +286,17 @@ static size_t callback_header(
 
         if (*json == NULL) {
             *json = json_object();
+            if (json == NULL) {
+                ret = 0;
+                goto ON_EXIT;
+            }
         }
         json_object_set_new(*json, ETAG, json_string(value));
     }
 
+ON_EXIT:
     M_KII_FREE_NULLIFY(line);
-    return len;
+    return ret;
 }
 
 kii_char_t* prv_new_header_string(const kii_char_t* key, const kii_char_t* value)
@@ -552,10 +558,11 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     }
     
     /* prepare request data */
-    if (user_data != NULL) {
-        reqJson = json_deep_copy((kii_json_t*)user_data);
-    } else {
-        reqJson = json_object();
+    reqJson = (user_data == NULL) ? json_object() :
+            json_deep_copy((kii_json_t*)user_data);
+    if (reqJson == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
     }
     json_object_set_new(reqJson, "_vendorThingID",
                         json_string(vendor_thing_id));
@@ -1849,6 +1856,10 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
     
     /* Prepare body */
     reqBodyJson = json_object();
+    if (reqBodyJson == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
     json_object_set_new(reqBodyJson, "deviceType", json_string("MQTT"));
     json_object_set_new(reqBodyJson, "development", json_boolean(development));
     reqBodyStr = json_dumps(reqBodyJson, 0);
