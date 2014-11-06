@@ -291,7 +291,10 @@ static size_t callback_header(
                 goto ON_EXIT;
             }
         }
-        json_object_set_new(*json, ETAG, json_string(value));
+        if (json_object_set_new(*json, ETAG, json_string(value)) != 0) {
+            ret = 0;
+            goto ON_EXIT;
+        }
     }
 
 ON_EXIT:
@@ -520,6 +523,7 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     kii_error_t err;
     kii_error_code_t exeCurlRet = KIIE_FAIL;
     kii_error_code_t ret = KIIE_FAIL;
+    kii_int_t json_set_result = 0;
 
     M_KII_ASSERT(app != NULL);
     M_KII_ASSERT(kii_strlen(pApp->app_id)>0);
@@ -565,14 +569,20 @@ kii_error_code_t kii_register_thing(kii_app_t app,
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
     }
-    json_object_set_new(reqJson, "_vendorThingID",
+    json_set_result = 0;
+    json_set_result |= json_object_set_new(reqJson, "_vendorThingID",
                         json_string(vendor_thing_id));
-    json_object_set_new(reqJson, "_password",
+    json_set_result |= json_object_set_new(reqJson, "_password",
                         json_string(thing_password));
     if (opt_thing_type != NULL && kii_strlen(opt_thing_type) > 0) {
-        json_object_set_new(reqJson, "_thingType",
+        json_set_result |= json_object_set_new(reqJson, "_thingType",
                             json_string(opt_thing_type));
     }
+    if (json_set_result != 0) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+
     reqStr = json_dumps(reqJson, 0);
     if (reqStr == NULL) {
         ret = KIIE_LOWMEMORY;
@@ -1843,6 +1853,7 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
     kii_error_code_t exeCurlRet = KIIE_FAIL;
     kii_error_code_t ret = KIIE_FAIL;
     json_error_t jErr;
+    kii_int_t json_set_result = 0;
     
     M_KII_ASSERT(app != NULL);
     M_KII_ASSERT(access_token != NULL);
@@ -1867,8 +1878,15 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
     }
-    json_object_set_new(reqBodyJson, "deviceType", json_string("MQTT"));
-    json_object_set_new(reqBodyJson, "development", json_boolean(development));
+    json_set_result = 0;
+    json_set_result |= json_object_set_new(reqBodyJson, "deviceType",
+            json_string("MQTT"));
+    json_set_result |= json_object_set_new(reqBodyJson, "development",
+            json_boolean(development));
+    if (json_set_result != 0) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
     reqBodyStr = json_dumps(reqBodyJson, 0);
     if (reqBodyStr == NULL) {
         ret = KIIE_LOWMEMORY;
