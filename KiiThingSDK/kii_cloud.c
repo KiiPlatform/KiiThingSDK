@@ -573,7 +573,10 @@ kii_error_code_t kii_register_thing(kii_app_t app,
                             json_string(opt_thing_type));
     }
     reqStr = json_dumps(reqJson, 0);
-    kii_json_decref(reqJson);
+    if (reqStr == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
 
     exeCurlRet = prv_execute_curl(pApp->curl_easy, reqUrl, POST,
             reqStr, headers, &respCode, &respData, NULL, &err);
@@ -615,6 +618,7 @@ ON_EXIT:
     M_KII_FREE_NULLIFY(appkeyHdr);
     M_KII_FREE_NULLIFY(contentTypeHdr);
     curl_slist_free_all(headers);
+    kii_json_decref(reqJson);
     M_KII_FREE_NULLIFY(reqStr);
     M_KII_FREE_NULLIFY(respData);
     M_KII_FREE_NULLIFY(reqUrl);
@@ -1863,7 +1867,10 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
     json_object_set_new(reqBodyJson, "deviceType", json_string("MQTT"));
     json_object_set_new(reqBodyJson, "development", json_boolean(development));
     reqBodyStr = json_dumps(reqBodyJson, 0);
-    kii_json_decref(reqBodyJson);
+    if (reqBodyStr == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
 
     /* Prepare headers*/
     appIdHdr = prv_new_header_string("x-kii-appid", pApp->app_id);
@@ -1919,6 +1926,7 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
 ON_EXIT:
     kii_json_decref(respBodyJson);
     M_KII_FREE_NULLIFY(url);
+    kii_json_decref(reqBodyJson);
     M_KII_FREE_NULLIFY(reqBodyStr);
     M_KII_FREE_NULLIFY(respBodyStr);
     M_KII_FREE_NULLIFY(appIdHdr);
