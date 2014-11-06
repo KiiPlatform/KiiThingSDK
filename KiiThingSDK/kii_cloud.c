@@ -557,7 +557,6 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     /* Check response code */
     {
         json_error_t jErr;
-        M_KII_DEBUG(prv_log("response: %s", respData));
         respJson = json_loads(respData, 0, &jErr);
 
         if (respJson != NULL) {
