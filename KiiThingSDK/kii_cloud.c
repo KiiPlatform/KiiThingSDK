@@ -455,10 +455,13 @@ kii_error_code_t prv_execute_curl(CURL* curl,
                 return KIIE_OK;
             } else {
                 const kii_char_t* error_code = NULL;
-                json_error_t jErr;
-                json_t* errJson = json_loads(*response_body, 0, &jErr);
-                if (errJson == NULL) {
-                    return KIIE_LOWMEMORY;
+                json_t* errJson = NULL;
+                if (*response_body != NULL) {
+                    json_error_t jErr;
+                    errJson = json_loads(*response_body, 0, &jErr);
+                    if (errJson == NULL) {
+                        return KIIE_LOWMEMORY;
+                    }
                 }
                 error_code = json_string_value(errJson);
                 prv_kii_set_info_in_error(error, (int)(*response_status_code),
