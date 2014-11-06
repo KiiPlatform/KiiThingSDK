@@ -295,16 +295,21 @@ static size_t callback_header(
 
 kii_char_t* prv_new_header_string(const kii_char_t* key, const kii_char_t* value)
 {
-    size_t len = kii_strlen(key) + kii_strlen(":") + kii_strlen(value);
-    kii_char_t* val = kii_malloc(len + 1);
+    size_t keyLen = kii_strlen(key);
+    size_t valLen = kii_strlen(value);
+    size_t len = keyLen + kii_strlen(":") + valLen;
+    kii_char_t* ret = kii_malloc(len + 1);
 
-    if (val == NULL) {
+    if (ret == NULL) {
         return NULL;
     }
 
-    val[len] = '\0';
-    kii_sprintf(val, "%s:%s", key, value);
-    return val;
+    ret[keyLen] = '\0';
+    kii_strncpy(ret, key, keyLen + 1);
+    ret[keyLen] = ':';
+    ret[keyLen + 1] = '\0';
+    kii_strncat(ret, value, valLen +1);
+    return ret;
 }
 
 kii_char_t* prv_new_auth_header_string(const kii_char_t* access_token)
