@@ -286,7 +286,7 @@ static size_t callback_header(
 
         if (*json == NULL) {
             *json = json_object();
-            if (json == NULL) {
+            if (*json == NULL) {
                 ret = 0;
                 goto ON_EXIT;
             }
@@ -1930,7 +1930,7 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
 
     /* Parse body */
     respBodyJson = json_loads(respBodyStr, 0, &jErr);
-    if (respBodyJson != NULL) {
+    if (respBodyJson == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
     } else {
@@ -2058,7 +2058,7 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
 
     /* Parse body */
     respBodyJson = json_loads(respBodyStr, 0, &jErr);
-    if (respBodyJson != NULL) {
+    if (respBodyJson == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
     } else {
