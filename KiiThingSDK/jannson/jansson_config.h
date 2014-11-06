@@ -47,7 +47,7 @@
 #ifdef __cplusplus
 #define JSON_INLINE inline
 #else
-#define JSON_INLINE inline
+#define JSON_INLINE
 #endif
 
 
