@@ -200,11 +200,11 @@
 				7410ACF419E29622002C9DF1 /* curl */,
 				747F3D5619F4D3A800C1372A /* kii_libc.c */,
 				747F3D5719F4D3A800C1372A /* kii_libc.h */,
-				747F3D5A19F4D91D00C1372A /* kii_logger.h */,
 				7410AD0719E29B70002C9DF1 /* kii_cloud.h */,
 				7485E61A19E5360000BCA19C /* kii_cloud.c */,
 				B613F69119F50D6100AC5548 /* kii_utils.c */,
 				B613F69219F50D6100AC5548 /* kii_utils.h */,
+				747F3D5A19F4D91D00C1372A /* kii_logger.h */,
 				B69FA67219F8A83300DC1872 /* kii_logger.c */,
 			);
 			path = KiiThingSDK;

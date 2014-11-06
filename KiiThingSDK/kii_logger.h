@@ -26,5 +26,6 @@ extern "C" {
 #endif
 
 int prv_log(const char* format, ...);
+int prv_log_no_LF(const char* format, ...);
 
 #endif /* defined(__KiiThingSDK__kii_logger__) */

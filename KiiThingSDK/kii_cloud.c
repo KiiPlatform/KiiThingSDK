@@ -248,7 +248,7 @@ static size_t callback_header(
         int i = 0;
         kii_memcpy(line, buffer, len);
         line[len] = '\0';
-        M_KII_ASSERT(prv_log("resp header: %s", line));
+        M_KII_ASSERT(prv_log_no_LF("resp header: %s", line));
         /* Field name becomes upper case. */
         for (i = 0; line[i] != '\0' && line[i] != ':'; ++i) {
             line[i] = (char)kii_tolower(line[i]);
