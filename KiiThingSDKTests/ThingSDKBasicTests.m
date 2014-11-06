@@ -160,7 +160,7 @@ ON_EXIT:
                                     &endpoint,
                                     &retryAfter);
         ++retryCount;
-    } while (ret != KIIE_OK || retryCount < 3);
+    } while (ret != KIIE_OK && retryCount < 3);
     if (ret != KIIE_OK) {
         kii_error_t* err = kii_get_last_error(app);
         NSLog(@"code: %s", err->error_code);
