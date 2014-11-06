@@ -319,13 +319,12 @@ kii_error_code_t kii_patch_object(kii_app_t app,
  * @param [in] bucket specify bucket contains object.
  * @param [in] object_id specify id of the object.
  * @param [in] replace_contents replacement data.
- * @param [in] force_update if kii_true, apply patch regardless of updates on
- * server. If kii_false check opt_etag value and applya patch only if the etag
- * matches.
- * @param [in] opt_etag required if force_update is kii_true.
+ * @param [in] opt_etag if NULL apply patch regardless of updates on
+ * server. if not NULL, check opt_etag value and apply patch only if
+ * the etag matches on server.
  * Specify NULL otherwise.
- * @param [out] out_etag etag of created object.
- * NULL if failed to create.
+ * @param [out] out_etag etag of updated object.
+ * NULL if failed to update.
  * You can pass NULL if you don't need to know etag.
  * If NULL passed, no resource is allocated for etag.
  * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
@@ -336,7 +335,6 @@ kii_error_code_t kii_replace_object(kii_app_t app,
                                     const kii_bucket_t bucket,
                                     const kii_char_t* object_id,
                                     const kii_json_t* replace_contents,
-                                    const kii_bool_t force_update,
                                     const kii_char_t* opt_etag,
                                     kii_char_t** out_etag);
 
