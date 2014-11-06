@@ -322,7 +322,8 @@ typedef enum {
     PUT,
     PATCH,
     DELETE,
-    GET
+    GET,
+    HEAD
 } prv_kii_req_method_t;
 
 static void prv_log_req_heder(struct curl_slist* header)
@@ -392,6 +393,11 @@ kii_error_code_t prv_execute_curl(CURL* curl,
             if (request_body != NULL) {
                 curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
             }
+            break;
+        case HEAD:
+            M_KII_ASSERT(request_body == NULL);
+            curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "HEAD");
+            curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
             break;
         default:
             M_KII_ASSERT(0); /* programing error */
