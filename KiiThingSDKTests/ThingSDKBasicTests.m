@@ -172,6 +172,8 @@ ON_EXIT:
     XCTAssert(strlen(endpoint->password) > 0);
     XCTAssert(strlen(endpoint->host) > 0);
     XCTAssert(strlen(endpoint->topic) > 0);
+    XCTAssert(endpoint->port_tcp > 0);
+    XCTAssert(endpoint->port_ssl > 0);
     XCTAssert(endpoint->ttl > 0);
 
     kii_dispose_kii_char(installId);

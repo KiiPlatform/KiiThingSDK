@@ -180,9 +180,9 @@ void kii_dispose_mqtt_endpoint(kii_mqtt_endpoint_t* endpoint)
     M_KII_FREE_NULLIFY(endpoint->password);
     M_KII_FREE_NULLIFY(endpoint->username);
     M_KII_FREE_NULLIFY(endpoint->host);
-    /* TODO: confirm spec. port is not included? */
-    /* M_KII_FREE_NULLIFY(endpoint->port); */
     M_KII_FREE_NULLIFY(endpoint->topic);
+    endpoint->port_tcp = 0;
+    endpoint->port_ssl = 0;
     M_KII_FREE_NULLIFY(endpoint);
 }
 
@@ -1943,6 +1943,8 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
     json_t* mqttTopicJson = NULL;
     json_t* hostJson = NULL;
     json_t* mqttTtlJson = NULL;
+    json_t* portTcpJson = NULL;
+    json_t* portSslJson = NULL;
 
     M_KII_ASSERT(app != NULL);
     M_KII_ASSERT(access_token != NULL);
@@ -2015,8 +2017,11 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
         mqttTopicJson = json_object_get(respBodyJson, "mqttTopic");
         hostJson = json_object_get(respBodyJson, "host");
         mqttTtlJson = json_object_get(respBodyJson, "X-MQTT-TTL");
+        portTcpJson = json_object_get(respBodyJson, "portTCP");
+        portSslJson = json_object_get(respBodyJson, "portSSL");
         if (userNameJson == NULL || passwordJson == NULL ||
-            mqttTopicJson == NULL || hostJson == NULL || mqttTtlJson == NULL) {
+            mqttTopicJson == NULL || hostJson == NULL || mqttTtlJson == NULL ||
+            portTcpJson == NULL || portSslJson == NULL) {
             prv_kii_set_info_in_error(&error, 0, KII_ECODE_PARSE);
             ret = KIIE_FAIL;
             goto ON_EXIT;
@@ -2029,6 +2034,8 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
             kii_char_t* password = kii_strdup(json_string_value(passwordJson));
             kii_char_t* topic = kii_strdup(json_string_value(mqttTopicJson));
             kii_char_t* host = kii_strdup(json_string_value(hostJson));
+            kii_uint_t portTcpInt = (kii_uint_t)json_integer_value(portTcpJson);
+            kii_uint_t portSslInt = (kii_uint_t)json_integer_value(portSslJson);
             kii_ulong_t ttl = (kii_ulong_t)json_integer_value(mqttTtlJson);
 
             if (endpoint == NULL ||
@@ -2050,6 +2057,8 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
             endpoint->topic = topic;
             endpoint->host = host;
             endpoint->ttl = ttl;
+            endpoint->port_tcp = portTcpInt;
+            endpoint->port_ssl = portSslInt;
             *out_endpoint = endpoint;
         }
 
