@@ -11,7 +11,11 @@
 
 int prv_log(const char* format, ...)
 {
-    int retval = prv_log_no_LF(format);
+    int retval = 0;
+    va_list list;
+    va_start(list, format);
+    retval = vprintf(format, list);
+    va_end(list);
     printf("\n");
     return retval;
 }
