@@ -1046,13 +1046,8 @@ kii_error_code_t kii_replace_object(kii_app_t app,
         }
     }
 
-    if (ifMatchHdr != NULL) {
-        headers = prv_curl_slist_create(authHdr, appIdHdr, appkeyHdr,
-                contentTypeHdr, ifMatchHdr, NULL);
-    } else {
-        headers = prv_curl_slist_create(authHdr, appIdHdr, appkeyHdr,
-                contentTypeHdr, NULL);
-    }
+    headers = prv_curl_slist_create(authHdr, appIdHdr, appkeyHdr,
+            contentTypeHdr, ifMatchHdr, NULL);
     if (headers == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
