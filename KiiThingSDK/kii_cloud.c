@@ -300,6 +300,10 @@ kii_char_t* prv_new_header_string(const kii_char_t* key, const kii_char_t* value
     size_t len = keyLen + kii_strlen(":") + valLen;
     kii_char_t* ret = kii_malloc(len + 1);
 
+    M_KII_ASSERT(keyLen > 0);
+    M_KII_ASSERT(valLen > 0);
+    M_KII_ASSERT(ret != NULL);
+
     if (ret == NULL) {
         return NULL;
     }
@@ -308,17 +312,29 @@ kii_char_t* prv_new_header_string(const kii_char_t* key, const kii_char_t* value
     kii_strncpy(ret, key, keyLen + 1);
     ret[keyLen] = ':';
     ret[keyLen + 1] = '\0';
-    kii_strncat(ret, value, valLen +1);
+    kii_strncat(ret, value, valLen + 1);
     return ret;
 }
 
 kii_char_t* prv_new_auth_header_string(const kii_char_t* access_token)
 {
-    size_t len = kii_strlen("authorization: bearer ")
-        + kii_strlen(access_token);
+    const char* authbearer = "authorization: bearer ";
+    size_t authbearerLen = kii_strlen(authbearer);
+    size_t tokenLen = kii_strlen(access_token);
+    size_t len = authbearerLen + tokenLen;
     kii_char_t* ret = malloc(len + 1);
-    ret[len] = '\0';
-    kii_sprintf(ret, "authorization: bearer %s", access_token);
+
+    M_KII_ASSERT(authbearerLen > 0);
+    M_KII_ASSERT(tokenLen > 0);
+    M_KII_ASSERT(ret != NULL);
+
+    if (ret == NULL) {
+        return NULL;
+    }
+
+    ret[authbearerLen] = '\0';
+    kii_strncpy(ret, authbearer, authbearerLen + 1);
+    kii_strncat(ret, access_token, tokenLen + 1);
     return ret;
 }
 
