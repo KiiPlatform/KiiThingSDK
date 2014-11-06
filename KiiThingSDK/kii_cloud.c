@@ -318,7 +318,7 @@ kii_char_t* prv_new_header_string(const kii_char_t* key, const kii_char_t* value
 
 kii_char_t* prv_new_auth_header_string(const kii_char_t* access_token)
 {
-    const char* authbearer = "authorization: bearer ";
+    const kii_char_t* authbearer = "authorization: bearer ";
     size_t authbearerLen = kii_strlen(authbearer);
     size_t tokenLen = kii_strlen(access_token);
     size_t len = authbearerLen + tokenLen;
