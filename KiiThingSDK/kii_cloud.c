@@ -2020,7 +2020,8 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
         portTcpJson = json_object_get(respBodyJson, "portTCP");
         portSslJson = json_object_get(respBodyJson, "portSSL");
         if (userNameJson == NULL || passwordJson == NULL ||
-            mqttTopicJson == NULL || hostJson == NULL || mqttTtlJson == NULL) {
+            mqttTopicJson == NULL || hostJson == NULL || mqttTtlJson == NULL ||
+            portTcpJson == NULL || portSslJson == NULL) {
             prv_kii_set_info_in_error(&error, 0, KII_ECODE_PARSE);
             ret = KIIE_FAIL;
             goto ON_EXIT;
