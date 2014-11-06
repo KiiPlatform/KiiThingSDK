@@ -79,7 +79,7 @@ static char* prv_url_encoded_copy(char* s1, const char* s2)
     M_KII_ASSERT(s2 != NULL);
 
     /* TODO: copy url encoded s2 string to s1. */
-    return kii_strcpy(s1, s2);
+    return kii_strncpy(s1, s2, kii_strlen(s2)+1);
 }
 
 struct curl_slist* prv_curl_slist_create(const char* first, ...)
