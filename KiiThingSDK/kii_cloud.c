@@ -1516,6 +1516,67 @@ kii_topic_t kii_init_thing_topic(const kii_thing_t thing,
     return topic;
 }
 
+kii_error_code_t kii_create_topic(kii_app_t app,
+                                  const kii_char_t* access_token,
+                                  const kii_topic_t topic)
+{
+    prv_kii_app_t* pApp = (prv_kii_app_t*)app;
+    prv_kii_topic_t* pTopic = (prv_kii_topic_t*)topic;
+    const kii_char_t* thingId = pTopic->kii_thing_id;
+    const kii_char_t* topicName = pTopic->topic_name;
+    kii_char_t* url = NULL;
+    struct curl_slist* reqHeaders = NULL;
+    kii_error_t error;
+    kii_error_code_t ret = KIIE_FAIL;
+    long respStatus = 0;
+    kii_char_t* respBodyStr = NULL;
+
+    kii_memset(&error, 0, sizeof(kii_error_t));
+
+    /* Prepare Url */
+    url = prv_build_url(pApp->site_url,
+                        "apps",
+                        pApp->app_id,
+                        "things",
+                        thingId,
+                        "topics",
+                        topicName,
+                        NULL);
+    if (url == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+
+    /* Prepare headers */
+    reqHeaders = prv_curl_slist_kii_request_header(pApp, access_token, NULL);
+    if (reqHeaders == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+
+    ret = prv_execute_curl(pApp->curl_easy,
+                     url,
+                     PUT,
+                     NULL,
+                     reqHeaders,
+                     &respStatus,
+                     &respBodyStr,
+                     NULL,
+                     &error);
+    if (respStatus == 409) {
+        /* topic already exists. */
+        ret = KIIE_OK;
+    }
+
+ON_EXIT:
+    M_KII_FREE_NULLIFY(url);
+    curl_slist_free_all(reqHeaders);
+    M_KII_FREE_NULLIFY(respBodyStr);
+    prv_kii_set_last_error(pApp, ret, &error);
+
+    return ret;
+}
+
 kii_error_code_t kii_subscribe_topic(kii_app_t app,
                                      const kii_char_t* access_token,
                                      const kii_topic_t topic)
