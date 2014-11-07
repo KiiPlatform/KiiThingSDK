@@ -559,7 +559,7 @@
 					"-Wno-gnu",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/KiiThingSDK/jannson";
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/KiiThingSDK/jansson";
 			};
 			name = Debug;
 		};
@@ -583,7 +583,7 @@
 					"-Wno-gnu",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/KiiThingSDK/jannson";
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/KiiThingSDK/jansson";
 			};
 			name = Release;
 		};
