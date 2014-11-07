@@ -21,11 +21,11 @@ extern "C" {
 #define M_KII_DEBUG(f)
 #endif
 
+int prv_log(const char* format, ...);
+int prv_log_no_LF(const char* format, ...);
+
 #ifdef __cplusplus
 }
 #endif
-
-int prv_log(const char* format, ...);
-int prv_log_no_LF(const char* format, ...);
 
 #endif /* defined(__KiiThingSDK__kii_logger__) */
