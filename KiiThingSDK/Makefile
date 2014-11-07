@@ -3,16 +3,16 @@ all: build doc
 doc:
 	doxygen doxyfile
 
-build_jannson:
-	$(MAKE) -C jannson
+build_jansson:
+	$(MAKE) -C jansson
 
-build: build_jannson
-	gcc -shared kii_cloud.c kii_libc.c kii_utils.c kii_logger.c -L jannson -I curl -I jannson -l jannson -l curl -o libkii.so
+build: build_jansson
+	gcc -shared kii_cloud.c kii_libc.c kii_utils.c kii_logger.c -L jansson -I curl -I jansson -l jansson -l curl -o libkii.so
 
-clean_jannson:
-	$(MAKE) -C jannson clean
+clean_jansson:
+	$(MAKE) -C jansson clean
 
-clean: clean_jannson
+clean: clean_jansson
 	rm -rf libkii.so
 
-phony: doc build build_jannson clean clean_jannson
+phony: doc build build_jansson clean clean_jansson

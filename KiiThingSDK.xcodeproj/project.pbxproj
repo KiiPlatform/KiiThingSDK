@@ -196,7 +196,7 @@
 		7410AC9619E27F7B002C9DF1 /* KiiThingSDK */ = {
 			isa = PBXGroup;
 			children = (
-				7416A59719E3C42A007DCC45 /* jannson */,
+				7416A59719E3C42A007DCC45 /* jansson */,
 				7410ACF419E29622002C9DF1 /* curl */,
 				747F3D5619F4D3A800C1372A /* kii_libc.c */,
 				747F3D5719F4D3A800C1372A /* kii_libc.h */,
@@ -247,7 +247,7 @@
 			path = curl;
 			sourceTree = "<group>";
 		};
-		7416A59719E3C42A007DCC45 /* jannson */ = {
+		7416A59719E3C42A007DCC45 /* jansson */ = {
 			isa = PBXGroup;
 			children = (
 				7416A59819E3C42A007DCC45 /* dump.c */,
@@ -269,7 +269,7 @@
 				7416A5A819E3C42A007DCC45 /* utf.h */,
 				7416A5A919E3C42A007DCC45 /* value.c */,
 			);
-			path = jannson;
+			path = jansson;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -559,7 +559,7 @@
 					"-Wno-gnu",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/KiiThingSDK/jannson";
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/KiiThingSDK/jansson";
 			};
 			name = Debug;
 		};
@@ -583,7 +583,7 @@
 					"-Wno-gnu",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/KiiThingSDK/jannson";
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/KiiThingSDK/jansson";
 			};
 			name = Release;
 		};
