@@ -1387,6 +1387,10 @@ kii_error_code_t kii_subscribe_bucket(kii_app_t app,
                            &respBodyStr,
                            NULL,
                            &error);
+    if (respStatus == 409) {
+        /* bucket is already subscribed. */
+        ret = KIIE_OK;
+    }
 
 ON_EXIT:
     M_KII_FREE_NULLIFY(url);
@@ -1657,6 +1661,10 @@ kii_error_code_t kii_subscribe_topic(kii_app_t app,
                      &respBodyStr,
                      NULL,
                      &error);
+    if (respStatus == 409) {
+        /* topic is already subscribed. */
+        ret = KIIE_OK;
+    }
 
 ON_EXIT:
     M_KII_FREE_NULLIFY(url);
