@@ -1548,7 +1548,7 @@ kii_error_code_t kii_create_topic(kii_app_t app,
     }
 
     /* Prepare headers */
-    reqHeaders = prv_curl_slist_kii_request_header(pApp, access_token, NULL);
+    reqHeaders = prv_common_request_headers(pApp, access_token, NULL);
     if (reqHeaders == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
