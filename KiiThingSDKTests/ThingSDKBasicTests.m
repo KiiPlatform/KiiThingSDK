@@ -713,4 +713,33 @@ ON_EXIT:
     kii_dispose_app(app);
     kii_dispose_topic(topic);
 }
+
+-(void)testCreateTopic {
+    kii_app_t app = kii_init_app(APPID, APPKEY, BASEURL);
+    NSUUID* id = [[NSUUID alloc]init];
+    const char* topicName = [id.UUIDString
+                              cStringUsingEncoding:NSUTF8StringEncoding];
+    kii_topic_t topic = kii_init_thing_topic(
+            kii_thing_deserialize(REGISTERED_THING_TID), topicName);
+
+    kii_error_code_t ret = kii_create_topic(app, ACCESS_TOKEN, topic);
+    if (ret != KIIE_OK) {
+        kii_error_t* err = kii_get_last_error(app);
+        NSLog(@"code: %s", err->error_code);
+        NSLog(@"resp code: %d", err->status_code);
+    }
+    XCTAssertEqual(ret, KIIE_OK, @"fail to create topic ");
+
+    ret = kii_create_topic(app, ACCESS_TOKEN, topic);
+    if (ret != KIIE_OK) {
+        kii_error_t* err = kii_get_last_error(app);
+        NSLog(@"code: %s", err->error_code);
+
+    }
+    XCTAssertEqual(ret, KIIE_OK, @"fail to create topic ");
+
+    kii_dispose_app(app);
+    kii_dispose_topic(topic);
+}
+
 @end
