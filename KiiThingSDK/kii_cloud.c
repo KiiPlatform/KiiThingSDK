@@ -403,19 +403,16 @@ ON_EXIT:
     return retval;
 }
 
-static struct curl_slist* prv_curl_slist_append_if_match(
+static struct curl_slist* prv_curl_slist_append_key_and_value(
         struct curl_slist* headers,
-        const kii_char_t* opt_etag)
+        const kii_char_t* key,
+        const kii_char_t* value)
 {
-    if (opt_etag == NULL) {
-        return curl_slist_append(headers, "if-none-match: *");
-    } else {
-        kii_char_t* if_match_hdr = prv_new_header_string("if-match", opt_etag);
-        struct curl_slist* retval = (if_match_hdr == NULL) ? NULL :
-                curl_slist_append(headers, if_match_hdr);
-        kii_dispose_kii_char(if_match_hdr);
-        return retval;
-    }
+    kii_char_t* hdr = prv_new_header_string(key, value);
+    struct curl_slist* retval = (hdr == NULL) ? NULL :
+        curl_slist_append(headers, hdr);
+    kii_dispose_kii_char(hdr);
+    return retval;
 }
 
 typedef enum {
@@ -889,7 +886,7 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
     } else {
-        struct curl_slist* tmp = prv_curl_slist_append_if_match(headers, NULL);
+        struct curl_slist* tmp = curl_slist_append(headers, "if-none-match: *");
         if (tmp == NULL) {
             ret = KIIE_LOWMEMORY;
             goto ON_EXIT;
@@ -992,8 +989,9 @@ kii_error_code_t kii_patch_object(kii_app_t app,
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
     } else {
-        struct curl_slist* tmp =
-            prv_curl_slist_append_if_match(headers, opt_etag);
+        struct curl_slist* tmp = opt_etag == NULL ?
+            curl_slist_append(headers, "if-none-match: *") :
+            prv_curl_slist_append_key_and_value(headers, "if-match", opt_etag);
         if (tmp == NULL) {
             ret = KIIE_LOWMEMORY;
             goto ON_EXIT;
@@ -1094,7 +1092,7 @@ kii_error_code_t kii_replace_object(kii_app_t app,
     }
     if (opt_etag != NULL) {
         struct curl_slist* tmp =
-            prv_curl_slist_append_if_match(headers, opt_etag);
+            prv_curl_slist_append_key_and_value(headers, "if-match", opt_etag);
         if (tmp == NULL) {
             ret = KIIE_LOWMEMORY;
             goto ON_EXIT;
