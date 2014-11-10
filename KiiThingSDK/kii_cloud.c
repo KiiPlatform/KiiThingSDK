@@ -386,8 +386,12 @@ static struct curl_slist* prv_common_request_headers(
     }
 
     if (opt_content_type != NULL) {
-        struct curl_slist* tmp = curl_slist_append(retval, opt_content_type);
+        kii_char_t* content_type_hdr = prv_new_header_string("content-type",
+                opt_content_type);
+        struct curl_slist* tmp = (content_type_hdr == NULL) ? NULL :
+                curl_slist_append(retval, content_type_hdr);
 
+        kii_dispose_kii_char(content_type_hdr);
         if (tmp == NULL) {
             curl_slist_free_all(retval);
             retval = NULL;
@@ -615,7 +619,7 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     
     /* prepare headers */
     headers = prv_common_request_headers(pApp, NULL,
-            "content-type: application/vnd.kii.ThingRegistrationAndAuthorizationRequest+json");
+            "application/vnd.kii.ThingRegistrationAndAuthorizationRequest+json");
     if (headers == NULL) {;
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
@@ -764,7 +768,7 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
 
     /* prepare headers */
     headers = prv_common_request_headers(pApp, access_token,
-            "content-type: application/json");
+            "application/json");
     if (headers == NULL) {;
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
@@ -881,7 +885,7 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
 
     /* prepare headers */
     headers = prv_common_request_headers(pApp, access_token,
-            "content-type: application/json");
+            "application/json");
     if (headers == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
@@ -984,7 +988,7 @@ kii_error_code_t kii_patch_object(kii_app_t app,
 
     /* prepare headers */
     headers = prv_common_request_headers(pApp, access_token,
-            "content-type: application/json");
+            "application/json");
     if (headers == NULL) {;
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
@@ -1085,7 +1089,7 @@ kii_error_code_t kii_replace_object(kii_app_t app,
 
     /* prepare headers */
     headers = prv_common_request_headers(pApp, access_token,
-            "content-type: application/json");
+            "application/json");
     if (headers == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
@@ -1774,7 +1778,7 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
 
     /* Prepare headers*/
     reqHeaders = prv_common_request_headers(pApp, access_token,
-            "content-type: application/vnd.kii.InstallationCreationRequest+json");
+            "application/vnd.kii.InstallationCreationRequest+json");
     if (reqHeaders == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
