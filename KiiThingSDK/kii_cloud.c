@@ -347,7 +347,7 @@ kii_char_t* prv_new_auth_header_string(const kii_char_t* access_token)
     return ret;
 }
 
-static struct curl_slist* prv_curl_slist_kii_request_header(
+static struct curl_slist* prv_common_request_header(
         const prv_kii_app_t* app,
         const kii_char_t* opt_access_token,
         const kii_char_t* opt_content_type)
@@ -620,7 +620,7 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     }
     
     /* prepare headers */
-    headers = prv_curl_slist_kii_request_header(pApp, NULL,
+    headers = prv_common_request_header(pApp, NULL,
             "application/vnd.kii.ThingRegistrationAndAuthorizationRequest+json");
     if (headers == NULL) {;
         ret = KIIE_LOWMEMORY;
@@ -769,7 +769,7 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
     }
 
     /* prepare headers */
-    headers = prv_curl_slist_kii_request_header(pApp, access_token,
+    headers = prv_common_request_header(pApp, access_token,
             "application/json");
     if (headers == NULL) {;
         ret = KIIE_LOWMEMORY;
@@ -886,7 +886,7 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
     }
 
     /* prepare headers */
-    headers = prv_curl_slist_kii_request_header(pApp, access_token,
+    headers = prv_common_request_header(pApp, access_token,
             "application/json");
     if (headers == NULL) {
         ret = KIIE_LOWMEMORY;
@@ -989,7 +989,7 @@ kii_error_code_t kii_patch_object(kii_app_t app,
     }
 
     /* prepare headers */
-    headers = prv_curl_slist_kii_request_header(pApp, access_token,
+    headers = prv_common_request_header(pApp, access_token,
             "application/json");
     if (headers == NULL) {;
         ret = KIIE_LOWMEMORY;
@@ -1089,7 +1089,7 @@ kii_error_code_t kii_replace_object(kii_app_t app,
     }
 
     /* prepare headers */
-    headers = prv_curl_slist_kii_request_header(pApp, access_token,
+    headers = prv_common_request_header(pApp, access_token,
             "application/json");
     if (headers == NULL) {
         ret = KIIE_LOWMEMORY;
@@ -1189,7 +1189,7 @@ kii_error_code_t kii_get_object(kii_app_t app,
     }
 
     /* prepare headers */
-    headers = prv_curl_slist_kii_request_header(pApp, access_token, NULL);
+    headers = prv_common_request_header(pApp, access_token, NULL);
     if (headers == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
@@ -1268,7 +1268,7 @@ kii_error_code_t kii_delete_object(kii_app_t app,
     }
 
     /* prepare headers */
-    headers = prv_curl_slist_kii_request_header(pApp, access_token, NULL);
+    headers = prv_common_request_header(pApp, access_token, NULL);
     if (headers == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
@@ -1320,7 +1320,7 @@ kii_error_code_t kii_subscribe_bucket(kii_app_t app,
     }
 
     /* Prepare headers */
-    reqHeaders = prv_curl_slist_kii_request_header(pApp, access_token, NULL);
+    reqHeaders = prv_common_request_header(pApp, access_token, NULL);
     if (reqHeaders == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
@@ -1383,7 +1383,7 @@ kii_error_code_t kii_unsubscribe_bucket(kii_app_t app,
     }
 
     /* Prepare headers */
-    reqHeaders = prv_curl_slist_kii_request_header(pApp, access_token, NULL);
+    reqHeaders = prv_common_request_header(pApp, access_token, NULL);
     if (reqHeaders == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
@@ -1443,7 +1443,7 @@ kii_error_code_t kii_is_bucket_subscribed(kii_app_t app,
     }
 
     /* Prepare headers */
-    reqHeaders = prv_curl_slist_kii_request_header(pApp, access_token, NULL);
+    reqHeaders = prv_common_request_header(pApp, access_token, NULL);
     if (reqHeaders == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
@@ -1552,7 +1552,7 @@ kii_error_code_t kii_subscribe_topic(kii_app_t app,
     }
 
     /* Prepare headers */
-    reqHeaders = prv_curl_slist_kii_request_header(pApp, access_token, NULL);
+    reqHeaders = prv_common_request_header(pApp, access_token, NULL);
     if (reqHeaders == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
@@ -1617,7 +1617,7 @@ kii_error_code_t kii_unsubscribe_topic(kii_app_t app,
     }
 
     /* Prepare headers */
-    reqHeaders = prv_curl_slist_kii_request_header(pApp, access_token, NULL);
+    reqHeaders = prv_common_request_header(pApp, access_token, NULL);
     if (reqHeaders == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
@@ -1679,7 +1679,7 @@ kii_error_code_t kii_is_topic_subscribed(kii_app_t app,
     }
 
     /* Prepare headers */
-    reqHeaders = prv_curl_slist_kii_request_header(pApp, access_token, NULL);
+    reqHeaders = prv_common_request_header(pApp, access_token, NULL);
     if (reqHeaders == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
@@ -1778,7 +1778,7 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
     }
 
     /* Prepare headers*/
-    reqHeaders = prv_curl_slist_kii_request_header(pApp, access_token,
+    reqHeaders = prv_common_request_header(pApp, access_token,
             "application/vnd.kii.InstallationCreationRequest+json");
     if (reqHeaders == NULL) {
         ret = KIIE_LOWMEMORY;
@@ -1876,7 +1876,7 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
 
     M_KII_DEBUG(prv_log("mqtt endpoint url: %s", url));
     /* Prepare Headers */
-    reqHeaders = prv_curl_slist_kii_request_header(pApp, access_token, NULL);
+    reqHeaders = prv_common_request_header(pApp, access_token, NULL);
     if (reqHeaders == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
