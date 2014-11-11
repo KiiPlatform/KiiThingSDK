@@ -195,12 +195,12 @@
 			children = (
 				7416A59719E3C42A007DCC45 /* jansson */,
 				7410ACF419E29622002C9DF1 /* curl */,
-				747F3D5619F4D3A800C1372A /* kii_custom.c */,
 				747F3D5719F4D3A800C1372A /* kii_custom.h */,
+				747F3D5619F4D3A800C1372A /* kii_custom.c */,
 				7410AD0719E29B70002C9DF1 /* kii_cloud.h */,
 				7485E61A19E5360000BCA19C /* kii_cloud.c */,
-				B613F69119F50D6100AC5548 /* kii_utils.c */,
 				B613F69219F50D6100AC5548 /* kii_utils.h */,
+				B613F69119F50D6100AC5548 /* kii_utils.c */,
 			);
 			path = KiiThingSDK;
 			sourceTree = "<group>";

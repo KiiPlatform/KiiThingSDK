@@ -63,3 +63,13 @@ int kii_tolower(int c)
 {
     return tolower(c);
 }
+
+void kii_dispose_kii_char(kii_char_t* char_ptr)
+{
+    M_KII_FREE_NULLIFY(char_ptr);
+}
+
+void kii_json_decref(kii_json_t* json)
+{
+    json_decref(json);
+}

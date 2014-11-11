@@ -185,16 +185,6 @@ void kii_dispose_mqtt_endpoint(kii_mqtt_endpoint_t* endpoint)
     M_KII_FREE_NULLIFY(endpoint);
 }
 
-void kii_dispose_kii_char(kii_char_t* char_ptr)
-{
-    M_KII_FREE_NULLIFY(char_ptr);
-}
-
-void kii_json_decref(kii_json_t* json)
-{
-    json_decref(json);
-}
-
 static size_t callbackWrite(char* ptr,
                             size_t size,
                             size_t nmemb,
