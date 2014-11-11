@@ -1,12 +1,11 @@
 /*
-  kii_libc.c
+  kii_custom.c
   KiiThingSDK
 
-  Created by 熊野 聡 on 2014/10/20.
-  Copyright (c) 2014年 Kii. All rights reserved.
+  Copyright (c) 2014 Kii. All rights reserved.
 */
 
-#include "kii_libc.h"
+#include "kii_custom.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
@@ -63,4 +62,14 @@ int kii_strncmp(const char *s1, const char *s2, size_t n)
 int kii_tolower(int c)
 {
     return tolower(c);
+}
+
+void kii_dispose_kii_char(kii_char_t* char_ptr)
+{
+    M_KII_FREE_NULLIFY(char_ptr);
+}
+
+void kii_json_decref(kii_json_t* json)
+{
+    json_decref(json);
 }

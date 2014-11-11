@@ -7,7 +7,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "kii_utils.h"
+#import "kii_prv_utils.h"
 
 #import <string.h>
 

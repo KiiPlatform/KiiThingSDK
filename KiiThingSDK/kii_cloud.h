@@ -9,6 +9,7 @@
 #define KiiThingSDK_kii_cloud_h
 
 #include "jansson.h"
+#include "kii_custom.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,18 +39,13 @@ typedef enum kii_error_code_t {
 /** Represents application.
  * should be disposed by kii_dispose_app(kii_app_t)
  */
-typedef void* kii_app_t;
+typedef struct prv_kii_app_t* kii_app_t;
 
 /** Represents bucket.
  * should be disposed by kii_dispose_bucket(kii_bucket_t)
  */
-typedef void* kii_bucket_t;
-typedef void* kii_topic_t;
-typedef int kii_int_t;
-typedef unsigned int kii_uint_t;
-typedef unsigned long kii_ulong_t;
-typedef char kii_char_t;
-typedef json_t kii_json_t;
+typedef struct prv_kii_bucket_t* kii_bucket_t;
+typedef struct prv_kii_topic_t* kii_topic_t;
 
 /** Represents thing.
  * should be disposed by kii_dispose_thing(const kii_thing_t).
@@ -57,7 +53,7 @@ typedef json_t kii_json_t;
  * Can be deserialized by kii_thing_deserialize(const kii_char_t*)
  * with serialized string obtained by kii_thing_serialize(const kii_thing_t).
  */
-typedef void* kii_thing_t;
+typedef struct prv_kii_thing_t* kii_thing_t;
 
 /** Dispose kii_thing_t instance.
  * @param [in] thing kii_thing_t instance should be disposed.
@@ -185,16 +181,6 @@ void kii_dispose_topic(kii_topic_t topic);
  * @param [in] endpoint kii_mqtt_endpoint_t instance should be disposed.
  */
 void kii_dispose_mqtt_endpoint(kii_mqtt_endpoint_t* endpoint);
-
-/** Dispose kii_char_t allocated by SDK.
- * @param [in] char_ptr kii_char_t instance should be disposed
- */
-void kii_dispose_kii_char(kii_char_t* char_ptr);
-
-/** decrease reference of kii_json_t allocated by SDK.
- * @param [in] json json instance.
- */
-void kii_json_decref(kii_json_t* json);
 
 /** Register thing to Kii Cloud.
  * This api performes the entire request in a blocking manner
