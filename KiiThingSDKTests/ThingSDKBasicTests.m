@@ -84,7 +84,7 @@ static const char* REGISTERED_THING_TOPIC = "myTopic";
                                               "1234", NULL,
                                               &myThing,
                                               &accessToken);
-    /* TODO examin myThing */
+
     XCTAssertEqual(ret, KIIE_FAIL, @"register not failed.");
     XCTAssertEqual(myThing, NULL, @"myThing must be NULL.");
     XCTAssertEqual(accessToken, NULL, @"accessToken must be NULL.");
