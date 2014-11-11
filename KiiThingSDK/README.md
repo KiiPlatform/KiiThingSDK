@@ -1,7 +1,7 @@
 Kii Thing SDK for C language is designed to used by several Things connected to internet.
 
 ## Dependency
-- jansson
+- jansson (Tested with version 2.7.0)
     http://www.digip.org/jansson/
 - libcurl
     http://curl.haxx.se/libcurl/
