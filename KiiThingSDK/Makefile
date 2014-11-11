@@ -7,7 +7,7 @@ build_jansson:
 	$(MAKE) -C jansson
 
 build: build_jansson
-	gcc -shared kii_cloud.c kii_custom.c kii_utils.c -L jansson -I curl -I jansson -l jansson -l curl -o libkii.so
+	gcc -shared kii_cloud.c kii_custom.c kii_prv_utils.c -L jansson -I curl -I jansson -l jansson -l curl -o libkii.so
 
 clean_jansson:
 	$(MAKE) -C jansson clean
