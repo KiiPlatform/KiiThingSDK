@@ -35,7 +35,7 @@ static const char* BASEURL = "https://api-development-jp.internal.kii.com/api";
 // Pre registered thing.
 static const char* ACCESS_TOKEN = "t6cV3HB65osoG9i0Yndkphk75F7XdswTt8KvL874-wY";
 static const char* REGISTERED_THING_TID = "th.53ae324be5a0-f808-4e11-d106-0241b0da";
-//static const char* REGISTERED_THING_VID = "96AAF4E6-0E30-472A-A3EC-902C914CBAB7";
+static const char* REGISTERED_THING_FAIL_ID = "96AAF4E6-0E30-472A-A3EC-902C914CBAB7";
 static const char* REGISTERED_THING_TOPIC = "myTopic";
 
 - (void)testRegisterThing {
@@ -68,6 +68,33 @@ static const char* REGISTERED_THING_TOPIC = "myTopic";
     kii_dispose_app(app);
     kii_dispose_kii_char(accessToken);
     kii_dispose_kii_char(kiiThingId);
+    kii_dispose_thing(myThing);
+}
+
+- (void)testRegisterThingFail {
+    kii_app_t app = kii_init_app(APPID,
+                                 APPKEY,
+                                 BASEURL);
+
+    char* accessToken = NULL;
+    kii_thing_t myThing = NULL;
+    kii_error_code_t ret = kii_register_thing(app,
+                                              REGISTERED_THING_FAIL_ID,
+                                              "THERMOMETER",
+                                              "1234", NULL,
+                                              &myThing,
+                                              &accessToken);
+    /* TODO examin myThing */
+    XCTAssertEqual(ret, KIIE_FAIL, @"register not failed.");
+    XCTAssertEqual(myThing, NULL, @"myThing must be NULL.");
+    XCTAssertEqual(accessToken, NULL, @"accessToken must be NULL.");
+    if (ret != KIIE_OK) {
+        kii_error_t* err = kii_get_last_error(app);
+        NSLog(@"code: %s", err->error_code);
+        NSLog(@"resp code: %d", err->status_code);
+    }
+    kii_dispose_app(app);
+    kii_dispose_kii_char(accessToken);
     kii_dispose_thing(myThing);
 }
 
