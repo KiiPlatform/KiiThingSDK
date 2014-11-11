@@ -364,6 +364,7 @@ kii_error_code_t prv_execute_curl(CURL* curl,
             } else {
                 const kii_char_t* error_code = NULL;
                 json_t* errJson = NULL;
+                json_t* errorCodeJson = NULL;
                 if (*response_body != NULL) {
                     json_error_t jErr;
                     errJson = json_loads(*response_body, 0, &jErr);
@@ -371,7 +372,12 @@ kii_error_code_t prv_execute_curl(CURL* curl,
                         return KIIE_LOWMEMORY;
                     }
                 }
-                error_code = json_string_value(errJson);
+                errorCodeJson = json_object_get(errJson, "errorCode");
+                if (errorCodeJson != NULL) {
+                    error_code = json_string_value(errorCodeJson);
+                } else {
+                    error_code = *response_body;
+                }
                 prv_kii_set_info_in_error(error, (int)(*response_status_code),
                         error_code);
                 json_decref(errJson);
@@ -387,7 +393,9 @@ kii_error_code_t prv_execute_curl(CURL* curl,
 
 void kii_dispose_thing(kii_thing_t thing)
 {
-    M_KII_FREE_NULLIFY(thing->kii_thing_id);
+    if (thing != NULL) {
+        M_KII_FREE_NULLIFY(thing->kii_thing_id);
+    }
     M_KII_FREE_NULLIFY(thing);
 }
 
