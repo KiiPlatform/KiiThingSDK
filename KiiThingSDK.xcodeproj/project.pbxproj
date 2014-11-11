@@ -58,6 +58,8 @@
 		747F3D5519F0FD8A00C1372A /* ThingSDKBasicTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 747F3D5419F0FD8A00C1372A /* ThingSDKBasicTests.m */; };
 		747F3D5819F4D3A800C1372A /* kii_custom.c in Sources */ = {isa = PBXBuildFile; fileRef = 747F3D5619F4D3A800C1372A /* kii_custom.c */; };
 		7485E61B19E5360000BCA19C /* kii_cloud.c in Sources */ = {isa = PBXBuildFile; fileRef = 7485E61A19E5360000BCA19C /* kii_cloud.c */; };
+		74CD39311A11F58A00D0F9D4 /* test.json in Resources */ = {isa = PBXBuildFile; fileRef = 74CD392F1A11EB9F00D0F9D4 /* test.json */; };
+		74CD39331A11FE6000D0F9D4 /* ThingSDKLargeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 74CD39321A11FE6000D0F9D4 /* ThingSDKLargeTests.m */; };
 		74DB969719EFAFE3008FF61E /* libKiiThingSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 74DB969619EFAFE3008FF61E /* libKiiThingSDK.a */; };
 		B613F69319F50D6100AC5548 /* kii_prv_utils.c in Sources */ = {isa = PBXBuildFile; fileRef = B613F69119F50D6100AC5548 /* kii_prv_utils.c */; };
 		B613F69419F50D7600AC5548 /* kii_prv_utils.c in Sources */ = {isa = PBXBuildFile; fileRef = B613F69119F50D6100AC5548 /* kii_prv_utils.c */; };
@@ -139,6 +141,8 @@
 		747F3D5719F4D3A800C1372A /* kii_custom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kii_custom.h; sourceTree = "<group>"; };
 		7485E61A19E5360000BCA19C /* kii_cloud.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kii_cloud.c; sourceTree = "<group>"; };
 		74CD392E1A11BEE600D0F9D4 /* kii_prv_types.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = kii_prv_types.h; sourceTree = "<group>"; };
+		74CD392F1A11EB9F00D0F9D4 /* test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = test.json; sourceTree = "<group>"; };
+		74CD39321A11FE6000D0F9D4 /* ThingSDKLargeTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ThingSDKLargeTests.m; sourceTree = "<group>"; };
 		74DB969619EFAFE3008FF61E /* libKiiThingSDK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libKiiThingSDK.a; path = library/libKiiThingSDK.a; sourceTree = "<group>"; };
 		B613F69119F50D6100AC5548 /* kii_prv_utils.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kii_prv_utils.c; sourceTree = "<group>"; };
 		B613F69219F50D6100AC5548 /* kii_prv_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kii_prv_utils.h; sourceTree = "<group>"; };
@@ -213,6 +217,7 @@
 				7410ACBB19E28845002C9DF1 /* LibUsateTests.m */,
 				7418A91119E5206D00A85634 /* ThingSDKUsageTest.m */,
 				747F3D5419F0FD8A00C1372A /* ThingSDKBasicTests.m */,
+				74CD39321A11FE6000D0F9D4 /* ThingSDKLargeTests.m */,
 				B69FA67019F6415700DC1872 /* URLBuilderTest.m */,
 				7410ACB919E28845002C9DF1 /* Supporting Files */,
 			);
@@ -222,6 +227,7 @@
 		7410ACB919E28845002C9DF1 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				74CD392F1A11EB9F00D0F9D4 /* test.json */,
 				7410ACBA19E28845002C9DF1 /* Info.plist */,
 			);
 			name = "Supporting Files";
@@ -350,6 +356,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				74CD39311A11F58A00D0F9D4 /* test.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -402,6 +409,7 @@
 				7416A5BD19E3C42A007DCC45 /* utf.c in Sources */,
 				7416A5B519E3C42A007DCC45 /* memory.c in Sources */,
 				7416A5AF19E3C42A007DCC45 /* hashtable.c in Sources */,
+				74CD39331A11FE6000D0F9D4 /* ThingSDKLargeTests.m in Sources */,
 				B69FA67119F6415700DC1872 /* URLBuilderTest.m in Sources */,
 				7416A5B319E3C42A007DCC45 /* load.c in Sources */,
 				7418A91219E5206D00A85634 /* ThingSDKUsageTest.m in Sources */,

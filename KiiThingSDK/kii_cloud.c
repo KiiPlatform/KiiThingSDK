@@ -183,9 +183,6 @@ static size_t callbackWrite(char* ptr,
             return 0;
         }
         kii_strncat(concat, ptr, dataLen);
-        if (concat != *respData) {
-            M_KII_FREE_NULLIFY(*respData);
-        }
         *respData = concat;
     }
     return dataLen;
