@@ -7,7 +7,7 @@
 
 #include "kii_utils.h"
 
-#include "kii_libc.h"
+#include "kii_custom.h"
 
 #include <stdarg.h>
 

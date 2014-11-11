@@ -7,7 +7,7 @@
 
 #include "curl.h"
 #include "kii_cloud.h"
-#include "kii_libc.h"
+#include "kii_custom.h"
 #include "kii_utils.h"
 
 kii_error_code_t kii_global_init(void)

@@ -1,12 +1,12 @@
 /*
-  kii_libc.h
+  kii_custom.h
   KiiThingSDK
 
   Copyright (c) 2014 Kii. All rights reserved.
 */
 
-#ifndef __KiiThingSDK__kii_libc__
-#define __KiiThingSDK__kii_libc__
+#ifndef __KiiThingSDK__kii_custom__
+#define __KiiThingSDK__kii_custom__
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,4 +40,4 @@ int kii_tolower(int c);
 }
 #endif
 
-#endif /* defined(__KiiThingSDK__kii_libc__) */
+#endif /* defined(__KiiThingSDK__kii_custom__) */
