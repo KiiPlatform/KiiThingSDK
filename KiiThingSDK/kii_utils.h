@@ -17,6 +17,12 @@
 extern "C" {
 #endif
 
+#ifdef DEBUG
+#define M_KII_DEBUG(f) f
+#else
+#define M_KII_DEBUG(f)
+#endif
+
 /* The last argument of this method must be NULL. */
 /* Returned value of this method must be freed by caller of this method. */
 char* prv_build_url(const char* first, ...);
@@ -29,6 +35,9 @@ char* prv_build_url(const char* first, ...);
    Returned value must be freed by caller of this method with
    curl_slist_free_all. */
 struct curl_slist* prv_curl_slist_create(const char* first, ...);
+
+int prv_log(const char* format, ...);
+int prv_log_no_LF(const char* format, ...);
 
 #ifdef __cplusplus
 }

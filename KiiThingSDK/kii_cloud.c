@@ -7,7 +7,6 @@
 
 #include "curl.h"
 #include "kii_cloud.h"
-#include "kii_logger.h"
 #include "kii_libc.h"
 #include "kii_utils.h"
 
