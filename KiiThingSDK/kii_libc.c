@@ -2,8 +2,7 @@
   kii_libc.c
   KiiThingSDK
 
-  Created by 熊野 聡 on 2014/10/20.
-  Copyright (c) 2014年 Kii. All rights reserved.
+  Copyright (c) 2014 Kii. All rights reserved.
 */
 
 #include "kii_libc.h"
