@@ -396,7 +396,9 @@ kii_error_code_t prv_execute_curl(CURL* curl,
 
 void kii_dispose_thing(kii_thing_t thing)
 {
-    M_KII_FREE_NULLIFY(thing->kii_thing_id);
+    if (thing != NULL) {
+        M_KII_FREE_NULLIFY(thing->kii_thing_id);
+    }
     M_KII_FREE_NULLIFY(thing);
 }
 
