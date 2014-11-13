@@ -222,7 +222,7 @@ static size_t callback_header(
 
     /* check http header name. */
     if (kii_strncmp(line, ETAG, kii_strlen(ETAG)) == 0) {
-        json_t** json = (json_t**)userdata;
+        json_t** json = userdata;
         int i = 0;
         kii_char_t* value = line;
 
@@ -471,7 +471,7 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     
     /* prepare request data */
     reqJson = (user_data == NULL) ? json_object() :
-            json_deep_copy((json_t*)user_data);
+            json_deep_copy(user_data);
     if (reqJson == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
