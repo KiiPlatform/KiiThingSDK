@@ -402,8 +402,9 @@ kii_error_code_t kii_delete_object(kii_app_t app,
  * @param [in] app kii application uses this thing.
  * @param [in] access_token specify access token of authur.
  * @param [in] bucket target bucket to subscribe.
- * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
- * calling kii_get_last_error(kii_app_t).
+ * @return KIIE_OK if succeeded to subscribe or already subscribed.
+ * Otherwise failed.
+ * you can check details by calling kii_get_last_error(kii_app_t).
  */
 kii_error_code_t kii_subscribe_bucket(kii_app_t app,
                                       const kii_char_t* access_token,
@@ -451,8 +452,8 @@ kii_topic_t kii_init_thing_topic(const kii_thing_t thing,
  * @param [in] app kii application uses this thing.
  * @param [in] access_token specify access token of authur.
  * @param [in] topic target topic to create.
- * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
- * calling kii_get_last_error(kii_app_t).
+ * @return KIIE_OK if succeeded to create or already created. Otherwise failed.
+ * you can check details by calling kii_get_last_error(kii_app_t).
  */
 kii_error_code_t kii_create_topic(kii_app_t app,
                                   const kii_char_t* access_token,
@@ -469,8 +470,9 @@ kii_error_code_t kii_create_topic(kii_app_t app,
  * @param [in] app kii application uses this thing.
  * @param [in] access_token specify access token of authur.
  * @param [in] topic target topic to subscribe.
- * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
- * calling kii_get_last_error(kii_app_t).
+ * @return KIIE_OK if succeeded to subscribe or already subscribed.
+ * Otherwise failed.
+ * you can check details by calling kii_get_last_error(kii_app_t).
  */
 kii_error_code_t kii_subscribe_topic(kii_app_t app,
                                      const kii_char_t* access_token,
