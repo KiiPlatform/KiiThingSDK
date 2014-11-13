@@ -9,10 +9,39 @@
 #define KiiThingSDK_kii_cloud_h
 
 #include "jansson.h"
+#include <assert.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#pragma mark for low level interface customization
+    
+typedef int kii_int_t;
+typedef unsigned int kii_uint_t;
+typedef unsigned long kii_ulong_t;
+typedef char kii_char_t;
+
+#define M_KII_FREE_NULLIFY(ptr) \
+kii_free((ptr));\
+(ptr) = NULL;
+
+#define M_KII_ASSERT(exp) \
+assert((exp));
+    
+void* kii_malloc(size_t size);
+void* kii_memset(void* buf, int ch, size_t n);
+void* kii_memcpy(void* buf1, const void* buf2, size_t n);
+void kii_free(void* ptr);
+kii_char_t* kii_strdup(const kii_char_t* s);
+kii_char_t* kii_strncat(kii_char_t* s1, const kii_char_t* s2, size_t n);
+size_t kii_strlen(const kii_char_t* str);
+kii_char_t* kii_strncpy(kii_char_t *s1, const kii_char_t *s2, size_t n);
+void* kii_realloc(void* ptr, size_t size);
+int kii_strncmp(const kii_char_t *s1, const kii_char_t *s2, size_t n);
+int kii_tolower(int c);
+
+#pragma mark thing sdk interfaces
 
 static const char KII_SITE_JP[] = "https://api-jp.kii.com/api"; /** Site JP */
 static const char KII_SITE_US[] = "https://api.kii.com/api"; /** Site US */
@@ -38,18 +67,18 @@ typedef enum kii_error_code_t {
 /** Represents application.
  * should be disposed by kii_dispose_app(kii_app_t)
  */
-typedef void* kii_app_t;
+typedef struct prv_kii_app_t* kii_app_t;
 
 /** Represents bucket.
  * should be disposed by kii_dispose_bucket(kii_bucket_t)
  */
-typedef void* kii_bucket_t;
-typedef void* kii_topic_t;
-typedef int kii_int_t;
-typedef unsigned int kii_uint_t;
-typedef unsigned long kii_ulong_t;
-typedef char kii_char_t;
-typedef json_t kii_json_t;
+typedef struct prv_kii_bucket_t* kii_bucket_t;
+typedef struct prv_kii_topic_t* kii_topic_t;
+
+/** Dispose kii_char_t allocated by SDK.
+ * @param [in] char_ptr kii_char_t instance should be disposed
+ */
+void kii_dispose_kii_char(kii_char_t* char_ptr);
 
 /** Represents thing.
  * should be disposed by kii_dispose_thing(const kii_thing_t).
@@ -57,7 +86,7 @@ typedef json_t kii_json_t;
  * Can be deserialized by kii_thing_deserialize(const kii_char_t*)
  * with serialized string obtained by kii_thing_serialize(const kii_thing_t).
  */
-typedef void* kii_thing_t;
+typedef struct prv_kii_thing_t* kii_thing_t;
 
 /** Dispose kii_thing_t instance.
  * @param [in] thing kii_thing_t instance should be disposed.
@@ -186,16 +215,6 @@ void kii_dispose_topic(kii_topic_t topic);
  */
 void kii_dispose_mqtt_endpoint(kii_mqtt_endpoint_t* endpoint);
 
-/** Dispose kii_char_t allocated by SDK.
- * @param [in] char_ptr kii_char_t instance should be disposed
- */
-void kii_dispose_kii_char(kii_char_t* char_ptr);
-
-/** decrease reference of kii_json_t allocated by SDK.
- * @param [in] json json instance.
- */
-void kii_json_decref(kii_json_t* json);
-
 /** Register thing to Kii Cloud.
  * This api performes the entire request in a blocking manner
  * and returns when done, or if it failed.
@@ -219,7 +238,7 @@ kii_error_code_t kii_register_thing(kii_app_t app,
                                     const kii_char_t* vendor_thing_id,
                                     const kii_char_t* thing_password,
                                     const kii_char_t* opt_thing_type,
-                                    const kii_json_t* user_data,
+                                    const json_t* user_data,
                                     kii_thing_t* out_thing,
                                     kii_char_t** out_access_token);
 
@@ -253,7 +272,7 @@ kii_bucket_t kii_init_thing_bucket(const kii_thing_t thing,
 kii_error_code_t kii_create_new_object(kii_app_t app,
                                        const kii_char_t* access_token,
                                        const kii_bucket_t bucket,
-                                       const kii_json_t* contents,
+                                       const json_t* contents,
                                        kii_char_t** out_object_id,
                                        kii_char_t** out_etag);
 
@@ -277,7 +296,7 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
                                                const kii_char_t* access_token,
                                                const kii_bucket_t bucket,
                                                const kii_char_t* object_id,
-                                               const kii_json_t* contents,
+                                               const json_t* contents,
                                                kii_char_t** out_etag);
 
 /** Update object with patch.
@@ -305,7 +324,7 @@ kii_error_code_t kii_patch_object(kii_app_t app,
                                   const kii_char_t* access_token,
                                   const kii_bucket_t bucket,
                                   const kii_char_t* object_id,
-                                  const kii_json_t* patch,
+                                  const json_t* patch,
                                   const kii_char_t* opt_etag,
                                   kii_char_t** out_etag);
 
@@ -335,7 +354,7 @@ kii_error_code_t kii_replace_object(kii_app_t app,
                                     const kii_char_t* access_token,
                                     const kii_bucket_t bucket,
                                     const kii_char_t* object_id,
-                                    const kii_json_t* replace_contents,
+                                    const json_t* replace_contents,
                                     const kii_char_t* opt_etag,
                                     kii_char_t** out_etag);
 
@@ -355,7 +374,7 @@ kii_error_code_t kii_get_object(kii_app_t app,
                                 const kii_char_t* access_token,
                                 const kii_bucket_t bucket,
                                 const kii_char_t* object_id,
-                                kii_json_t** out_contents,
+                                json_t** out_contents,
                                 kii_char_t** out_etag);
 
 /** Delete object with specified id.
@@ -383,8 +402,9 @@ kii_error_code_t kii_delete_object(kii_app_t app,
  * @param [in] app kii application uses this thing.
  * @param [in] access_token specify access token of authur.
  * @param [in] bucket target bucket to subscribe.
- * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
- * calling kii_get_last_error(kii_app_t).
+ * @return KIIE_OK if succeeded to subscribe or already subscribed.
+ * Otherwise failed.
+ * you can check details by calling kii_get_last_error(kii_app_t).
  */
 kii_error_code_t kii_subscribe_bucket(kii_app_t app,
                                       const kii_char_t* access_token,
@@ -428,6 +448,16 @@ kii_error_code_t kii_is_bucket_subscribed(kii_app_t app,
 kii_topic_t kii_init_thing_topic(const kii_thing_t thing,
                                    const kii_char_t* topic_name);
 
+/** Create thing scope topic.
+ * @param [in] app kii application uses this thing.
+ * @param [in] access_token specify access token of authur.
+ * @param [in] topic target topic to create.
+ * @return KIIE_OK if succeeded to create or already created. Otherwise failed.
+ * you can check details by calling kii_get_last_error(kii_app_t).
+ */
+kii_error_code_t kii_create_topic(kii_app_t app,
+                                  const kii_char_t* access_token,
+                                  const kii_topic_t topic);
 
 /** Subscribe to topic push notification.
  * After subscribed to the topic, you can receive push notification when
@@ -440,8 +470,9 @@ kii_topic_t kii_init_thing_topic(const kii_thing_t thing,
  * @param [in] app kii application uses this thing.
  * @param [in] access_token specify access token of authur.
  * @param [in] topic target topic to subscribe.
- * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
- * calling kii_get_last_error(kii_app_t).
+ * @return KIIE_OK if succeeded to subscribe or already subscribed.
+ * Otherwise failed.
+ * you can check details by calling kii_get_last_error(kii_app_t).
  */
 kii_error_code_t kii_subscribe_topic(kii_app_t app,
                                      const kii_char_t* access_token,
@@ -512,6 +543,7 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
                                        const kii_char_t* installation_id,
                                        kii_mqtt_endpoint_t** out_endpoint,
                                        kii_uint_t* out_retry_after_in_second);
+
 
 #ifdef __cplusplus
 }

@@ -2,8 +2,7 @@
 //  ThingSDKBasicTests.m
 //  KiiThingSDK
 //
-//  Created by 熊野 聡 on 2014/10/17.
-//  Copyright (c) 2014年 Kii. All rights reserved.
+//  Copyright (c) 2014 Kii. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -27,7 +26,6 @@
     [super tearDown];
 }
 
-
 static const char* APPID = "84fff36e";
 static const char* APPKEY = "e45fcc2d31d6aca675af639bc5f04a26";
 static const char* BASEURL = "https://api-development-jp.internal.kii.com/api";
@@ -35,7 +33,7 @@ static const char* BASEURL = "https://api-development-jp.internal.kii.com/api";
 // Pre registered thing.
 static const char* ACCESS_TOKEN = "t6cV3HB65osoG9i0Yndkphk75F7XdswTt8KvL874-wY";
 static const char* REGISTERED_THING_TID = "th.53ae324be5a0-f808-4e11-d106-0241b0da";
-//static const char* REGISTERED_THING_VID = "96AAF4E6-0E30-472A-A3EC-902C914CBAB7";
+static const char* REGISTERED_THING_FAIL_ID = "96AAF4E6-0E30-472A-A3EC-902C914CBAB7";
 static const char* REGISTERED_THING_TOPIC = "myTopic";
 
 - (void)testRegisterThing {
@@ -68,6 +66,33 @@ static const char* REGISTERED_THING_TOPIC = "myTopic";
     kii_dispose_app(app);
     kii_dispose_kii_char(accessToken);
     kii_dispose_kii_char(kiiThingId);
+    kii_dispose_thing(myThing);
+}
+
+- (void)testRegisterThingFail {
+    kii_app_t app = kii_init_app(APPID,
+                                 APPKEY,
+                                 BASEURL);
+
+    char* accessToken = NULL;
+    kii_thing_t myThing = NULL;
+    kii_error_code_t ret = kii_register_thing(app,
+                                              REGISTERED_THING_FAIL_ID,
+                                              "THERMOMETER",
+                                              "1234", NULL,
+                                              &myThing,
+                                              &accessToken);
+
+    XCTAssertEqual(ret, KIIE_FAIL, @"register not failed.");
+    XCTAssertEqual(myThing, NULL, @"myThing must be NULL.");
+    XCTAssertEqual(accessToken, NULL, @"accessToken must be NULL.");
+    if (ret != KIIE_OK) {
+        kii_error_t* err = kii_get_last_error(app);
+        NSLog(@"code: %s", err->error_code);
+        NSLog(@"resp code: %d", err->status_code);
+    }
+    kii_dispose_app(app);
+    kii_dispose_kii_char(accessToken);
     kii_dispose_thing(myThing);
 }
 
@@ -127,7 +152,7 @@ ON_EXIT:
     kii_dispose_app(app);
     kii_dispose_thing(thing);
     kii_dispose_bucket(bucket);
-    kii_json_decref(contents);
+    json_decref(contents);
     kii_dispose_kii_char(create_etag);
     kii_dispose_kii_char(get_etag);
 }
@@ -335,7 +360,7 @@ ON_EXIT:
 ON_EXIT:
     kii_dispose_kii_char(out_etag);
     kii_dispose_kii_char(out_object_id);
-    kii_json_decref(contents);
+    json_decref(contents);
     kii_dispose_bucket(bucket);
     kii_dispose_thing(thing);
     kii_dispose_app(app);
@@ -345,8 +370,8 @@ ON_EXIT:
     kii_app_t app = kii_init_app(APPID, APPKEY, BASEURL);
     kii_thing_t thing = kii_thing_deserialize(REGISTERED_THING_TID);
     kii_bucket_t bucket = NULL;
-    kii_json_t* contents = json_object();
-    kii_json_t* out_contents = NULL;
+    json_t* contents = json_object();
+    json_t* out_contents = NULL;
     kii_char_t* opt_etag = NULL;
     kii_char_t* out_etag = NULL;
     kii_char_t* out_etag2 = NULL;
@@ -419,8 +444,8 @@ ON_EXIT:
     kii_dispose_app(app);
     kii_dispose_thing(thing);
     kii_dispose_bucket(bucket);
-    kii_json_decref(contents);
-    kii_json_decref(out_contents);
+    json_decref(contents);
+    json_decref(out_contents);
     kii_dispose_kii_char(opt_etag);
     kii_dispose_kii_char(out_etag);
     kii_dispose_kii_char(out_etag2);
@@ -434,7 +459,7 @@ ON_EXIT:
     kii_char_t* out_object_id = NULL;
     kii_char_t* create_etag = NULL;
     kii_char_t* get_etag = NULL;
-    kii_json_t* out_contents = NULL;
+    json_t* out_contents = NULL;
     kii_error_code_t ret =  KIIE_FAIL;
 
     bucket = kii_init_thing_bucket(thing, "myBucket");
@@ -475,11 +500,11 @@ ON_EXIT:
     kii_dispose_app(app);
     kii_dispose_thing(thing);
     kii_dispose_bucket(bucket);
-    kii_json_decref(contents);
+    json_decref(contents);
     kii_dispose_kii_char(out_object_id);
     kii_dispose_kii_char(create_etag);
     kii_dispose_kii_char(get_etag);
-    kii_json_decref(out_contents);
+    json_decref(out_contents);
 }
 
 -(void) testDeleteObject {
@@ -489,7 +514,7 @@ ON_EXIT:
     json_t* contents = json_object();
     kii_char_t* out_object_id = NULL;
     kii_char_t* create_etag = NULL;
-    kii_json_t* out_contents = NULL;
+    json_t* out_contents = NULL;
     kii_char_t* first_get_etag = NULL;
     kii_char_t* second_get_etag = NULL;
     kii_error_code_t ret =  KIIE_FAIL;
@@ -560,10 +585,10 @@ ON_EXIT:
     kii_dispose_app(app);
     kii_dispose_thing(thing);
     kii_dispose_bucket(bucket);
-    kii_json_decref(contents);
+    json_decref(contents);
     kii_dispose_kii_char(out_object_id);
     kii_dispose_kii_char(create_etag);
-    kii_json_decref(out_contents);
+    json_decref(out_contents);
     kii_dispose_kii_char(first_get_etag);
     kii_dispose_kii_char(second_get_etag);
 }
@@ -577,8 +602,8 @@ ON_EXIT:
     kii_char_t* out_object_id = NULL;
     kii_char_t* create_etag = NULL;
     kii_char_t* patch_etag = NULL;
-    kii_json_t* first_get = NULL;
-    kii_json_t* second_get = NULL;
+    json_t* first_get = NULL;
+    json_t* second_get = NULL;
     kii_char_t* first_get_etag = NULL;
     kii_char_t* second_get_etag = NULL;
     kii_error_code_t ret =  KIIE_FAIL;
@@ -666,13 +691,13 @@ ON_EXIT:
     kii_dispose_app(app);
     kii_dispose_thing(thing);
     kii_dispose_bucket(bucket);
-    kii_json_decref(contents);
-    kii_json_decref(patch);
+    json_decref(contents);
+    json_decref(patch);
     kii_dispose_kii_char(out_object_id);
     kii_dispose_kii_char(create_etag);
     kii_dispose_kii_char(patch_etag);
-    kii_json_decref(first_get);
-    kii_json_decref(second_get);
+    json_decref(first_get);
+    json_decref(second_get);
     kii_dispose_kii_char(first_get_etag);
     kii_dispose_kii_char(second_get_etag);
 }
@@ -713,4 +738,33 @@ ON_EXIT:
     kii_dispose_app(app);
     kii_dispose_topic(topic);
 }
+
+-(void)testCreateTopic {
+    kii_app_t app = kii_init_app(APPID, APPKEY, BASEURL);
+    NSUUID* id = [[NSUUID alloc]init];
+    const char* topicName = [id.UUIDString
+                              cStringUsingEncoding:NSUTF8StringEncoding];
+    kii_topic_t topic = kii_init_thing_topic(
+            kii_thing_deserialize(REGISTERED_THING_TID), topicName);
+
+    kii_error_code_t ret = kii_create_topic(app, ACCESS_TOKEN, topic);
+    if (ret != KIIE_OK) {
+        kii_error_t* err = kii_get_last_error(app);
+        NSLog(@"code: %s", err->error_code);
+        NSLog(@"resp code: %d", err->status_code);
+    }
+    XCTAssertEqual(ret, KIIE_OK, @"fail to create topic ");
+
+    ret = kii_create_topic(app, ACCESS_TOKEN, topic);
+    if (ret != KIIE_OK) {
+        kii_error_t* err = kii_get_last_error(app);
+        NSLog(@"code: %s", err->error_code);
+
+    }
+    XCTAssertEqual(ret, KIIE_OK, @"fail to create topic ");
+
+    kii_dispose_app(app);
+    kii_dispose_topic(topic);
+}
+
 @end
