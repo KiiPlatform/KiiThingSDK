@@ -2,8 +2,7 @@
 //  ThingSDKBasicTests.m
 //  KiiThingSDK
 //
-//  Created by 熊野 聡 on 2014/10/17.
-//  Copyright (c) 2014年 Kii. All rights reserved.
+//  Copyright (c) 2014 Kii. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
