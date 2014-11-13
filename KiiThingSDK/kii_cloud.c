@@ -7,7 +7,6 @@
 
 #include "curl.h"
 #include "kii_cloud.h"
-#include "kii_custom.h"
 #include "kii_prv_utils.h"
 #include "kii_prv_types.h"
 
@@ -20,6 +19,11 @@ kii_error_code_t kii_global_init(void)
 void kii_global_cleanup(void)
 {
     curl_global_cleanup();
+}
+
+void kii_dispose_kii_char(kii_char_t* char_ptr)
+{
+    M_KII_FREE_NULLIFY(char_ptr);
 }
 
 prv_kii_thing_t* prv_kii_init_thing(const kii_char_t* kii_thing_id)
@@ -422,7 +426,7 @@ kii_error_code_t kii_register_thing(kii_app_t app,
                                     const kii_char_t* vendor_thing_id,
                                     const kii_char_t* thing_password,
                                     const kii_char_t* opt_thing_type,
-                                    const kii_json_t* user_data,
+                                    const json_t* user_data,
                                     kii_thing_t* out_thing,
                                     kii_char_t** out_access_token)
 {
@@ -467,7 +471,7 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     
     /* prepare request data */
     reqJson = (user_data == NULL) ? json_object() :
-            json_deep_copy((kii_json_t*)user_data);
+            json_deep_copy((json_t*)user_data);
     if (reqJson == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
@@ -532,11 +536,11 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     
 ON_EXIT:
     curl_slist_free_all(headers);
-    kii_json_decref(reqJson);
+    json_decref(reqJson);
     M_KII_FREE_NULLIFY(reqStr);
     M_KII_FREE_NULLIFY(respData);
     M_KII_FREE_NULLIFY(reqUrl);
-    kii_json_decref(respJson);
+    json_decref(respJson);
 
     prv_kii_set_last_error(app, ret, &err);
 
@@ -566,7 +570,7 @@ kii_bucket_t kii_init_thing_bucket(const kii_thing_t thing,
 kii_error_code_t kii_create_new_object(kii_app_t app,
                                        const kii_char_t* access_token,
                                        const kii_bucket_t bucket,
-                                       const kii_json_t* contents,
+                                       const json_t* contents,
                                        kii_char_t** out_object_id,
                                        kii_char_t** out_etag)
 {
@@ -669,9 +673,9 @@ ON_EXIT:
     M_KII_FREE_NULLIFY(reqUrl);
     curl_slist_free_all(headers);
     M_KII_FREE_NULLIFY(reqStr);
-    kii_json_decref(respHdr);
+    json_decref(respHdr);
     M_KII_FREE_NULLIFY(respData);
-    kii_json_decref(respJson);
+    json_decref(respJson);
 
     prv_kii_set_last_error(app, ret, &err);
 
@@ -682,7 +686,7 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
                                                const kii_char_t* access_token,
                                                const kii_bucket_t bucket,
                                                const kii_char_t* object_id,
-                                               const kii_json_t* contents,
+                                               const json_t* contents,
                                                kii_char_t** out_etag)
 {
     kii_char_t* reqUrl = NULL;
@@ -769,7 +773,7 @@ ON_EXIT:
     M_KII_FREE_NULLIFY(reqUrl);
     curl_slist_free_all(headers);
     M_KII_FREE_NULLIFY(reqStr);
-    kii_json_decref(respHdr);
+    json_decref(respHdr);
     M_KII_FREE_NULLIFY(respData);
 
     prv_kii_set_last_error(app, ret, &err);
@@ -781,7 +785,7 @@ kii_error_code_t kii_patch_object(kii_app_t app,
                                   const kii_char_t* access_token,
                                   const kii_bucket_t bucket,
                                   const kii_char_t* object_id,
-                                  const kii_json_t* patch,
+                                  const json_t* patch,
                                   const kii_char_t* opt_etag,
                                   kii_char_t** out_etag)
 {
@@ -868,9 +872,9 @@ ON_EXIT:
     M_KII_FREE_NULLIFY(reqUrl);
     curl_slist_free_all(headers);
     M_KII_FREE_NULLIFY(reqStr);
-    kii_json_decref(respHdr);
+    json_decref(respHdr);
     M_KII_FREE_NULLIFY(respData);
-    kii_json_decref(respJson);
+    json_decref(respJson);
 
     prv_kii_set_last_error(app, ret, &err);
 
@@ -881,14 +885,14 @@ kii_error_code_t kii_replace_object(kii_app_t app,
                                     const kii_char_t* access_token,
                                     const kii_bucket_t bucket,
                                     const kii_char_t* object_id,
-                                    const kii_json_t* replace_contents,
+                                    const json_t* replace_contents,
                                     const kii_char_t* opt_etag,
                                     kii_char_t** out_etag)
 {
     kii_char_t* reqUrl = NULL;
     struct curl_slist* headers = NULL;
     kii_char_t* reqStr = NULL;
-    kii_json_t* respHdr = NULL;
+    json_t* respHdr = NULL;
     long respCode = 0;
     kii_char_t* respData = NULL;
     kii_error_t err;
@@ -971,7 +975,7 @@ ON_EXIT:
     kii_dispose_kii_char(reqUrl);
     curl_slist_free_all(headers);
     kii_dispose_kii_char(reqStr);
-    kii_json_decref(respHdr);
+    json_decref(respHdr);
     kii_dispose_kii_char(respData);
 
     prv_kii_set_last_error(app, ret, &err);
@@ -983,7 +987,7 @@ kii_error_code_t kii_get_object(kii_app_t app,
                                 const kii_char_t* access_token,
                                 const kii_bucket_t bucket,
                                 const kii_char_t* object_id,
-                                kii_json_t** out_contents,
+                                json_t** out_contents,
                                 kii_char_t** out_etag)
 {
     kii_char_t *reqUrl = NULL;
@@ -1055,7 +1059,7 @@ ON_EXIT:
     M_KII_FREE_NULLIFY(reqUrl);
     curl_slist_free_all(headers);
     M_KII_FREE_NULLIFY(respData);
-    kii_json_decref(respHdr);
+    json_decref(respHdr);
 
     prv_kii_set_last_error(app, ret, &err);
 
@@ -1691,9 +1695,9 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
 
 
 ON_EXIT:
-    kii_json_decref(respBodyJson);
+    json_decref(respBodyJson);
     M_KII_FREE_NULLIFY(url);
-    kii_json_decref(reqBodyJson);
+    json_decref(reqBodyJson);
     M_KII_FREE_NULLIFY(reqBodyStr);
     M_KII_FREE_NULLIFY(respBodyStr);
     curl_slist_free_all(reqHeaders);
@@ -1845,7 +1849,7 @@ ON_EXIT:
     M_KII_FREE_NULLIFY(url);
     M_KII_FREE_NULLIFY(respBodyStr);
     curl_slist_free_all(reqHeaders);
-    kii_json_decref(respBodyJson);
+    json_decref(respBodyJson);
     prv_kii_set_last_error(app, ret, &error);
 
     return ret;
