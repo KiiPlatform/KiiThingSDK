@@ -17,4 +17,4 @@ To make a thread safe program, you need to take care following points.
 
 ## Example codes
 Please refer to:
-https://github.com/KiiCorp/libkii/blob/master/KiiThingSDKTests/ThingSDKBasicTests.m
+https://github.com/KiiCorp/KiiThingSDK/blob/master/KiiThingSDKTests/ThingSDKBasicTests.m
