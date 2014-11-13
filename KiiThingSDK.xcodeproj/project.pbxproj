@@ -116,7 +116,7 @@
 		7410ACFE19E29622002C9DF1 /* typecheck-gcc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "typecheck-gcc.h"; sourceTree = "<group>"; };
 		7410AD0119E29A21002C9DF1 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		7410AD0319E29A32002C9DF1 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
-		7410AD0719E29B70002C9DF1 /* kii_cloud.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = kii_cloud.h; sourceTree = "<group>"; };
+		7410AD0719E29B70002C9DF1 /* kii_cloud.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = kii_cloud.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		7416A59819E3C42A007DCC45 /* dump.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dump.c; sourceTree = "<group>"; };
 		7416A59919E3C42A007DCC45 /* error.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = error.c; sourceTree = "<group>"; };
 		7416A59A19E3C42A007DCC45 /* hashtable.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hashtable.c; sourceTree = "<group>"; };
@@ -136,10 +136,9 @@
 		7416A5A819E3C42A007DCC45 /* utf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utf.h; sourceTree = "<group>"; };
 		7416A5A919E3C42A007DCC45 /* value.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = value.c; sourceTree = "<group>"; };
 		7418A91119E5206D00A85634 /* ThingSDKUsageTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ThingSDKUsageTest.m; sourceTree = "<group>"; };
-		747F3D5419F0FD8A00C1372A /* ThingSDKBasicTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ThingSDKBasicTests.m; sourceTree = "<group>"; };
-		747F3D5619F4D3A800C1372A /* kii_custom.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kii_custom.c; sourceTree = "<group>"; };
-		747F3D5719F4D3A800C1372A /* kii_custom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kii_custom.h; sourceTree = "<group>"; };
-		7485E61A19E5360000BCA19C /* kii_cloud.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kii_cloud.c; sourceTree = "<group>"; };
+		747F3D5419F0FD8A00C1372A /* ThingSDKBasicTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = ThingSDKBasicTests.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		747F3D5619F4D3A800C1372A /* kii_custom.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = kii_custom.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
+		7485E61A19E5360000BCA19C /* kii_cloud.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = kii_cloud.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		74CD392E1A11BEE600D0F9D4 /* kii_prv_types.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = kii_prv_types.h; sourceTree = "<group>"; };
 		74CD392F1A11EB9F00D0F9D4 /* test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = test.json; sourceTree = "<group>"; };
 		74CD39321A11FE6000D0F9D4 /* ThingSDKLargeTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ThingSDKLargeTests.m; sourceTree = "<group>"; };
@@ -200,7 +199,6 @@
 			children = (
 				7416A59719E3C42A007DCC45 /* jansson */,
 				7410ACF419E29622002C9DF1 /* curl */,
-				747F3D5719F4D3A800C1372A /* kii_custom.h */,
 				747F3D5619F4D3A800C1372A /* kii_custom.c */,
 				7410AD0719E29B70002C9DF1 /* kii_cloud.h */,
 				7485E61A19E5360000BCA19C /* kii_cloud.c */,
