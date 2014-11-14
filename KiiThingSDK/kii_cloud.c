@@ -608,12 +608,12 @@ kii_bucket_t kii_init_thing_bucket(const kii_thing_t thing,
 }
 
 kii_error_code_t parse_create_new_object_response(
-	long respCode,
-	const kii_char_t* respData,
-	const json_t* respHdr,
-	kii_char_t** out_object_id,
-	kii_char_t** out_etag,
-	kii_error_t* err)
+        long respCode,
+        const kii_char_t* respData,
+        const json_t* respHdr,
+        kii_char_t** out_object_id,
+        kii_char_t** out_etag,
+        kii_error_t* err)
 {
     kii_error_code_t ret = KIIE_FAIL;
     json_error_t jErr;
@@ -622,7 +622,7 @@ kii_error_code_t parse_create_new_object_response(
     /* Check response header */
     if (out_etag != NULL && respHdr != NULL) {
         const kii_char_t* etag = json_string_value(json_object_get(respHdr,
-		    "etag"));
+                    "etag"));
         if (etag != NULL) {
             *out_etag = kii_strdup(etag);
             if (*out_etag == NULL) {
@@ -644,7 +644,7 @@ kii_error_code_t parse_create_new_object_response(
             goto ON_EXIT;
         } else  {
             const kii_char_t* objectID = json_string_value(json_object_get(
-			respJson, "objectID"));
+                        respJson, "objectID"));
             if (objectID != NULL) {
                 *out_object_id = kii_strdup(objectID);
                 ret = (*out_object_id != NULL) ? KIIE_OK : KIIE_LOWMEMORY;
@@ -726,7 +726,7 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
     }
 
     ret = parse_create_new_object_response(respCode, respData, respHdr,
-	    out_object_id, out_etag, &err);
+            out_object_id, out_etag, &err);
 
 ON_EXIT:
     M_KII_FREE_NULLIFY(reqUrl);
@@ -741,10 +741,10 @@ ON_EXIT:
 }
 
 kii_error_code_t parse_create_new_object_with_id_response(
-	long respCode,
-	const json_t* respHdr,
-	kii_char_t** out_etag,
-	kii_error_t* err)
+        long respCode,
+        const json_t* respHdr,
+        kii_char_t** out_etag,
+        kii_error_t* err)
 {
     kii_error_code_t ret = KIIE_FAIL;
 
@@ -757,8 +757,8 @@ kii_error_code_t parse_create_new_object_with_id_response(
             if (*out_etag == NULL) {
                 ret = KIIE_LOWMEMORY;
             } else {
-		ret = KIIE_OK;
-	    }
+                ret = KIIE_OK;
+            }
         } else {
             prv_kii_set_info_in_error(err, (int)respCode, KII_ECODE_PARSE);
             ret = KIIE_FAIL;
@@ -839,7 +839,7 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
     }
 
     ret = parse_create_new_object_with_id_response(respCode, respHdr, out_etag,
-	    &err);
+            &err);
 
 ON_EXIT:
     M_KII_FREE_NULLIFY(reqUrl);
@@ -854,30 +854,30 @@ ON_EXIT:
 }
 
 kii_error_code_t parse_patch_object_response(
-	long respCode,
-	const json_t* respHdr,
-	kii_char_t** out_etag,
-	kii_error_t* err)
+        long respCode,
+        const json_t* respHdr,
+        kii_char_t** out_etag,
+        kii_error_t* err)
 {
     kii_error_code_t ret = KIIE_FAIL;
 
     /* Check response header */
     if (out_etag != NULL && respHdr != NULL) {
         const kii_char_t* etag = json_string_value(json_object_get(respHdr,
-		    "etag"));
+                    "etag"));
         if (etag != NULL) {
             *out_etag = kii_strdup(etag);
             if (*out_etag == NULL) {
                 ret = KIIE_LOWMEMORY;
             } else {
-		ret = KIIE_OK;
-	    }
+                ret = KIIE_OK;
+            }
         } else {
             prv_kii_set_info_in_error(err, (int)respCode, KII_ECODE_PARSE);
             ret = KIIE_FAIL;
         }
     } else {
-	ret = KIIE_OK;
+        ret = KIIE_OK;
     }
 
     return ret;
@@ -970,30 +970,30 @@ ON_EXIT:
 }
 
 kii_error_code_t parse_replace_object_response(
-	long respCode,
-	const json_t* respHdr,
-	kii_char_t** out_etag,
-	kii_error_t* err)
+        long respCode,
+        const json_t* respHdr,
+        kii_char_t** out_etag,
+        kii_error_t* err)
 {
     kii_error_code_t ret = KIIE_FAIL;
 
     /* Check response header */
     if (out_etag != NULL && respHdr != NULL) {
         const kii_char_t* etag = json_string_value(json_object_get(respHdr,
-		    "etag"));
+                    "etag"));
         if (etag != NULL) {
             *out_etag = kii_strdup(etag);
             if (*out_etag == NULL) {
                 ret = KIIE_LOWMEMORY;
             } else {
-		ret = KIIE_OK;
-	    }
+                ret = KIIE_OK;
+            }
         } else {
             prv_kii_set_info_in_error(err, (int)respCode, KII_ECODE_PARSE);
             ret = KIIE_FAIL;
         }
     } else {
-	ret = KIIE_OK;
+        ret = KIIE_OK;
     }
 
     return ret;
