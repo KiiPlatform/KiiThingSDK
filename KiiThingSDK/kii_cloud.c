@@ -1856,6 +1856,103 @@ ON_EXIT:
     return ret;
 }
 
+kii_error_code_t parse_retry_after_in_second(
+        const kii_char_t* respBodyStr,
+        kii_uint_t* out_retry_after_in_second)
+{
+    kii_error_code_t ret = KIIE_FAIL;
+    json_error_t jErr;
+    json_t* respBodyJson = json_loads(respBodyStr, 0, &jErr);
+
+    if (respBodyJson == NULL) {
+        ret = KIIE_LOWMEMORY;
+    } else {
+        int retryAfterInt = 0;
+        json_t* retryAfterJson = json_object_get(respBodyJson, "retryAfter");
+        retryAfterInt = (int)json_integer_value(retryAfterJson);
+        if (retryAfterInt > 0) {
+            *out_retry_after_in_second = retryAfterInt;
+        }
+        ret = KIIE_OK;
+    }
+
+    kii_json_decref(respBodyJson);
+    return ret;
+}
+
+kii_error_code_t parse_endpoint(
+        const kii_char_t* respBodyStr,
+        kii_mqtt_endpoint_t** out_endpoint,
+        kii_error_t* error)
+{
+    kii_error_code_t ret = KIIE_FAIL;
+    json_error_t jErr;
+    json_t* respBodyJson = NULL;
+
+    respBodyJson = json_loads(respBodyStr, 0, &jErr);
+    if (respBodyJson == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    } else {
+        const json_t* userNameJson = json_object_get(respBodyJson, "username");
+        const json_t* passwordJson = json_object_get(respBodyJson, "password");
+        const json_t* mqttTopicJson = json_object_get(respBodyJson,
+                "mqttTopic");
+        const json_t* hostJson = json_object_get(respBodyJson, "host");
+        const json_t* mqttTtlJson = json_object_get(respBodyJson, "X-MQTT-TTL");
+        const json_t* portTcpJson = json_object_get(respBodyJson, "portTCP");
+        const json_t* portSslJson = json_object_get(respBodyJson, "portSSL");
+        if (userNameJson == NULL || passwordJson == NULL ||
+            mqttTopicJson == NULL || hostJson == NULL || mqttTtlJson == NULL ||
+            portTcpJson == NULL || portSslJson == NULL) {
+            prv_kii_set_info_in_error(error, 0, KII_ECODE_PARSE);
+            ret = KIIE_FAIL;
+            goto ON_EXIT;
+        }
+
+        {
+            kii_mqtt_endpoint_t* endpoint = kii_malloc(
+                    sizeof(kii_mqtt_endpoint_t));
+            kii_char_t* username = kii_strdup(json_string_value(userNameJson));
+            kii_char_t* password = kii_strdup(json_string_value(passwordJson));
+            kii_char_t* topic = kii_strdup(json_string_value(mqttTopicJson));
+            kii_char_t* host = kii_strdup(json_string_value(hostJson));
+            kii_uint_t portTcpInt = (kii_uint_t)json_integer_value(portTcpJson);
+            kii_uint_t portSslInt = (kii_uint_t)json_integer_value(portSslJson);
+            kii_ulong_t ttl = (kii_ulong_t)json_integer_value(mqttTtlJson);
+
+            if (endpoint == NULL ||
+                    username == NULL ||
+                    password == NULL ||
+                    topic == NULL ||
+                    host == NULL) {
+                M_KII_FREE_NULLIFY(endpoint);
+                M_KII_FREE_NULLIFY(username);
+                M_KII_FREE_NULLIFY(password);
+                M_KII_FREE_NULLIFY(topic);
+                M_KII_FREE_NULLIFY(host);
+                ret = KIIE_LOWMEMORY;
+                goto ON_EXIT;
+            }
+
+            endpoint->username = username;
+            endpoint->password = password;
+            endpoint->topic = topic;
+            endpoint->host = host;
+            endpoint->ttl = ttl;
+            endpoint->port_tcp = portTcpInt;
+            endpoint->port_ssl = portSslInt;
+            *out_endpoint = endpoint;
+        }
+
+        ret = KIIE_OK;
+    }
+
+ON_EXIT:
+    json_decref(respBodyJson);
+    return ret;
+}
+
 kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
                                        const kii_char_t* access_token,
                                        const kii_char_t* installation_id,
@@ -1867,17 +1964,8 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
     kii_error_code_t exeCurlRet = KIIE_FAIL;
     long respCode = 0;
     kii_char_t* respBodyStr = NULL;
-    json_t* respBodyJson = NULL;
     kii_error_t error;
     kii_error_code_t ret = KIIE_FAIL;
-    json_error_t jErr;
-    json_t* userNameJson = NULL;
-    json_t* passwordJson = NULL;
-    json_t* mqttTopicJson = NULL;
-    json_t* hostJson = NULL;
-    json_t* mqttTtlJson = NULL;
-    json_t* portTcpJson = NULL;
-    json_t* portSslJson = NULL;
 
     M_KII_ASSERT(app != NULL);
     M_KII_ASSERT(access_token != NULL);
@@ -1917,18 +2005,10 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
                                   &error);
     if (exeCurlRet != KIIE_OK) {
         if (error.status_code == 503) {
-            json_t* retryAfterJson = NULL;
-            respBodyJson = json_loads(respBodyStr, 0, &jErr);
-            if (respBodyJson == NULL) {
-                ret = KIIE_LOWMEMORY;
+            ret = parse_retry_after_in_second(respBodyStr,
+                    out_retry_after_in_second);
+            if (ret == KIIE_LOWMEMORY) {
                 goto ON_EXIT;
-            } else {
-                int retryAfterInt = 0;
-                retryAfterJson = json_object_get(respBodyJson, "retryAfter");
-                retryAfterInt = (int)json_integer_value(retryAfterJson);
-                if (retryAfterInt) {
-                    *out_retry_after_in_second = retryAfterInt;
-                }
             }
         }
         ret = exeCurlRet;
@@ -1936,70 +2016,12 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
     }
 
     /* Parse body */
-    respBodyJson = json_loads(respBodyStr, 0, &jErr);
-    if (respBodyJson == NULL) {
-        ret = KIIE_LOWMEMORY;
-        goto ON_EXIT;
-    } else {
-        userNameJson = json_object_get(respBodyJson, "username");
-        passwordJson = json_object_get(respBodyJson, "password");
-        mqttTopicJson = json_object_get(respBodyJson, "mqttTopic");
-        hostJson = json_object_get(respBodyJson, "host");
-        mqttTtlJson = json_object_get(respBodyJson, "X-MQTT-TTL");
-        portTcpJson = json_object_get(respBodyJson, "portTCP");
-        portSslJson = json_object_get(respBodyJson, "portSSL");
-        if (userNameJson == NULL || passwordJson == NULL ||
-            mqttTopicJson == NULL || hostJson == NULL || mqttTtlJson == NULL ||
-            portTcpJson == NULL || portSslJson == NULL) {
-            prv_kii_set_info_in_error(&error, 0, KII_ECODE_PARSE);
-            ret = KIIE_FAIL;
-            goto ON_EXIT;
-        }
-
-        {
-            kii_mqtt_endpoint_t* endpoint =
-                kii_malloc(sizeof(kii_mqtt_endpoint_t));
-            kii_char_t* username = kii_strdup(json_string_value(userNameJson));
-            kii_char_t* password = kii_strdup(json_string_value(passwordJson));
-            kii_char_t* topic = kii_strdup(json_string_value(mqttTopicJson));
-            kii_char_t* host = kii_strdup(json_string_value(hostJson));
-            kii_uint_t portTcpInt = (kii_uint_t)json_integer_value(portTcpJson);
-            kii_uint_t portSslInt = (kii_uint_t)json_integer_value(portSslJson);
-            kii_ulong_t ttl = (kii_ulong_t)json_integer_value(mqttTtlJson);
-
-            if (endpoint == NULL ||
-                    username == NULL ||
-                    password == NULL ||
-                    topic == NULL ||
-                    host == NULL) {
-                M_KII_FREE_NULLIFY(endpoint);
-                M_KII_FREE_NULLIFY(username);
-                M_KII_FREE_NULLIFY(password);
-                M_KII_FREE_NULLIFY(topic);
-                M_KII_FREE_NULLIFY(host);
-                ret = KIIE_LOWMEMORY;
-                goto ON_EXIT;
-            }
-
-            endpoint->username = username;
-            endpoint->password = password;
-            endpoint->topic = topic;
-            endpoint->host = host;
-            endpoint->ttl = ttl;
-            endpoint->port_tcp = portTcpInt;
-            endpoint->port_ssl = portSslInt;
-            *out_endpoint = endpoint;
-        }
-
-        ret = KIIE_OK;
-        goto ON_EXIT;
-    }
+    ret = parse_endpoint(respBodyStr, out_endpoint, &error);
 
 ON_EXIT:
     M_KII_FREE_NULLIFY(url);
     M_KII_FREE_NULLIFY(respBodyStr);
     curl_slist_free_all(reqHeaders);
-    json_decref(respBodyJson);
     prv_kii_set_last_error(app, ret, &error);
 
     return ret;
