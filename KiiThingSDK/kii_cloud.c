@@ -607,6 +607,64 @@ kii_bucket_t kii_init_thing_bucket(const kii_thing_t thing,
     return retval;
 }
 
+kii_error_code_t parse_create_new_object_response(
+	long respCode,
+	const kii_char_t* respData,
+	const json_t* respHdr,
+	kii_char_t** out_object_id,
+	kii_char_t** out_etag,
+	kii_error_t* err)
+{
+    kii_error_code_t ret = KIIE_FAIL;
+    json_error_t jErr;
+    json_t* respJson = NULL;
+
+    /* Check response header */
+    if (out_etag != NULL && respHdr != NULL) {
+        const kii_char_t* etag = json_string_value(json_object_get(respHdr,
+		    "etag"));
+        if (etag != NULL) {
+            *out_etag = kii_strdup(etag);
+            if (*out_etag == NULL) {
+                ret = KIIE_LOWMEMORY;
+                goto ON_EXIT;
+            }
+        } else {
+            prv_kii_set_info_in_error(err, (int)respCode, KII_ECODE_PARSE);
+            ret = KIIE_FAIL;
+            goto ON_EXIT;
+        }
+    }
+
+    /* Check response data */
+    if (out_object_id != NULL) {
+        respJson = json_loads(respData, 0, &jErr);
+        if (respJson == NULL) {
+            ret = KIIE_LOWMEMORY;
+            goto ON_EXIT;
+        } else  {
+            const kii_char_t* objectID = json_string_value(json_object_get(
+			respJson, "objectID"));
+            if (objectID != NULL) {
+                *out_object_id = kii_strdup(objectID);
+                ret = (*out_object_id != NULL) ? KIIE_OK : KIIE_LOWMEMORY;
+                goto ON_EXIT;
+            } else {
+                prv_kii_set_info_in_error(err, (int)respCode, KII_ECODE_PARSE);
+                ret = KIIE_FAIL;
+                goto ON_EXIT;
+            }
+        }
+    } else {
+        ret = KIIE_OK;
+        goto ON_EXIT;
+    }
+
+ON_EXIT:
+    json_decref(respJson);
+    return ret;
+}
+
 kii_error_code_t kii_create_new_object(kii_app_t app,
                                        const kii_char_t* access_token,
                                        const kii_bucket_t bucket,
@@ -620,7 +678,6 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
     json_t* respHdr = NULL;
     long respCode = 0;
     kii_char_t* respData = NULL;
-    json_t* respJson = NULL;
     kii_error_t err;
     kii_error_code_t exeCurlRet = KIIE_FAIL;
     kii_error_code_t ret = KIIE_FAIL;
@@ -668,46 +725,8 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
         goto ON_EXIT;
     }
 
-    /* Check response header */
-    if (out_etag != NULL && respHdr != NULL) {
-        const kii_char_t* etag = json_string_value(json_object_get(respHdr, "etag"));
-        if (etag != NULL) {
-            *out_etag = kii_strdup(etag);
-            if (*out_etag == NULL) {
-                ret = KIIE_LOWMEMORY;
-                goto ON_EXIT;
-            }
-        } else {
-            prv_kii_set_info_in_error(&err, (int)respCode, KII_ECODE_PARSE);
-            ret = KIIE_FAIL;
-            goto ON_EXIT;
-        }
-    }
-
-    /* Check response data */
-    if (out_object_id != NULL) {
-        json_error_t jErr;
-        respJson = json_loads(respData, 0, &jErr);
-        if (respJson == NULL) {
-            ret = KIIE_LOWMEMORY;
-            goto ON_EXIT;
-        } else  {
-            const kii_char_t* objectID = json_string_value(json_object_get(respJson,
-                    "objectID"));
-            if (objectID != NULL) {
-                *out_object_id = kii_strdup(objectID);
-                ret = (*out_object_id != NULL) ? KIIE_OK : KIIE_LOWMEMORY;
-                goto ON_EXIT;
-            } else {
-                prv_kii_set_info_in_error(&err, (int)respCode, KII_ECODE_PARSE);
-                ret = KIIE_FAIL;
-                goto ON_EXIT;
-            }
-        }
-    } else {
-        ret = KIIE_OK;
-        goto ON_EXIT;
-    }
+    ret = parse_create_new_object_response(respCode, respData, respHdr,
+	    out_object_id, out_etag, &err);
 
 ON_EXIT:
     M_KII_FREE_NULLIFY(reqUrl);
@@ -715,7 +734,6 @@ ON_EXIT:
     M_KII_FREE_NULLIFY(reqStr);
     json_decref(respHdr);
     M_KII_FREE_NULLIFY(respData);
-    json_decref(respJson);
 
     prv_kii_set_last_error(app, ret, &err);
 
