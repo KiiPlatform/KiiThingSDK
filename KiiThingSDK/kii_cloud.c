@@ -426,7 +426,7 @@ kii_error_code_t prepare_register_thing_request_data(
         const kii_char_t* vendor_thing_id,
         const kii_char_t* thing_password,
         const kii_char_t* opt_thing_type,
-        const kii_json_t* user_data,
+        const json_t* user_data,
         kii_char_t** out_string)
 {
     kii_error_code_t ret = KIIE_FAIL;
@@ -460,7 +460,7 @@ kii_error_code_t prepare_register_thing_request_data(
     }
 
 ON_EXIT:
-    kii_json_decref(reqJson);
+    json_decref(reqJson);
 
     return ret;
 }
@@ -500,7 +500,7 @@ kii_error_code_t parse_register_thing_response(
         }
     }
 
-    kii_json_decref(respJson);
+    json_decref(respJson);
     return ret;
 }
 
@@ -1088,7 +1088,7 @@ kii_error_code_t parse_get_object_response(
         long respCode,
         const json_t* respHdr,
         const kii_char_t* respData,
-        kii_json_t** out_contents,
+        json_t** out_contents,
         kii_char_t** out_etag,
         kii_error_t* err)
 {
@@ -1876,7 +1876,7 @@ kii_error_code_t parse_retry_after_in_second(
         ret = KIIE_OK;
     }
 
-    kii_json_decref(respBodyJson);
+    json_decref(respBodyJson);
     return ret;
 }
 
