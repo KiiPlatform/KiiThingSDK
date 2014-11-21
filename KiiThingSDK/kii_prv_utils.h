@@ -11,7 +11,7 @@
 #include <stdio.h>
 
 #include "curl.h"
-#include "kii_cloud.h"
+#include "kii_custom.h"
 
 #ifdef __cplusplus
 extern "C" {
