@@ -5,7 +5,7 @@
    Copyright (c) 2014 Kii. All rights reserved.
 */
 
-#include "kii_cloud.h"
+#include "kii_custom.h"
 #include "kii_prv_utils.h"
 #include "kii_prv_types.h"
 

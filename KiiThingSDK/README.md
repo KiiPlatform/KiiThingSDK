@@ -14,3 +14,7 @@ To make a thread safe program, you need to take care following points.
   This doesn't just mean no other thread that is using kii sdk. Because kii_global_init(void)/ kii_global_cleanup(void) calls functions of other libraries that are similarly thread unsafe, it could conflict with any other thread that uses these other libraries.
 
 - Don't share instance which is passed to SDK apis as non-const argument among the threads.
+
+## Example codes
+Please refer to:
+https://github.com/KiiCorp/KiiThingSDK/blob/master/KiiThingSDKTests/ThingSDKBasicTests.m

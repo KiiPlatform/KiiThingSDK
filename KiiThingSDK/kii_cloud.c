@@ -6,7 +6,7 @@
 */
 
 #include "curl.h"
-#include "kii_cloud.h"
+#include "kii_custom.h"
 #include "kii_prv_utils.h"
 #include "kii_prv_types.h"
 
@@ -222,7 +222,7 @@ static size_t callback_header(
 
     /* check http header name. */
     if (kii_strncmp(line, ETAG, kii_strlen(ETAG)) == 0) {
-        json_t** json = (json_t**)userdata;
+        json_t** json = userdata;
         int i = 0;
         kii_char_t* value = line;
 
@@ -471,7 +471,7 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     
     /* prepare request data */
     reqJson = (user_data == NULL) ? json_object() :
-            json_deep_copy((json_t*)user_data);
+            json_deep_copy(user_data);
     if (reqJson == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
@@ -551,9 +551,19 @@ ON_EXIT:
 kii_bucket_t kii_init_thing_bucket(const kii_thing_t thing,
                                    const kii_char_t* bucket_name)
 {
-    prv_kii_bucket_t* retval = kii_malloc(sizeof(prv_kii_bucket_t));
-    kii_char_t* thing_id = kii_strdup(thing->kii_thing_id);
-    kii_char_t* bucket_name_str = kii_strdup(bucket_name);
+    prv_kii_bucket_t* retval = NULL;
+    kii_char_t* thing_id = NULL;
+    kii_char_t* bucket_name_str = NULL;
+
+    M_KII_ASSERT(thing != NULL);
+    M_KII_ASSERT(thing->kii_thing_id != NULL);
+    M_KII_ASSERT(kii_strlen(thing->kii_thing_id) > 0);
+    M_KII_ASSERT(bucket_name != NULL);
+    M_KII_ASSERT(kii_strlen(bucket_name) > 0);
+    
+    retval = kii_malloc(sizeof(prv_kii_bucket_t));
+    thing_id = kii_strdup(thing->kii_thing_id);
+    bucket_name_str =  kii_strdup(bucket_name);
 
     if (retval == NULL || thing_id == NULL ||
             bucket_name_str == NULL) {
@@ -1314,8 +1324,12 @@ kii_topic_t kii_init_thing_topic(const kii_thing_t thing,
     kii_char_t* tempThingId = NULL;
     kii_char_t* tempTopicName = NULL;
     
+
+    M_KII_ASSERT(thing != NULL);
     M_KII_ASSERT(thing->kii_thing_id != NULL);
     M_KII_ASSERT(kii_strlen(thing->kii_thing_id) > 0);
+    M_KII_ASSERT(topic_name != NULL);
+    M_KII_ASSERT(kii_strlen(topic_name) > 0);
 
     topic = kii_malloc(sizeof(prv_kii_topic_t));
     if (topic == NULL) {

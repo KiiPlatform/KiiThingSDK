@@ -5,7 +5,7 @@
   Copyright (c) 2014 Kii. All rights reserved.
 */
 
-#include "kii_cloud.h"
+#include "kii_custom.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
