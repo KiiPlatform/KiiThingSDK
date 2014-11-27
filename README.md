@@ -17,5 +17,6 @@ kii\_cloud.h is public APIs header file.
 include this file from your application.
 
 ### How to use it?
-Please refer to xxx
+Please refer to
+https://github.com/KiiCorp/KiiThingSDK/blob/master/KiiThingSDKTests/ThingSDKBasicTests.m
 
