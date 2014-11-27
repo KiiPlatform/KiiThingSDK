@@ -1,6 +1,7 @@
 ### What is Kii Thing SDK?
-SDK developed for IoT Cloud powered by Kii.
-(link: XXXX)
+SDK developed for IoT Cloud powered by Kii.<br>
+https://developer.kii.com
+
 Written in C and focusing embedded linux.
 
 ### How to install Kii Thing SDK in your environment
