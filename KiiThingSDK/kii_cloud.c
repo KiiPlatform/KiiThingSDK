@@ -551,9 +551,16 @@ ON_EXIT:
 kii_bucket_t kii_init_thing_bucket(const kii_thing_t thing,
                                    const kii_char_t* bucket_name)
 {
-    prv_kii_bucket_t* retval = kii_malloc(sizeof(prv_kii_bucket_t));
-    kii_char_t* thing_id = kii_strdup(thing->kii_thing_id);
-    kii_char_t* bucket_name_str = kii_strdup(bucket_name);
+    prv_kii_bucket_t* retval = NULL;
+    kii_char_t* thing_id = NULL;
+    kii_char_t* bucket_name_str = NULL;
+
+    M_KII_ASSERT(thing != NULL);
+    M_KII_ASSERT(bucket_name != NULL);
+    
+    retval = kii_malloc(sizeof(prv_kii_bucket_t));
+    thing_id = kii_strdup(thing->kii_thing_id);
+    bucket_name_str =  kii_strdup(bucket_name);
 
     if (retval == NULL || thing_id == NULL ||
             bucket_name_str == NULL) {
