@@ -556,7 +556,10 @@ kii_bucket_t kii_init_thing_bucket(const kii_thing_t thing,
     kii_char_t* bucket_name_str = NULL;
 
     M_KII_ASSERT(thing != NULL);
+    M_KII_ASSERT(thing->kii_thing_id != NULL);
+    M_KII_ASSERT(kii_strlen(thing->kii_thing_id) > 0);
     M_KII_ASSERT(bucket_name != NULL);
+    M_KII_ASSERT(kii_strlen(bucket_name) > 0);
     
     retval = kii_malloc(sizeof(prv_kii_bucket_t));
     thing_id = kii_strdup(thing->kii_thing_id);
@@ -1321,8 +1324,12 @@ kii_topic_t kii_init_thing_topic(const kii_thing_t thing,
     kii_char_t* tempThingId = NULL;
     kii_char_t* tempTopicName = NULL;
     
+
+    M_KII_ASSERT(thing != NULL);
     M_KII_ASSERT(thing->kii_thing_id != NULL);
     M_KII_ASSERT(kii_strlen(thing->kii_thing_id) > 0);
+    M_KII_ASSERT(topic_name != NULL);
+    M_KII_ASSERT(kii_strlen(topic_name) > 0);
 
     topic = kii_malloc(sizeof(prv_kii_topic_t));
     if (topic == NULL) {
