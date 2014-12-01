@@ -4,4 +4,5 @@ latex
 *.o
 /deps/
 /tmp/
-build/*
+build/
+build_rpi_cross_compilation/
