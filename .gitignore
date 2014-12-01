@@ -4,3 +4,4 @@ latex
 *.o
 /deps/
 /tmp/
+build/*
