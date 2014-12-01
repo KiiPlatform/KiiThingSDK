@@ -9,7 +9,7 @@ build_jansson:
 build: build_jansson
 	gcc -shared -fPIC kii_cloud.c kii_custom.c kii_prv_utils.c -L jansson -I curl -I jansson -l jansson -l curl -o libkii.so
 
-ARCHIVE_FILES = kii_cloud.h kii_cloud.c kii_custom.h kii_custom.c kii_prv_utils.h kii_prv_utils.h kii_prv_types.h
+ARCHIVE_FILES = kii_cloud.h kii_cloud.c kii_custom.h kii_custom.c kii_prv_utils.h kii_prv_utils.c kii_prv_types.h
 archive: clean
 	mkdir kii_sources
 	cp $(ARCHIVE_FILES) kii_sources
