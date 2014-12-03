@@ -32,7 +32,7 @@ ENDIF()
 SET(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/remote-folder)
 #############################################################################################
 
-OPTION(WARNINGS_ARE_ERRORS	"Treat warnings as errors"										ON)
+OPTION(WARNINGS_ARE_ERRORS	"Treat warnings as errors"										OFF)
 OPTION(WARNINGS_ANSI_ISO    "Issue all the mandatory diagnostics Listed in C standard"		ON)
 OPTION(ENABLE_PROFILING     "Enable profiling in Valgrind (Add flags: -g -fno_inline)"		OFF)
 
