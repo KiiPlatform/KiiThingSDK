@@ -30,7 +30,7 @@ ENDIF()
 
 #############################################################################################
 # Create a folder and mount via sshfs the raspberry partition in order to copy binary to rpi with
-# make install. If you don't want this feature, comment or delete lines: 16-22
+# make install. If you don't want this feature, comment or delete lines: 31-41
 IF(NOT EXISTS remote-folder AND EXISTS ${CMAKE_TOOLCHAIN_FILE})
 	MESSAGE("Creating remote-folder for mounting raspberry pi partition with sshfs")
 	execute_process(COMMAND mkdir ${PROJECT_SOURCE_DIR}/remote-folder

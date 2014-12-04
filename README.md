@@ -16,6 +16,53 @@ and extract codes in your project.
 
 kii\_cloud.h is public APIs header file.
 include this file from your application.
+### Build and install Kii Thing SDK as shared library using CMAKE
+##### Dependency
+Bellow is the dependency to sucessfully build with `CMAKE`
+1. CMAKE (required)
+2. libtool (required)
+3. libcurl (required)
+4. libjansson (optional, you can build and install `jansson` as shared library by adding `-DBUILD_JANSSON` on CMAKE execution)
+5. automake (required if you wants to build jansson)
+
+##### Build with cmake for unix native environment
+
+Create `build` directory
+```bash
+mkdir build 
+cd build
+```
+###### Mac OSX and Linux x86
+Without building `jansson`
+```bash
+mkdir build 
+cd build
+cmake ..
+make
+```
+With building `jansson`
+```bash
+mkdir build 
+cd build
+cmake .. -DBUILD_JANSSON=true
+sudo make
+```
+
+###### Raspberry Pi
+Without building `jansson`
+```bash
+mkdir build 
+cd build
+cmake .. -DNO_INLINE=true
+make
+```
+With building `jansson`
+```bash
+mkdir build 
+cd build
+cmake .. -DBUILD_JANSSON=true -DNO_INLINE=true
+sudo make
+```
 
 ### How to use it?
 Please refer to
