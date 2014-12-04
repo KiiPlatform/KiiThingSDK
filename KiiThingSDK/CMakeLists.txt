@@ -7,7 +7,7 @@ FILE(GLOB KiiThingSDK_files *.c *.h)
 SET(KiiThingSDK_src
     ${KiiThingSDK_files}
     )
-if(DEFINED NO_INLINE)
+if(NO_INLINE)
     ADD_DEFINITIONS("-Dinline=")
 endif()
 
