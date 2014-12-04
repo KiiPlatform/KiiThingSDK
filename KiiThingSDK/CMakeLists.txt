@@ -7,9 +7,8 @@ FILE(GLOB KiiThingSDK_files *.c *.h)
 SET(KiiThingSDK_src
     ${KiiThingSDK_files}
     )
-if(NO_INLINE)
-    ADD_DEFINITIONS("-Dinline=")
-endif()
+
+ADD_DEFINITIONS("-Dinline=") #TODO: investigate further , this line is needed to prevent compile error on raspberry pi env.
 
 if (BUILD_JANSSON)
     ExternalProject_Add(project_jansson
@@ -28,7 +27,6 @@ if (BUILD_JANSSON)
     add_library(Jansson SHARED IMPORTED)
     set_property(TARGET Jansson PROPERTY IMPORTED_LOCATION ${JANSSON_IMPORTED_LIB})
     add_dependencies(Jansson project_jansson)
-
 
     ADD_LIBRARY(kii SHARED ${KiiThingSDK_src})
 

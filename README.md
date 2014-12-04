@@ -29,7 +29,6 @@ Bellow is the dependency to sucessfully build with `CMAKE`
 
 ##### Build with cmake for unix native environment
 
-###### Mac OSX and Linux x86
 Without building `jansson`
 ```bash
 mkdir build 
@@ -45,19 +44,20 @@ cmake .. -DBUILD_JANSSON=true
 sudo make
 ```
 
-###### Raspberry Pi
+##### Build with cmake for cross compilation
+
 Without building `jansson`
 ```bash
 mkdir build 
 cd build
-cmake .. -DNO_INLINE=true
+cmake -D CMAKE_TOOLCHAIN_FILE=../toolchain-crosscompiler-example.cmake ../
 make
 ```
 With building `jansson`
 ```bash
 mkdir build 
 cd build
-cmake .. -DBUILD_JANSSON=true -DNO_INLINE=true
+cmake -D CMAKE_TOOLCHAIN_FILE=../toolchain-crosscompiler-example.cmake ../ -DBUILD_JANSSON=true
 sudo make
 ```
 
