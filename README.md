@@ -25,15 +25,10 @@ Bellow is the dependency to sucessfully build with `CMAKE`
 2. `libtool` (required)
 3. `libcurl` (required)
 4. `libjansson` (optional, you can build and install `jansson` as shared library by adding `-DBUILD_JANSSON` on CMAKE execution)
-5. `automake` (required if you wants to build jansson)
+5. `automake` (required if you want to build jansson)
 
 ##### Build with cmake for unix native environment
 
-Create `build` directory
-```bash
-mkdir build 
-cd build
-```
 ###### Mac OSX and Linux x86
 Without building `jansson`
 ```bash
