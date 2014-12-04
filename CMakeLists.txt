@@ -1,15 +1,23 @@
 PROJECT(KiiThingSDK)
 INCLUDE(CPack)
-
+INCLUDE(ExternalProject)
+INCLUDE(cmake_utils/FindJansson.cmake)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8 FATAL_ERROR)
-INCLUDE(cmake_utils/FindCURL.cmake)
+
 FIND_PACKAGE(CURL)
+MESSAGE(STATUS "Jansson libraries found at: ${JANSSON_LIBRARIES}")
+MESSAGE(STATUS "JANSSON includes found at: ${JANSSON_INCLUDE_DIRS}")
 IF(CURL_FOUND)
   MESSAGE(STATUS "Curl libraries found at: ${CURL_LIBRARIES}")
   MESSAGE(STATUS "Curl includes found at: ${CURL_INCLUDE_DIRS}")
 else()
   MESSAGE(SEND_ERROR "Could not find cURL on your system")
 ENDIF(CURL_FOUND)
+find_path(CURL_INCLUDE_DIR
+               NAMES curl.h
+               ONLY_CMAKE_FIND_ROOT_PATH)
+
+include_directories(${CURL_INCLUDE_DIR})
 
 SET(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Configs" FORCE)
 IF(DEFINED CMAKE_BUILD_TYPE)
