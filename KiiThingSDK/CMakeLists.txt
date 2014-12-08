@@ -12,8 +12,8 @@ ADD_DEFINITIONS("-Dinline=") #TODO: investigate further , this line is needed to
 
 if (BUILD_JANSSON)
     ExternalProject_Add(project_jansson
-      URL http://www.digip.org/jansson/releases/jansson-2.6.tar.gz
-      PREFIX ${CMAKE_CURRENT_BINARY_DIR}/jansson-2.6
+      URL http://www.digip.org/jansson/releases/jansson-2.7.tar.gz
+      PREFIX ${CMAKE_CURRENT_BINARY_DIR}/jansson-2.7
       BUILD_IN_SOURCE 1
       UPDATE_COMMAND  autoreconf -vi
       CONFIGURE_COMMAND ./configure ${CONFIGURE_EXTRA_ARG}
