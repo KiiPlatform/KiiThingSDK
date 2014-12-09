@@ -8,9 +8,6 @@ SET(KiiThingSDK_src
     ${KiiThingSDK_files}
     )
     
-if(NOT APPLE)
-    ADD_DEFINITIONS("-Dinline=") #TODO: investigate further , this line is needed to prevent compile error on raspberry pi env.
-endif()
 
 ADD_DEFINITIONS("-D_GNU_SOURCE") #fix warning related on strndup http://stackoverflow.com/questions/9168150/implicit-declaration-of-strndup
 

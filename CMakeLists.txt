@@ -37,6 +37,23 @@ OPTION(ENABLE_PROFILING     "Enable profiling in Valgrind (Add flags: -g -fno_in
 
 INCLUDE(cmake_utils/compileroptions.cmake REQUIRED)
 
+#test for inline
+FOREACH(KEYWORD "inline" "__inline__" "__inline")
+   IF(NOT DEFINED C_INLINE)
+     TRY_COMPILE(C_HAS_${KEYWORD} "${KiiThingSDK_BINARY_DIR}"
+       "${PROJECT_SOURCE_DIR}/cmake_utils/test_inline.c"
+       COMPILE_DEFINITIONS "-Dinline=${KEYWORD}")
+     IF(C_HAS_${KEYWORD})
+       SET(C_INLINE TRUE)
+       ADD_DEFINITIONS("-Dinline=${KEYWORD}")
+     ENDIF(C_HAS_${KEYWORD})
+   ENDIF(NOT DEFINED C_INLINE)
+ENDFOREACH(KEYWORD)
+IF(NOT DEFINED C_INLINE)
+   ADD_DEFINITIONS("-Dinline=")
+ENDIF(NOT DEFINED C_INLINE)
+
+
 ADD_SUBDIRECTORY(KiiThingSDK)
 
 MESSAGE( STATUS "C++ flags :       ${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE}")
