@@ -8,8 +8,7 @@ SET(KiiThingSDK_src
     ${KiiThingSDK_files}
     )
     
-
-ADD_DEFINITIONS("-D_GNU_SOURCE") #fix warning related on strndup http://stackoverflow.com/questions/9168150/implicit-declaration-of-strndup
+ADD_DEFINITIONS("-D_POSIX_C_SOURCE=200809L") #fix warning related on strndup http://stackoverflow.com/questions/9168150/implicit-declaration-of-strndup
 
 if (BUILD_JANSSON)
     ExternalProject_Add(project_jansson
