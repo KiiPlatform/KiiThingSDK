@@ -20,7 +20,7 @@ if (BUILD_JANSSON)
       BUILD_COMMAND make
     )
     ExternalProject_Get_Property(project_jansson install_dir)
-    INCLUDE(${PROJECT_SOURCE_DIR}/cmake_utils/FindJansson.cmake)
+    INCLUDE(../cmake_utils/FindJansson.cmake)
     #include_directories(${CMAKE_CURRENT_SOURCE_DIR}/jansson)
     if (NOT DEFINED JANSSON_IMPORTED_LIB)
       set(JANSSON_IMPORTED_LIB ${JANSSON_LIBRARIES})
