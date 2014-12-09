@@ -20,13 +20,15 @@ if (BUILD_JANSSON)
       BUILD_COMMAND make
     )
     ExternalProject_Get_Property(project_jansson install_dir)
-    INCLUDE(../cmake_utils/FindJansson.cmake)
-    #include_directories(${CMAKE_CURRENT_SOURCE_DIR}/jansson)
+    SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE) 
+
+    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+
     if (NOT DEFINED JANSSON_IMPORTED_LIB)
       set(JANSSON_IMPORTED_LIB ${JANSSON_LIBRARIES})
     endif()
     add_library(Jansson SHARED IMPORTED)
-    set_property(TARGET Jansson PROPERTY IMPORTED_LOCATION ${JANSSON_IMPORTED_LIB})
+    set_property(TARGET Jansson PROPERTY IMPORTED_LOCATION ${CMAKE_INSTALL_RPATH}/libjansson${CMAKE_SHARED_LIBRARY_SUFFIX})
     add_dependencies(Jansson project_jansson)
 
     ADD_LIBRARY(kii SHARED ${KiiThingSDK_src})
