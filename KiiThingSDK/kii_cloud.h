@@ -180,6 +180,7 @@ kii_app_t kii_init_app(const kii_char_t* app_id,
                        const kii_char_t* site_url);
 
 /** Obtain error detail happens last.
+ * @param [in] app kii app used for operation.
  * @returns error detail.
  */
 kii_error_t* kii_get_last_error(kii_app_t app);
@@ -214,10 +215,11 @@ void kii_dispose_mqtt_endpoint(kii_mqtt_endpoint_t* endpoint);
  * @param [in] opt_thing_type type name of the thing. Can be omitted by
  * specifying NULL.
  * @param [in] user_data additional information about the thing.
- * TODO: details should be linked here.
- * @param [out] instance represents registered thing. Should be disposed by
- * kii_dispose_thing(const kii_thing_t*) by application.
- * @param [out] access_token would be used to
+ * For details, please refer to<br>
+ * http://documentation.kii.com/en/starts/thingsdk/management/#register-a-thing
+ * @param [out] out_thing instance represents registered thing.
+ * Should be disposed by kii_dispose_thing(const kii_thing_t*) by application.
+ * @param [out] out_access_token would be used to
  * authorize access to Kii Cloud by the thing. (CRUD object, etc.)
  * NULL if failed to register.
  * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
@@ -232,7 +234,8 @@ kii_error_code_t kii_register_thing(kii_app_t app,
                                     kii_char_t** out_access_token);
 
 /** Init thing scope bucket.
- * @param [in] registered thing instance
+ * @param [in] thing registered thing instance
+ * @param [in] bucket_name name of the bucket to be initialized.
  * @return kii bucket instance. Should be disposed by
  * kii_dispose_bucket(kii_bucket_t)
  */
@@ -353,8 +356,8 @@ kii_error_code_t kii_replace_object(kii_app_t app,
  * @param [in] app kii application uses this thing.
  * @param [in] access_token specify access token of authur.
  * @param [in] bucket specify bucket contains object.
- * @param [in] bucket_name specify name of the bucket.
  * @param [in] object_id specify id of the object.
+ * @param [out] out_contents obtained object contents.
  * @param [out] out_etag etag of server object.
  * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
  * calling kii_get_last_error(kii_app_t).
@@ -418,7 +421,7 @@ kii_error_code_t kii_unsubscribe_bucket(kii_app_t app,
  * @param [in] app kii application uses this thing.
  * @param [in] access_token specify access token of authur.
  * @param [in] bucket target bucket to unsubscribe.
- * @param [out] is_subscribed value would not be changed if the execution is
+ * @param [out] out_is_subscribed value would not be changed if the execution is
  * failed.
  * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
  * calling kii_get_last_error(kii_app_t).
@@ -430,9 +433,10 @@ kii_error_code_t kii_is_bucket_subscribed(kii_app_t app,
 
 
 /** Init thing scope topic.
- * @param [in] registered thing instance
+ * @param [in] thing registered thing instance.
+ * @param [in] topic_name name of the topic to be initialized.
  * @return kii topic instance. Should be disposed by
- * kii_dispose_topic(kii_topic_t)
+ * kii_dispose_topic(kii_topic_t).
  */
 kii_topic_t kii_init_thing_topic(const kii_thing_t thing,
                                    const kii_char_t* topic_name);
@@ -486,7 +490,7 @@ kii_error_code_t kii_unsubscribe_topic(kii_app_t app,
  * @param [in] app kii application uses this thing.
  * @param [in] access_token specify access token of authur.
  * @param [in] topic target topic to unsubscribe.
- * @param [out] is_subscribed value would not be changed if the execution is
+ * @param [out] out_is_subscribed value would not be changed if the execution is
  * failed.
  * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
  * calling kii_get_last_error(kii_app_t).
