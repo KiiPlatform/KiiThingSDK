@@ -8,7 +8,12 @@
 #ifndef KiiThingSDK_kii_cloud_h
 #define KiiThingSDK_kii_cloud_h
 
-#include "jansson.h"
+#ifdef XCODE
+    #include "jansson.h"
+#else 
+    #include <jansson.h>
+#endif
+
 #include <assert.h>
 
 #ifdef __cplusplus
