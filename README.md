@@ -35,6 +35,7 @@ mkdir build
 cd build
 cmake ..
 make
+make install
 ```
 With building `jansson`
 ```bash
@@ -42,6 +43,7 @@ mkdir build
 cd build
 cmake .. -DBUILD_JANSSON=true
 sudo make
+sudo make install
 ```
 
 ##### Build with cmake for cross compilation
@@ -52,6 +54,7 @@ mkdir build
 cd build
 cmake -D CMAKE_TOOLCHAIN_FILE=../toolchain-crosscompiler-example.cmake ../
 make
+make install
 ```
 With building `jansson`
 ```bash
@@ -59,6 +62,7 @@ mkdir build
 cd build
 cmake -D CMAKE_TOOLCHAIN_FILE=../toolchain-crosscompiler-example.cmake ../ -DBUILD_JANSSON=true
 sudo make
+sudo make install
 ```
 
 ### How to use it?
