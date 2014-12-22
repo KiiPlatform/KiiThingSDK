@@ -4,11 +4,24 @@ if (NOT DEFINED CMAKE_MACOSX_RPATH)
   set(CMAKE_MACOSX_RPATH 0)
 endif()
 FILE(GLOB KiiThingSDK_files *.c *.h)
+FILE(GLOB KiiThingSDK_headers *.h)
 SET(KiiThingSDK_src
     ${KiiThingSDK_files}
     )
     
 ADD_DEFINITIONS("-D_POSIX_C_SOURCE=200809L") #fix warning related on strndup http://stackoverflow.com/questions/9168150/implicit-declaration-of-strndup
+
+set(KII_VERSION_MAJOR 1)
+set(KII_VERSION_MINOR 0)
+set(KII_VERSION_PATCH 2)
+set(KII_VERSION ${KII_VERSION_MAJOR}.${KII_VERSION_MINOR}.${KII_VERSION_PATCH} )
+ADD_LIBRARY(kii SHARED ${KiiThingSDK_src})
+
+set_target_properties(kii PROPERTIES VERSION ${KII_VERSION}
+SOVERSION ${KII_VERSION_MAJOR} )
+install(TARGETS kii DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
+install(FILES ${KiiThingSDK_headers}
+        DESTINATION "${CMAKE_INSTALL_PREFIX}/include")
 
 if (BUILD_JANSSON)
     ExternalProject_Add(project_jansson
@@ -27,16 +40,15 @@ if (BUILD_JANSSON)
     if (NOT DEFINED JANSSON_IMPORTED_LIB)
       set(JANSSON_IMPORTED_LIB ${JANSSON_LIBRARIES})
     endif()
+    
     add_library(Jansson SHARED IMPORTED)
     set_property(TARGET Jansson PROPERTY IMPORTED_LOCATION ${CMAKE_INSTALL_RPATH}/libjansson${CMAKE_SHARED_LIBRARY_SUFFIX})
     add_dependencies(Jansson project_jansson)
 
-    ADD_LIBRARY(kii SHARED ${KiiThingSDK_src})
-
     TARGET_LINK_LIBRARIES(kii ${CURL_LIBRARIES} Jansson)
 else()
-    ADD_LIBRARY(kii SHARED ${KiiThingSDK_src})
-
+            
     TARGET_LINK_LIBRARIES(kii ${CURL_LIBRARIES} ${JANSSON_LIBRARIES})
+    
 endif()
 
