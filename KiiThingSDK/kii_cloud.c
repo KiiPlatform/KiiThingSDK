@@ -661,7 +661,6 @@ kii_error_code_t kii_patch_object(kii_app_t app,
                                   kii_char_t** out_etag)
 {
     kii_char_t *reqUrl = NULL;
-    struct curl_slist* headers = NULL;
     kii_char_t* reqStr = NULL;
     json_t* respHdr = NULL;
     long respCode = 0;
@@ -694,31 +693,14 @@ kii_error_code_t kii_patch_object(kii_app_t app,
         goto ON_EXIT;
     }
 
-    /* prepare headers */
-    headers = prv_common_request_headers(app, access_token,
-            "application/json");
-    if (headers == NULL) {;
-        ret = KIIE_LOWMEMORY;
-        goto ON_EXIT;
-    } else {
-        struct curl_slist* tmp = opt_etag == NULL ?
-            curl_slist_append(headers, "if-none-match: *") :
-            prv_curl_slist_append_key_and_value(headers, "if-match", opt_etag);
-        if (tmp == NULL) {
-            ret = KIIE_LOWMEMORY;
-            goto ON_EXIT;
-        }
-        headers = tmp;
-    }
-
     reqStr = json_dumps(patch, 0);
     if (reqStr == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
     }
 
-    ret = prv_execute_curl(app->curl_easy, reqUrl, PATCH,
-            reqStr, headers, &respCode, &respData, &respHdr, &err);
+    ret = prv_kii_http_patch(reqUrl, app, access_token, "application/json",
+            opt_etag, reqStr, &respCode, &respHdr, &respData, &err);
     if (ret != KIIE_OK) {
         goto ON_EXIT;
     }
@@ -741,7 +723,6 @@ kii_error_code_t kii_patch_object(kii_app_t app,
 
 ON_EXIT:
     M_KII_FREE_NULLIFY(reqUrl);
-    curl_slist_free_all(headers);
     M_KII_FREE_NULLIFY(reqStr);
     json_decref(respHdr);
     M_KII_FREE_NULLIFY(respData);
