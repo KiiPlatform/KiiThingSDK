@@ -7,6 +7,25 @@
 extern "C" {
 #endif
 
+typedef enum {
+    POST,
+    PUT,
+    PATCH,
+    DELETE,
+    GET,
+    HEAD
+} prv_kii_req_method_t;
+
+kii_error_code_t prv_execute_curl(CURL* curl,
+	const kii_char_t* url,
+	prv_kii_req_method_t method,
+	const kii_char_t* request_body,
+	struct curl_slist* request_headers,
+	long* response_status_code,
+	kii_char_t** response_body,
+	json_t** response_headers,
+	kii_error_t* error);
+
 kii_error_code_t prv_kii_http_delete(
         const kii_char_t* url,
         const kii_app_t app,

@@ -14,6 +14,22 @@
 static size_t prv_url_encoded_len(const char* element);
 static char* prv_url_encoded_copy(char* s1, const char* s2);
 
+void prv_kii_set_info_in_error(
+        kii_error_t* error,
+        int status_code,
+        const kii_char_t* error_code)
+{
+    size_t max_buffer_size =
+        sizeof(error->error_code) / sizeof(error->error_code[0]);
+    error->status_code = status_code;
+    if (error_code == NULL) {
+        error->error_code[0] = '\0';
+    } else {
+        kii_strncpy(error->error_code, error_code, max_buffer_size - 1);
+        error->error_code[max_buffer_size - 1] = '\0';
+    }
+}
+
 char* prv_build_url(const char* first, ...)
 {
     size_t size = 0;

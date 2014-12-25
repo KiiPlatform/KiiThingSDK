@@ -28,6 +28,11 @@ extern "C" {
 #define M_KII_DEBUG(f)
 #endif
 
+void prv_kii_set_info_in_error(
+        kii_error_t* error,
+        int status_code,
+        const kii_char_t* error_code);
+
 /* The last argument of this method must be NULL. */
 /* Returned value of this method must be freed by caller of this method. */
 char* prv_build_url(const char* first, ...);
