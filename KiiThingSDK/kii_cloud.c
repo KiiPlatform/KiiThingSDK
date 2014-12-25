@@ -292,7 +292,6 @@ kii_error_code_t kii_register_thing(kii_app_t app,
                                     kii_char_t** out_access_token)
 {
     kii_char_t *reqUrl = NULL;
-    struct curl_slist* headers = NULL;
     json_t* reqJson = NULL;
     kii_char_t* reqStr = NULL;
     long respCode = 0;
@@ -318,14 +317,6 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     reqUrl = prv_build_url(app->site_url, "apps", app->app_id, "things",
             NULL);
     if (reqUrl == NULL) {
-        ret = KIIE_LOWMEMORY;
-        goto ON_EXIT;
-    }
-    
-    /* prepare headers */
-    headers = prv_common_request_headers(app, NULL,
-            "application/vnd.kii.ThingRegistrationAndAuthorizationRequest+json");
-    if (headers == NULL) {;
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
     }
@@ -357,8 +348,9 @@ kii_error_code_t kii_register_thing(kii_app_t app,
         goto ON_EXIT;
     }
 
-    exeCurlRet = prv_execute_curl(app->curl_easy, reqUrl, POST,
-            reqStr, headers, &respCode, &respData, NULL, &err);
+    exeCurlRet = prv_kii_http_post(reqUrl, app, NULL,
+            "application/vnd.kii.ThingRegistrationAndAuthorizationRequest+json",
+            reqStr, &respCode, NULL, &respData, &err);
     if (exeCurlRet != KIIE_OK) {
         ret = exeCurlRet;
         goto ON_EXIT;
@@ -396,7 +388,6 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     }
     
 ON_EXIT:
-    curl_slist_free_all(headers);
     json_decref(reqJson);
     M_KII_FREE_NULLIFY(reqStr);
     M_KII_FREE_NULLIFY(respData);
@@ -446,7 +437,6 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
                                        kii_char_t** out_etag)
 {
     kii_char_t *reqUrl = NULL;
-    struct curl_slist* headers = NULL;
     kii_char_t* reqStr = NULL;
     json_t* respHdr = NULL;
     long respCode = 0;
@@ -478,22 +468,14 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
         goto ON_EXIT;
     }
 
-    /* prepare headers */
-    headers = prv_common_request_headers(app, access_token,
-            "application/json");
-    if (headers == NULL) {;
-        ret = KIIE_LOWMEMORY;
-        goto ON_EXIT;
-    }
-
     reqStr = json_dumps(contents, 0);
     if (reqStr == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
     }
 
-    exeCurlRet = prv_execute_curl(app->curl_easy, reqUrl, POST,
-            reqStr, headers, &respCode, &respData, &respHdr, &err);
+    exeCurlRet = prv_kii_http_post(reqUrl, app, access_token,
+            "application/json", reqStr, &respCode, &respHdr, &respData, &err);
     if (exeCurlRet != KIIE_OK) {
         ret = exeCurlRet;
         goto ON_EXIT;
@@ -542,7 +524,6 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
 
 ON_EXIT:
     M_KII_FREE_NULLIFY(reqUrl);
-    curl_slist_free_all(headers);
     M_KII_FREE_NULLIFY(reqStr);
     json_decref(respHdr);
     M_KII_FREE_NULLIFY(respData);
@@ -958,7 +939,6 @@ kii_error_code_t kii_subscribe_bucket(kii_app_t app,
     const kii_char_t* thingId = bucket->kii_thing_id;
     const kii_char_t* bucketName = bucket->bucket_name;
     kii_char_t* url = NULL;
-    struct curl_slist* reqHeaders = NULL;
     kii_char_t* respBodyStr = NULL;
     kii_error_t error;
     kii_error_code_t ret = KIIE_FAIL;
@@ -981,22 +961,8 @@ kii_error_code_t kii_subscribe_bucket(kii_app_t app,
         goto ON_EXIT;
     }
 
-    /* Prepare headers */
-    reqHeaders = prv_common_request_headers(app, access_token, NULL);
-    if (reqHeaders == NULL) {
-        ret = KIIE_LOWMEMORY;
-        goto ON_EXIT;
-    }
-
-    ret = prv_execute_curl(app->curl_easy,
-                           url,
-                           POST,
-                           NULL,
-                           reqHeaders,
-                           &respStatus,
-                           &respBodyStr,
-                           NULL,
-                           &error);
+    ret = prv_kii_http_post(url, app, access_token, NULL, NULL, &respStatus,
+            NULL, &respBodyStr, &error);
     if (respStatus == 409) {
         /* bucket is already subscribed. */
         ret = KIIE_OK;
@@ -1004,7 +970,6 @@ kii_error_code_t kii_subscribe_bucket(kii_app_t app,
 
 ON_EXIT:
     M_KII_FREE_NULLIFY(url);
-    curl_slist_free_all(reqHeaders);
     M_KII_FREE_NULLIFY(respBodyStr);
 
     prv_kii_set_last_error(app, ret, &error);
@@ -1060,7 +1025,6 @@ kii_error_code_t kii_is_bucket_subscribed(kii_app_t app,
     const kii_char_t* thingId = bucket->kii_thing_id;
     const kii_char_t* bucketName = bucket->bucket_name;
     kii_char_t* url = NULL;
-    struct curl_slist* reqHeaders = NULL;
     kii_char_t* respBodyStr = NULL;
     kii_error_t error;
     kii_error_code_t ret = KIIE_FAIL;
@@ -1105,7 +1069,6 @@ kii_error_code_t kii_is_bucket_subscribed(kii_app_t app,
 
 ON_EXIT:
     M_KII_FREE_NULLIFY(url);
-    curl_slist_free_all(reqHeaders);
     M_KII_FREE_NULLIFY(respBodyStr);
 
     prv_kii_set_last_error(app, ret, &error);
@@ -1215,7 +1178,6 @@ kii_error_code_t kii_subscribe_topic(kii_app_t app,
     const kii_char_t* thingId = topic->kii_thing_id;
     const kii_char_t* topicName = topic->topic_name;
     kii_char_t* url = NULL;
-    struct curl_slist* reqHeaders = NULL;
     kii_error_t error;
     kii_error_code_t ret = KIIE_FAIL;
     long respStatus = 0;
@@ -1240,22 +1202,8 @@ kii_error_code_t kii_subscribe_topic(kii_app_t app,
         goto ON_EXIT;
     }
 
-    /* Prepare headers */
-    reqHeaders = prv_common_request_headers(app, access_token, NULL);
-    if (reqHeaders == NULL) {
-        ret = KIIE_LOWMEMORY;
-        goto ON_EXIT;
-    }
-
-    ret = prv_execute_curl(app->curl_easy,
-                     url,
-                     POST,
-                     NULL,
-                     reqHeaders,
-                     &respStatus,
-                     &respBodyStr,
-                     NULL,
-                     &error);
+    ret = prv_kii_http_post(url, app, access_token, NULL, NULL, &respStatus,
+            NULL, &respBodyStr, &error);
     if (respStatus == 409) {
         /* topic is already subscribed. */
         ret = KIIE_OK;
@@ -1263,7 +1211,6 @@ kii_error_code_t kii_subscribe_topic(kii_app_t app,
 
 ON_EXIT:
     M_KII_FREE_NULLIFY(url);
-    curl_slist_free_all(reqHeaders);
     M_KII_FREE_NULLIFY(respBodyStr);
     prv_kii_set_last_error(app, ret, &error);
 
@@ -1321,7 +1268,6 @@ kii_error_code_t kii_is_topic_subscribed(kii_app_t app,
     const kii_char_t* thingId = topic->kii_thing_id;
     const kii_char_t* topicName = topic->topic_name;
     kii_char_t* url = NULL;
-    struct curl_slist* reqHeaders = NULL;
     long respStatus = 0;
     kii_char_t* respBodyStr = NULL;
     kii_error_t error;
@@ -1368,7 +1314,6 @@ kii_error_code_t kii_is_topic_subscribed(kii_app_t app,
 
 ON_EXIT:
     kii_dispose_kii_char(url);
-    curl_slist_free_all(reqHeaders);
     kii_dispose_kii_char(respBodyStr);
 
     prv_kii_set_last_error(app, ret, &error);
@@ -1384,7 +1329,6 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
     kii_char_t* url = NULL;
     json_t* reqBodyJson = NULL;
     kii_char_t* reqBodyStr = NULL;
-    struct curl_slist* reqHeaders = NULL;
     long respCode = 0;
     kii_char_t* respBodyStr = NULL;
     json_t* respBodyJson = NULL;
@@ -1432,23 +1376,9 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
         goto ON_EXIT;
     }
 
-    /* Prepare headers*/
-    reqHeaders = prv_common_request_headers(app, access_token,
-            "application/vnd.kii.InstallationCreationRequest+json");
-    if (reqHeaders == NULL) {
-        ret = KIIE_LOWMEMORY;
-        goto ON_EXIT;
-    }
-
-    exeCurlRet = prv_execute_curl(app->curl_easy,
-                                  url,
-                                  POST,
-                                  reqBodyStr,
-                                  reqHeaders,
-                                  &respCode,
-                                  &respBodyStr,
-                                  NULL,
-                                  &error);
+    exeCurlRet = prv_kii_http_post(url, app, access_token,
+            "application/vnd.kii.InstallationCreationRequest+json",
+            reqBodyStr, &respCode, NULL, &respBodyStr, &error);
     if (exeCurlRet != KIIE_OK) {
         ret = exeCurlRet;
         goto ON_EXIT;
@@ -1480,7 +1410,6 @@ ON_EXIT:
     json_decref(reqBodyJson);
     M_KII_FREE_NULLIFY(reqBodyStr);
     M_KII_FREE_NULLIFY(respBodyStr);
-    curl_slist_free_all(reqHeaders);
     prv_kii_set_last_error(app, ret, &error);
 
     return ret;
