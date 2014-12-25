@@ -111,7 +111,16 @@ ON_EXIT:
     return ret;
 }
 
-kii_error_code_t prv_execute_curl(CURL* curl,
+typedef enum {
+    POST,
+    PUT,
+    PATCH,
+    DELETE,
+    GET,
+    HEAD
+} prv_kii_req_method_t;
+
+static kii_error_code_t prv_execute_curl(CURL* curl,
 	const kii_char_t* url,
 	prv_kii_req_method_t method,
 	const kii_char_t* request_body,
