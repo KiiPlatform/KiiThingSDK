@@ -15,7 +15,7 @@
 #include "kii_prv_utils.h"
 #include "kii_prv_types.h"
 
-static kii_error_code_t prv_http_delete(
+static kii_error_code_t prv_kii_http_delete(
         const kii_char_t* url,
         const kii_app_t* app,
         const kii_char_t* access_token,
@@ -27,7 +27,7 @@ static kii_error_code_t prv_http_delete(
     return KIIE_FAIL;
 }
 
-static kii_error_code_t prv_http_get(
+static kii_error_code_t prv_kii_http_get(
         const kii_char_t* url,
         const kii_app_t* app,
         const kii_char_t* access_token,
@@ -40,7 +40,7 @@ static kii_error_code_t prv_http_get(
     return KIIE_FAIL;
 }
 
-static kii_error_code_t prv_http_head(
+static kii_error_code_t prv_kii_http_head(
         const kii_char_t* url,
         const kii_app_t* app,
         const kii_char_t* access_token,
@@ -52,7 +52,7 @@ static kii_error_code_t prv_http_head(
     return KIIE_FAIL;
 }
 
-static kii_error_code_t prv_http_patch(
+static kii_error_code_t prv_kii_http_patch(
         const kii_char_t* url,
         const kii_app_t* app,
         const kii_char_t* access_token,
@@ -68,7 +68,7 @@ static kii_error_code_t prv_http_patch(
     return KIIE_FAIL;
 }
 
-static kii_error_code_t prv_http_post(
+static kii_error_code_t prv_kii_http_post(
         const kii_char_t* url,
         const kii_app_t* app,
         const kii_char_t* access_token,
@@ -83,7 +83,7 @@ static kii_error_code_t prv_http_post(
     return KIIE_FAIL;
 }
 
-static kii_error_code_t prv_http_put(
+static kii_error_code_t prv_kii_http_put(
         const kii_char_t* url,
         const kii_app_t* app,
         const kii_char_t* access_token,
