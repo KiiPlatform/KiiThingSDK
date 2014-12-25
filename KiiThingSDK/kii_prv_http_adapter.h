@@ -1,44 +1,38 @@
-#ifndef KiiThingSDK_kii_http_access_h
-#define KiiThingSDK_kii_http_access_h
+#ifndef KiiThingSDK_kii_http_adapter_h
+#define KiiThingSDK_kii_http_adapter_h
 
-static kii_error_code_t prv_kii_http_delete(
+#include "kii_cloud.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+kii_error_code_t prv_kii_http_delete(
         const kii_char_t* url,
         const kii_app_t* app,
         const kii_char_t* access_token,
         long* response_status_code,
         kii_char_t** response_body,
-        kii_error_t* error)
-{
-    // TODO: implement me.
-    return KIIE_FAIL;
-}
+        kii_error_t* error);
 
-static kii_error_code_t prv_kii_http_get(
+kii_error_code_t prv_kii_http_get(
         const kii_char_t* url,
         const kii_app_t* app,
         const kii_char_t* access_token,
         long* response_status_code,
         json_t** response_headers,
         kii_char_t** response_body,
-        kii_error_t* error)
-{
-    // TODO: implement me.
-    return KIIE_FAIL;
-}
+        kii_error_t* error);
 
-static kii_error_code_t prv_kii_http_head(
+kii_error_code_t prv_kii_http_head(
         const kii_char_t* url,
         const kii_app_t* app,
         const kii_char_t* access_token,
         long* response_status_code,
         kii_char_t** response_body,
-        kii_error_t* error)
-{
-    // TODO: implement me.
-    return KIIE_FAIL;
-}
+        kii_error_t* error);
 
-static kii_error_code_t prv_kii_http_patch(
+kii_error_code_t prv_kii_http_patch(
         const kii_char_t* url,
         const kii_app_t* app,
         const kii_char_t* access_token,
@@ -48,13 +42,9 @@ static kii_error_code_t prv_kii_http_patch(
         long* response_status_code,
         json_t** response_headers,
         kii_char_t** response_body,
-        kii_error_t* error)
-{
-    // TODO: implement me.
-    return KIIE_FAIL;
-}
+        kii_error_t* error);
 
-static kii_error_code_t prv_kii_http_post(
+kii_error_code_t prv_kii_http_post(
         const kii_char_t* url,
         const kii_app_t* app,
         const kii_char_t* access_token,
@@ -63,13 +53,9 @@ static kii_error_code_t prv_kii_http_post(
         long* response_status_code,
         json_t** response_headers,
         kii_char_t** response_body,
-        kii_error_t* error)
-{
-    // TODO: implement me.
-    return KIIE_FAIL;
-}
+        kii_error_t* error);
 
-static kii_error_code_t prv_kii_http_put(
+kii_error_code_t prv_kii_http_put(
         const kii_char_t* url,
         const kii_app_t* app,
         const kii_char_t* access_token,
@@ -80,10 +66,10 @@ static kii_error_code_t prv_kii_http_put(
         long* response_status_code,
         json_t** response_headers,
         kii_char_t** response_body,
-        kii_error_t* error)
-{
-    // TODO: implement me.
-    return KIIE_FAIL;
-}
+        kii_error_t* error);
 
-#endif//KiiThingSDK_kii_http_access_h
+#ifdef __cplusplus
+}
+#endif
+
+#endif//KiiThingSDK_kii_http_adapter_h
