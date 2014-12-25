@@ -395,5 +395,46 @@ kii_error_code_t prv_kii_http_put(
         kii_char_t** response_body,
         kii_error_t* error)
 {
-    return KIIE_FAIL;
+    kii_error_code_t ret = KIIE_FAIL;
+    struct curl_slist* headers = NULL;
+
+    if (opt_etag != NULL && if_none_match == KII_TRUE) {
+	// argument error case.
+	ret = KIIE_FAIL;
+	goto ON_EXIT;
+    }
+
+    /* prepare headers */
+    headers = prv_common_request_headers(app, access_token, content_type);
+    if (headers == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    } else {
+	if (opt_etag != NULL) {
+	    struct curl_slist* tmp = prv_curl_slist_append_key_and_value(
+		    headers, "if-match", opt_etag);
+	    if (tmp == NULL) {
+		ret = KIIE_LOWMEMORY;
+		goto ON_EXIT;
+	    }
+	    headers = tmp;
+
+	} else if (if_none_match == KII_TRUE) {
+	    struct curl_slist* tmp = curl_slist_append(headers,
+		    "if-none-match: *");
+	    if (tmp == NULL) {
+		ret = KIIE_LOWMEMORY;
+		goto ON_EXIT;
+	    }
+	    headers = tmp;
+	}
+    }
+
+    ret = prv_execute_curl(app->curl_easy, url, PUT, request_body, headers,
+	    response_status_code, response_body, response_headers, error);
+
+ON_EXIT:
+    curl_slist_free_all(headers);
+
+    return ret;
 }
