@@ -1103,22 +1103,8 @@ kii_error_code_t kii_is_bucket_subscribed(kii_app_t app,
         goto ON_EXIT;
     }
 
-    /* Prepare headers */
-    reqHeaders = prv_common_request_headers(app, access_token, NULL);
-    if (reqHeaders == NULL) {
-        ret = KIIE_LOWMEMORY;
-        goto ON_EXIT;
-    }
-
-    ret = prv_execute_curl(app->curl_easy,
-                           url,
-                           HEAD,
-                           NULL,
-                           reqHeaders,
-                           &respStatus,
-                           &respBodyStr,
-                           NULL,
-                           &error);
+    ret = prv_kii_http_head(url, app, access_token, &respStatus, &respBodyStr,
+            &error);
     switch (ret) {
         case KIIE_OK:
             *out_is_subscribed = KII_TRUE;
@@ -1130,6 +1116,7 @@ kii_error_code_t kii_is_bucket_subscribed(kii_app_t app,
                 kii_memset(&error, 0, sizeof(kii_error_t));
             }
             break;
+        case KIIE_LOWMEMORY:
         default:
             /* nothing to do. */
             break;
@@ -1379,22 +1366,8 @@ kii_error_code_t kii_is_topic_subscribed(kii_app_t app,
         goto ON_EXIT;
     }
 
-    /* Prepare headers */
-    reqHeaders = prv_common_request_headers(app, access_token, NULL);
-    if (reqHeaders == NULL) {
-        ret = KIIE_LOWMEMORY;
-        goto ON_EXIT;
-    }
-
-    ret = prv_execute_curl(app->curl_easy,
-                           url,
-                           HEAD,
-                           NULL,
-                           reqHeaders,
-                           &respStatus,
-                           &respBodyStr,
-                           NULL,
-                           &error);
+    ret = prv_kii_http_head(url, app, access_token, &respStatus, &respBodyStr,
+            &error);
     switch (ret) {
         case KIIE_OK:
             *out_is_subscribed = KII_TRUE;
@@ -1406,6 +1379,7 @@ kii_error_code_t kii_is_topic_subscribed(kii_app_t app,
                 kii_memset(&error, 0, sizeof(kii_error_t));
             }
             break;
+        case KIIE_LOWMEMORY:
         default:
             /* nothing to do */
             break;

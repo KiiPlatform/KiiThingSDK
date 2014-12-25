@@ -294,7 +294,23 @@ kii_error_code_t prv_kii_http_head(
         kii_char_t** response_body,
         kii_error_t* error)
 {
-    return KIIE_FAIL;
+    kii_error_code_t ret = KIIE_FAIL;
+    struct curl_slist* headers = NULL;
+
+    /* prepare headers */
+    headers = prv_common_request_headers(app, access_token, NULL);
+    if (headers == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+
+    ret = prv_execute_curl(app->curl_easy, url, HEAD, NULL, headers,
+	    response_status_code, response_body, NULL, error);
+
+ON_EXIT:
+    curl_slist_free_all(headers);
+
+    return ret;
 }
 
 kii_error_code_t prv_kii_http_patch(
