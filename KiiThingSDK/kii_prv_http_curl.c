@@ -8,8 +8,6 @@
 #include "kii_prv_types.h"
 #include "kii_prv_utils.h"
 
-static CURL* curl = NULL;
-
 /* The last argument of this method must be NULL.
 
    If all headers are appended, then this method returns struct
@@ -241,9 +239,10 @@ static kii_error_code_t prv_execute_curl(
 	json_t** response_headers,
 	kii_error_t* error)
 {
+    kii_error_code_t ret = KIIE_FAIL;
     CURLcode curlCode = CURLE_COULDNT_CONNECT; /* set error code as default. */
+    CURL* curl = NULL;
 
-    M_KII_ASSERT(curl != NULL);
     M_KII_ASSERT(url != NULL);
     M_KII_ASSERT(request_headers != NULL);
     M_KII_ASSERT(response_status_code != NULL);
@@ -253,8 +252,7 @@ static kii_error_code_t prv_execute_curl(
     M_KII_DEBUG(prv_log("request method: %d", method));
     M_KII_DEBUG(prv_log("request body: %s", request_body));
 
-    /* reset previous session setting. */
-    curl_easy_reset(curl);
+    curl = curl_easy_init();
 
     switch (method) {
         case POST:
@@ -274,7 +272,8 @@ static kii_error_code_t prv_execute_curl(
             request_headers = curl_slist_append(request_headers,
                     "X-HTTP-METHOD-OVERRIDE: PATCH");
             if (request_headers == NULL) {
-                return KIIE_LOWMEMORY;
+                ret = KIIE_LOWMEMORY;
+                goto ON_EXIT;
             }
             if (request_body != NULL) {
                 curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
@@ -297,7 +296,8 @@ static kii_error_code_t prv_execute_curl(
             break;
         default:
             M_KII_ASSERT(0); /* programing error */
-            return KIIE_FAIL;
+            ret = KIIE_FAIL;
+            goto ON_EXIT;
     }
 
     M_KII_DEBUG(prv_log_req_heder(request_headers));
@@ -320,7 +320,8 @@ static kii_error_code_t prv_execute_curl(
                     response_status_code);
             if ((200 <= *response_status_code) &&
                     (*response_status_code < 300)) {
-                return KIIE_OK;
+                ret = KIIE_OK;
+                goto ON_EXIT;
             } else {
                 const kii_char_t* error_code = NULL;
                 json_t* errJson = NULL;
@@ -329,7 +330,8 @@ static kii_error_code_t prv_execute_curl(
                     json_error_t jErr;
                     errJson = json_loads(*response_body, 0, &jErr);
                     if (errJson == NULL) {
-                        return KIIE_LOWMEMORY;
+                        ret = KIIE_LOWMEMORY;
+                        goto ON_EXIT;
                     }
                 }
                 errorCodeJson = json_object_get(errJson, "errorCode");
@@ -341,39 +343,33 @@ static kii_error_code_t prv_execute_curl(
                 prv_kii_set_info_in_error(error, (int)(*response_status_code),
                         error_code);
                 json_decref(errJson);
-                return KIIE_FAIL;
+                ret = KIIE_FAIL;
+                goto ON_EXIT;
             }
         case CURLE_WRITE_ERROR:
-            return KIIE_RESPWRITE;
+            ret = KIIE_RESPWRITE;
+            goto ON_EXIT;
         default:
             prv_kii_set_info_in_error(error, 0, KII_ECODE_CONNECTION);
-            return KIIE_FAIL;
+            ret = KIIE_FAIL;
+            goto ON_EXIT;
     }
-}
 
-kii_error_code_t prv_kii_http_init(void)
-{
-    kii_error_code_t ret = KIIE_FAIL;
-    CURLcode r;
-
-    r = curl_global_init(CURL_GLOBAL_ALL);
-    if (r == CURLE_OK) {
-        curl = curl_easy_init();
-        if (curl != NULL) {
-            ret = KIIE_OK;
-        }
-    } else {
-        curl = NULL;
-    }
+ON_EXIT:
+    curl_easy_cleanup(curl);
 
     return ret;
 }
 
+/* This function is eliminated by a case. */
+kii_error_code_t prv_kii_http_init(void)
+{
+    return KIIE_OK;
+}
+
+/* This function is eliminated by a case. */
 void prv_kii_http_cleanup(void)
 {
-    curl_easy_cleanup(curl);
-    curl = NULL;
-    curl_global_cleanup();
 }
 
 kii_error_code_t prv_kii_http_delete(
