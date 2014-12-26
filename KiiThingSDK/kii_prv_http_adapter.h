@@ -7,6 +7,10 @@
 extern "C" {
 #endif
 
+kii_error_code_t prv_kii_http_init(void);
+
+void prv_kii_http_cleanup(void);
+
 kii_error_code_t prv_kii_http_delete(
         const kii_char_t* url,
         const kii_app_t app,
