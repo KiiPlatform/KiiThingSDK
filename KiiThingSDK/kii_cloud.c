@@ -5,12 +5,6 @@
   Copyright (c) 2014 Kii. All rights reserved.
 */
 
-#ifdef XCODE
-#include "curl.h"
-#else
-#include <curl/curl.h>
-#endif
-
 #include "kii_custom.h"
 #include "kii_prv_utils.h"
 #include "kii_prv_types.h"
@@ -18,13 +12,12 @@
 
 kii_error_code_t kii_global_init(void)
 {
-    CURLcode r = curl_global_init(CURL_GLOBAL_ALL);
-    return ((r == CURLE_OK) ? KIIE_OK : KIIE_FAIL);
+    return prv_kii_http_init();
 }
 
 void kii_global_cleanup(void)
 {
-    curl_global_cleanup();
+    prv_kii_http_cleanup();
 }
 
 void kii_dispose_kii_char(kii_char_t* char_ptr)
@@ -78,14 +71,6 @@ kii_app_t kii_init_app(const kii_char_t* app_id,
         return app;
     }
     
-    app->curl_easy = curl_easy_init();
-    if (app->curl_easy == NULL) {
-        M_KII_FREE_NULLIFY(app->app_id);
-        M_KII_FREE_NULLIFY(app->app_key);
-        M_KII_FREE_NULLIFY(app->site_url);
-        M_KII_FREE_NULLIFY(app);
-        return app;
-    }
     return app;
 }
 
@@ -123,8 +108,6 @@ void kii_dispose_app(kii_app_t app)
     M_KII_FREE_NULLIFY(app->app_id);
     M_KII_FREE_NULLIFY(app->app_key);
     M_KII_FREE_NULLIFY(app->site_url);
-    curl_easy_cleanup(app->curl_easy);
-    app->curl_easy = NULL;
     M_KII_FREE_NULLIFY(app);
 }
 
@@ -306,7 +289,6 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     M_KII_ASSERT(kii_strlen(app->app_id)>0);
     M_KII_ASSERT(kii_strlen(app->app_key)>0);
     M_KII_ASSERT(kii_strlen(app->site_url)>0);
-    M_KII_ASSERT(app->curl_easy != NULL);
     M_KII_ASSERT(vendor_thing_id != NULL);
     M_KII_ASSERT(thing_password != NULL);
     M_KII_ASSERT(out_thing !=NULL);
@@ -450,7 +432,6 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
     M_KII_ASSERT(kii_strlen(app->app_id)>0);
     M_KII_ASSERT(kii_strlen(app->app_key)>0);
     M_KII_ASSERT(kii_strlen(app->site_url)>0);
-    M_KII_ASSERT(app->curl_easy != NULL);
     M_KII_ASSERT(bucket != NULL);
     M_KII_ASSERT(kii_strlen(bucket->kii_thing_id) > 0);
     M_KII_ASSERT(kii_strlen(bucket->bucket_name) > 0);
@@ -554,7 +535,6 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
     M_KII_ASSERT(kii_strlen(app->app_id)>0);
     M_KII_ASSERT(kii_strlen(app->app_key)>0);
     M_KII_ASSERT(kii_strlen(app->site_url)>0);
-    M_KII_ASSERT(app->curl_easy != NULL);
     M_KII_ASSERT(bucket != NULL);
     M_KII_ASSERT(kii_strlen(bucket->kii_thing_id) > 0);
     M_KII_ASSERT(kii_strlen(bucket->bucket_name) > 0);
@@ -637,7 +617,6 @@ kii_error_code_t kii_patch_object(kii_app_t app,
     M_KII_ASSERT(kii_strlen(app->app_id)>0);
     M_KII_ASSERT(kii_strlen(app->app_key)>0);
     M_KII_ASSERT(kii_strlen(app->site_url)>0);
-    M_KII_ASSERT(app->curl_easy != NULL);
     M_KII_ASSERT(bucket != NULL);
     M_KII_ASSERT(kii_strlen(bucket->kii_thing_id) > 0);
     M_KII_ASSERT(kii_strlen(bucket->bucket_name) > 0);
@@ -718,7 +697,6 @@ kii_error_code_t kii_replace_object(kii_app_t app,
     M_KII_ASSERT(kii_strlen(app->app_id)>0);
     M_KII_ASSERT(kii_strlen(app->app_key)>0);
     M_KII_ASSERT(kii_strlen(app->site_url)>0);
-    M_KII_ASSERT(app->curl_easy != NULL);
     M_KII_ASSERT(bucket != NULL);
     M_KII_ASSERT(kii_strlen(bucket->kii_thing_id) > 0);
     M_KII_ASSERT(kii_strlen(bucket->bucket_name) > 0);
@@ -799,7 +777,6 @@ kii_error_code_t kii_get_object(kii_app_t app,
     M_KII_ASSERT(kii_strlen(app->app_id)>0);
     M_KII_ASSERT(kii_strlen(app->app_key)>0);
     M_KII_ASSERT(kii_strlen(app->site_url)>0);
-    M_KII_ASSERT(app->curl_easy != NULL);
     M_KII_ASSERT(bucket != NULL);
     M_KII_ASSERT(object_id != NULL);
     M_KII_ASSERT(out_contents != NULL);
@@ -869,7 +846,6 @@ kii_error_code_t kii_delete_object(kii_app_t app,
     M_KII_ASSERT(kii_strlen(app->app_id)>0);
     M_KII_ASSERT(kii_strlen(app->app_key)>0);
     M_KII_ASSERT(kii_strlen(app->site_url)>0);
-    M_KII_ASSERT(app->curl_easy != NULL);
     M_KII_ASSERT(bucket != NULL);
     M_KII_ASSERT(object_id != NULL);
 

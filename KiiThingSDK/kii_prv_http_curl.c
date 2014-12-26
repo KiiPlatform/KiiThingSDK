@@ -8,6 +8,117 @@
 #include "kii_prv_types.h"
 #include "kii_prv_utils.h"
 
+static CURL* curl = NULL;
+
+/* The last argument of this method must be NULL.
+
+   If all headers are appended, then this method returns struct
+   curl_slist ponter. Otherwise returns NULL.
+
+   Returned value must be freed by caller of this method with
+   curl_slist_free_all. */
+static struct curl_slist*
+prv_curl_slist_create(const char* first, ...)
+{
+    struct curl_slist* retval = NULL;
+    const char* header = NULL;
+    va_list list;
+    va_start(list, first);
+    for (header = first; header != NULL; header = va_arg(list, char*)) {
+        struct curl_slist* tmp = curl_slist_append(retval, header);
+        if (tmp == NULL) {
+            curl_slist_free_all(retval);
+            retval = NULL;
+            break;
+        }
+        retval = tmp;
+    }
+    va_end(list);
+    return retval;
+}
+
+static struct curl_slist*
+prv_common_request_headers(
+	const kii_app_t app,
+	const kii_char_t* opt_access_token,
+	const kii_char_t* opt_content_type)
+{
+    kii_char_t* app_id_hdr = NULL;
+    kii_char_t* app_key_hdr = NULL;
+    struct curl_slist* retval = NULL;
+
+    M_KII_ASSERT(app->app_id != NULL);
+    M_KII_ASSERT(app->app_key != NULL);
+
+    app_id_hdr = prv_new_header_string("x-kii-appid", app->app_id);
+    app_key_hdr = prv_new_header_string("x-kii-appkey", app->app_key);
+    if (app_id_hdr == NULL || app_key_hdr == NULL) {
+        retval = NULL;
+        goto ON_EXIT;
+    }
+
+    retval = prv_curl_slist_create(app_id_hdr, app_key_hdr, NULL);
+    if (retval == NULL) {
+        goto ON_EXIT;
+    }
+
+    if (opt_access_token != NULL) {
+        kii_char_t* auth_hdr = prv_new_auth_header_string(opt_access_token);
+        struct curl_slist* tmp = (auth_hdr == NULL) ? NULL :
+        curl_slist_append(retval, auth_hdr);
+
+        kii_dispose_kii_char(auth_hdr);
+        if (tmp == NULL) {
+            curl_slist_free_all(retval);
+            retval = NULL;
+            goto ON_EXIT;
+        }
+        retval = tmp;
+    }
+
+    if (opt_content_type != NULL) {
+        kii_char_t* content_type_hdr = prv_new_header_string("content-type",
+            opt_content_type);
+        struct curl_slist* tmp = (content_type_hdr == NULL) ? NULL :
+        curl_slist_append(retval, content_type_hdr);
+
+        kii_dispose_kii_char(content_type_hdr);
+        if (tmp == NULL) {
+            curl_slist_free_all(retval);
+            retval = NULL;
+            goto ON_EXIT;
+        }
+        retval = tmp;
+    }
+
+ON_EXIT:
+    M_KII_FREE_NULLIFY(app_id_hdr);
+    M_KII_FREE_NULLIFY(app_key_hdr);
+
+    return retval;
+}
+
+static struct curl_slist*
+prv_curl_slist_append_key_and_value(
+	struct curl_slist *headers,
+	const kii_char_t *key,
+	const kii_char_t *value)
+{
+    kii_char_t* hdr = prv_new_header_string(key, value);
+    struct curl_slist* retval = (hdr == NULL) ? NULL :
+        curl_slist_append(headers, hdr);
+    kii_dispose_kii_char(hdr);
+    return retval;
+}
+
+static void prv_log_req_heder(struct curl_slist* header)
+{
+    while (header != NULL) {
+        prv_log("req header: %s", header->data);
+        header = header->next;
+    }
+}
+
 static size_t callbackWrite(char* ptr,
                             size_t size,
                             size_t nmemb,
@@ -120,7 +231,7 @@ typedef enum {
     HEAD
 } prv_kii_req_method_t;
 
-static kii_error_code_t prv_execute_curl(CURL* curl,
+static kii_error_code_t prv_execute_curl(
 	const kii_char_t* url,
 	prv_kii_req_method_t method,
 	const kii_char_t* request_body,
@@ -240,6 +351,31 @@ static kii_error_code_t prv_execute_curl(CURL* curl,
     }
 }
 
+kii_error_code_t prv_kii_http_init(void)
+{
+    kii_error_code_t ret = KIIE_FAIL;
+    CURLcode r;
+
+    r = curl_global_init(CURL_GLOBAL_ALL);
+    if (r == CURLE_OK) {
+        curl = curl_easy_init();
+        if (curl != NULL) {
+            ret = KIIE_OK;
+        }
+    } else {
+        curl = NULL;
+    }
+
+    return ret;
+}
+
+void prv_kii_http_cleanup(void)
+{
+    curl_easy_cleanup(curl);
+    curl = NULL;
+    curl_global_cleanup();
+}
+
 kii_error_code_t prv_kii_http_delete(
         const kii_char_t* url,
         const kii_app_t app,
@@ -258,7 +394,7 @@ kii_error_code_t prv_kii_http_delete(
         goto ON_EXIT;
     }
 
-    ret = prv_execute_curl(app->curl_easy, url, DELETE, NULL, headers,
+    ret = prv_execute_curl(url, DELETE, NULL, headers,
 	    response_status_code, response_body, NULL, error);
 
 ON_EXIT:
@@ -286,7 +422,7 @@ kii_error_code_t prv_kii_http_get(
         goto ON_EXIT;
     }
 
-    ret = prv_execute_curl(app->curl_easy, url, GET, NULL, headers,
+    ret = prv_execute_curl(url, GET, NULL, headers,
 	    response_status_code, response_body, response_headers, error);
 
 ON_EXIT:
@@ -313,7 +449,7 @@ kii_error_code_t prv_kii_http_head(
         goto ON_EXIT;
     }
 
-    ret = prv_execute_curl(app->curl_easy, url, HEAD, NULL, headers,
+    ret = prv_execute_curl(url, HEAD, NULL, headers,
 	    response_status_code, response_body, NULL, error);
 
 ON_EXIT:
@@ -353,7 +489,7 @@ kii_error_code_t prv_kii_http_patch(
         headers = tmp;
     }
 
-    ret = prv_execute_curl(app->curl_easy, url, PATCH, request_body, headers,
+    ret = prv_execute_curl(url, PATCH, request_body, headers,
 	    response_status_code, response_body, response_headers, error);
 
 ON_EXIT:
@@ -383,7 +519,7 @@ kii_error_code_t prv_kii_http_post(
         goto ON_EXIT;
     }
 
-    ret = prv_execute_curl(app->curl_easy, url, POST, request_body, headers,
+    ret = prv_execute_curl(url, POST, request_body, headers,
 	    response_status_code, response_body, response_headers, error);
 ON_EXIT:
     curl_slist_free_all(headers);
@@ -439,7 +575,7 @@ kii_error_code_t prv_kii_http_put(
 	}
     }
 
-    ret = prv_execute_curl(app->curl_easy, url, PUT, request_body, headers,
+    ret = prv_execute_curl(url, PUT, request_body, headers,
 	    response_status_code, response_body, response_headers, error);
 
 ON_EXIT:
