@@ -540,7 +540,7 @@ kii_error_code_t prv_kii_http_put(
     struct curl_slist* headers = NULL;
 
     if (opt_etag != NULL && if_none_match == KII_TRUE) {
-	// argument error case.
+	/* argument error case. */
 	ret = KIIE_FAIL;
 	goto ON_EXIT;
     }

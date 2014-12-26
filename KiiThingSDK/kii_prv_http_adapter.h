@@ -91,4 +91,4 @@ kii_error_code_t prv_kii_http_put(
 }
 #endif
 
-#endif//KiiThingSDK_kii_http_adapter_h
+#endif/*KiiThingSDK_kii_http_adapter_h*/

@@ -23,6 +23,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		223DFB4D1A4C341C003A8449 /* kii_prv_http_curl.c in Sources */ = {isa = PBXBuildFile; fileRef = 223DFB4C1A4C341C003A8449 /* kii_prv_http_curl.c */; };
 		7410ACFF19E29622002C9DF1 /* libcurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7410ACFA19E29622002C9DF1 /* libcurl.a */; };
 		7410AD0019E29622002C9DF1 /* libcurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7410ACFA19E29622002C9DF1 /* libcurl.a */; };
 		7410AD0219E29A21002C9DF1 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7410AD0119E29A21002C9DF1 /* libz.dylib */; };
@@ -98,6 +99,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		223DFB4B1A4C341C003A8449 /* kii_prv_http_adapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kii_prv_http_adapter.h; sourceTree = "<group>"; };
+		223DFB4C1A4C341C003A8449 /* kii_prv_http_curl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kii_prv_http_curl.c; sourceTree = "<group>"; };
 		7410AC9419E27F7B002C9DF1 /* libKiiThingSDK.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libKiiThingSDK.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		7410ACB719E28845002C9DF1 /* KiiThingSDKTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KiiThingSDKTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7410ACBA19E28845002C9DF1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -193,6 +196,8 @@
 		7410AC9619E27F7B002C9DF1 /* KiiThingSDK */ = {
 			isa = PBXGroup;
 			children = (
+				223DFB4B1A4C341C003A8449 /* kii_prv_http_adapter.h */,
+				223DFB4C1A4C341C003A8449 /* kii_prv_http_curl.c */,
 				7416A59719E3C42A007DCC45 /* jansson */,
 				7410ACF419E29622002C9DF1 /* curl */,
 				747F3D5619F4D3A800C1372A /* kii_custom.c */,
@@ -385,6 +390,7 @@
 			files = (
 				7416A5B219E3C42A007DCC45 /* load.c in Sources */,
 				7416A5BA19E3C42A007DCC45 /* strconv.c in Sources */,
+				223DFB4D1A4C341C003A8449 /* kii_prv_http_curl.c in Sources */,
 				7416A5B619E3C42A007DCC45 /* pack_unpack.c in Sources */,
 				B613F69319F50D6100AC5548 /* kii_prv_utils.c in Sources */,
 				7416A5AC19E3C42A007DCC45 /* error.c in Sources */,
