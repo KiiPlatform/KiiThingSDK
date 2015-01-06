@@ -12,12 +12,11 @@
 
 kii_error_code_t kii_global_init(void)
 {
-    return prv_kii_http_init();
+    return KIIE_OK;
 }
 
 void kii_global_cleanup(void)
 {
-    prv_kii_http_cleanup();
 }
 
 void kii_dispose_kii_char(kii_char_t* char_ptr)

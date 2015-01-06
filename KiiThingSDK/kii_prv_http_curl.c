@@ -361,17 +361,6 @@ ON_EXIT:
     return ret;
 }
 
-/* This function is eliminated by a case. */
-kii_error_code_t prv_kii_http_init(void)
-{
-    return KIIE_OK;
-}
-
-/* This function is eliminated by a case. */
-void prv_kii_http_cleanup(void)
-{
-}
-
 kii_error_code_t prv_kii_http_delete(
         const kii_char_t* url,
         const kii_app_t app,
