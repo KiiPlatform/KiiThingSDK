@@ -7,7 +7,15 @@
 extern "C" {
 #endif
 
-kii_error_code_t prv_kii_http_execute(
+typedef enum kii_http_result_t {
+    KIIHR_OK = 0,
+    KIIHR_FAIL,
+    KIIHR_LOWMEMORY,
+    KIIHR_RESPWRITE,
+    KIIHR_CONNECTION
+} kii_http_result_t;
+
+kii_http_result_t prv_kii_http_execute(
         const kii_char_t* http_method,
         const kii_char_t* url,
         json_t* request_headers,
