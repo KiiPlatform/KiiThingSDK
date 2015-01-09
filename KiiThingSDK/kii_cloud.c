@@ -797,13 +797,13 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
                                                kii_char_t** out_etag)
 {
     kii_char_t* reqUrl = NULL;
-    struct curl_slist* headers = NULL;
+    json_t* headers = NULL;
     kii_char_t* reqStr = NULL;
     json_t* respHdr = NULL;
-    long respCode = 0;
+    kii_int_t respCode = 0;
     kii_char_t* respData = NULL;
     kii_error_t err;
-    kii_error_code_t exeCurlRet = KIIE_FAIL;
+    kii_http_result_t httpRet = KIIHR_FAIL;
     kii_error_code_t ret = KIIE_FAIL;
 
     M_KII_ASSERT(app != NULL);
@@ -830,18 +830,17 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
     }
 
     /* prepare headers */
-    headers = prv_common_request_headers(app, access_token,
+    headers = prv_create_header_json_object(app, access_token,
             "application/json");
     if (headers == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
     } else {
-        struct curl_slist* tmp = curl_slist_append(headers, "if-none-match: *");
-        if (tmp == NULL) {
+        if (json_object_set_new(headers, "if-none-match", json_string("*"))
+                != 0) {
             ret = KIIE_LOWMEMORY;
             goto ON_EXIT;
         }
-        headers = tmp;
     }
 
     reqStr = json_dumps(contents, 0);
@@ -850,35 +849,48 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
         goto ON_EXIT;
     }
 
-    exeCurlRet = prv_execute_curl(app->curl_easy, reqUrl, PUT,
-            reqStr, headers, &respCode, &respData, &respHdr, &err);
-    if (exeCurlRet != KIIE_OK) {
-        ret = exeCurlRet;
-        goto ON_EXIT;
-    }
-
-    /* Check response header */
-    if (out_etag != NULL && respHdr != NULL) {
-        const kii_char_t* etag = json_string_value(json_object_get(respHdr,
-                "etag"));
-        if (etag != NULL) {
-            *out_etag = kii_strdup(etag);
-            if (*out_etag == NULL) {
-                ret = KIIE_LOWMEMORY;
-                goto ON_EXIT;
+    httpRet = prv_kii_http_execute("PUT", reqUrl, headers, reqStr,
+            &respCode, &respHdr, &respData);
+    switch (httpRet) {
+        case KIIHR_OK:
+            /* Check response header */
+            if (out_etag != NULL && respHdr != NULL) {
+                const kii_char_t* etag = json_string_value(
+                        json_object_get(respHdr, "etag"));
+                if (etag != NULL) {
+                    *out_etag = kii_strdup(etag);
+                    if (*out_etag == NULL) {
+                        ret = KIIE_LOWMEMORY;
+                        goto ON_EXIT;
+                    }
+                    ret = KIIE_OK;
+                } else {
+                    prv_kii_set_info_in_error(&err, (int)respCode,
+                            KII_ECODE_PARSE);
+                    ret = KIIE_FAIL;
+                }
+            } else {
+                ret = KIIE_OK;
             }
-            ret = KIIE_OK;
-        } else {
-            prv_kii_set_info_in_error(&err, (int)respCode, KII_ECODE_PARSE);
+            break;
+        case KIIHR_FAIL:
+            ret = prv_parse_response_error_code(respCode, respData, &err);
+            break;
+        case KIIHR_LOWMEMORY:
+            ret = KIIE_LOWMEMORY;
+            break;
+        case KIIHR_RESPWRITE:
+            ret = KIIE_RESPWRITE;
+            break;
+        case KIIHR_CONNECTION:
+            prv_kii_set_info_in_error(&err, 0, KII_ECODE_CONNECTION);
             ret = KIIE_FAIL;
-        }
-    } else {
-        ret = KIIE_OK;
+            break;
     }
 
 ON_EXIT:
     M_KII_FREE_NULLIFY(reqUrl);
-    curl_slist_free_all(headers);
+    json_decref(headers);
     M_KII_FREE_NULLIFY(reqStr);
     json_decref(respHdr);
     M_KII_FREE_NULLIFY(respData);
