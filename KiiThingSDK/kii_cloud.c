@@ -1038,13 +1038,13 @@ kii_error_code_t kii_replace_object(kii_app_t app,
                                     kii_char_t** out_etag)
 {
     kii_char_t* reqUrl = NULL;
-    struct curl_slist* headers = NULL;
+    json_t* headers = NULL;
     kii_char_t* reqStr = NULL;
     json_t* respHdr = NULL;
-    long respCode = 0;
+    kii_int_t respCode = 0;
     kii_char_t* respData = NULL;
     kii_error_t err;
-    kii_error_code_t exeCurlRet = KIIE_FAIL;
+    kii_http_result_t httpRet = KIIHR_FAIL;
     kii_error_code_t ret = KIIE_FAIL;
 
     M_KII_ASSERT(app != NULL);
@@ -1071,20 +1071,18 @@ kii_error_code_t kii_replace_object(kii_app_t app,
     }
 
     /* prepare headers */
-    headers = prv_common_request_headers(app, access_token,
+    headers = prv_create_header_json_object(app, access_token,
             "application/json");
     if (headers == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
     }
     if (opt_etag != NULL) {
-        struct curl_slist* tmp =
-            prv_curl_slist_append_key_and_value(headers, "if-match", opt_etag);
-        if (tmp == NULL) {
+        if (json_object_set_new(headers, "if-match", json_string(opt_etag))
+                != 0) {
             ret = KIIE_LOWMEMORY;
             goto ON_EXIT;
         }
-        headers = tmp;
     }
 
     reqStr = json_dumps(replace_contents, 0);
@@ -1093,11 +1091,28 @@ kii_error_code_t kii_replace_object(kii_app_t app,
         goto ON_EXIT;
     }
 
-    exeCurlRet = prv_execute_curl(app->curl_easy, reqUrl, PUT,
-            reqStr, headers, &respCode, &respData, &respHdr, &err);
-    if (exeCurlRet != KIIE_OK) {
-        ret = exeCurlRet;
-        goto ON_EXIT;
+    httpRet = prv_kii_http_execute("PUT", reqUrl, headers, reqStr,
+            &respCode, &respHdr, &respData);
+    switch (httpRet) {
+        case KIIHR_OK:
+            break;
+        case KIIHR_FAIL:
+            ret = prv_parse_response_error_code(respCode, respData, &err);
+            goto ON_EXIT;
+        case KIIHR_LOWMEMORY:
+            ret = KIIE_LOWMEMORY;
+            goto ON_EXIT;
+        case KIIHR_RESPWRITE:
+            ret = KIIE_RESPWRITE;
+            goto ON_EXIT;
+        case KIIHR_CONNECTION:
+            prv_kii_set_info_in_error(&err, 0, KII_ECODE_CONNECTION);
+            ret = KIIE_FAIL;
+            goto ON_EXIT;
+        default:
+            /* programming error. */
+            M_KII_ASSERT(0);
+            break;
     }
 
     /* Check response header */
@@ -1121,7 +1136,7 @@ kii_error_code_t kii_replace_object(kii_app_t app,
 
 ON_EXIT:
     kii_dispose_kii_char(reqUrl);
-    curl_slist_free_all(headers);
+    json_decref(headers);
     kii_dispose_kii_char(reqStr);
     json_decref(respHdr);
     kii_dispose_kii_char(respData);
