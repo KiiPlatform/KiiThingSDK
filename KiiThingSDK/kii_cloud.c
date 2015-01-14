@@ -1127,7 +1127,7 @@ kii_error_code_t kii_replace_object(kii_app_t app,
             }
             ret = KIIE_OK;
         } else {
-            prv_kii_set_info_in_error(&err, (int)respCode, KII_ECODE_PARSE);
+            prv_kii_set_info_in_error(&err, respCode, KII_ECODE_PARSE);
             ret = KIIE_FAIL;
         }
     } else {
@@ -1232,7 +1232,7 @@ kii_error_code_t kii_get_object(kii_app_t app,
             }
             ret = KIIE_OK;
         } else {
-            prv_kii_set_info_in_error(&err, (int)respCode, KII_ECODE_PARSE);
+            prv_kii_set_info_in_error(&err, respCode, KII_ECODE_PARSE);
             ret = KIIE_FAIL;
             goto ON_EXIT;
         }
@@ -1255,10 +1255,11 @@ kii_error_code_t kii_delete_object(kii_app_t app,
                                    const kii_char_t* object_id)
 {
     kii_char_t *reqUrl = NULL;
-    struct curl_slist* headers = NULL;
-    long respCode = 0;
+    json_t* headers = NULL;
+    kii_int_t respCode = 0;
     kii_char_t* respData = NULL;
     kii_error_t err;
+    kii_http_result_t httpRet = KIIHR_FAIL;
     kii_error_code_t ret = KIIE_FAIL;
 
     M_KII_ASSERT(app != NULL);
@@ -1281,18 +1282,40 @@ kii_error_code_t kii_delete_object(kii_app_t app,
     }
 
     /* prepare headers */
-    headers = prv_common_request_headers(app, access_token, NULL);
+    headers = prv_create_header_json_object(app, access_token, NULL);
     if (headers == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
     }
 
-    ret = prv_execute_curl(app->curl_easy, reqUrl, DELETE,
-            NULL, headers, &respCode, &respData, NULL, &err);
+    httpRet = prv_kii_http_execute("DELETE", reqUrl, headers, NULL,
+            &respCode, NULL, &respData);
+    switch (httpRet) {
+        case KIIHR_OK:
+            ret = KIIE_OK;
+            break;
+        case KIIHR_FAIL:
+            ret = prv_parse_response_error_code(respCode, respData, &err);
+            goto ON_EXIT;
+        case KIIHR_LOWMEMORY:
+            ret = KIIE_LOWMEMORY;
+            goto ON_EXIT;
+        case KIIHR_RESPWRITE:
+            ret = KIIE_RESPWRITE;
+            goto ON_EXIT;
+        case KIIHR_CONNECTION:
+            prv_kii_set_info_in_error(&err, 0, KII_ECODE_CONNECTION);
+            ret = KIIE_FAIL;
+            goto ON_EXIT;
+        default:
+            /* programming error. */
+            M_KII_ASSERT(0);
+            break;
+    }
 
 ON_EXIT:
     M_KII_FREE_NULLIFY(reqUrl);
-    curl_slist_free_all(headers);
+    json_decref(headers);
     M_KII_FREE_NULLIFY(respData);
 
     prv_kii_set_last_error(app, ret, &err);
