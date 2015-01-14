@@ -2036,9 +2036,9 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
                                        kii_uint_t* out_retry_after_in_second)
 {
     kii_char_t* url = NULL;
-    struct curl_slist* reqHeaders = NULL;
-    kii_error_code_t exeCurlRet = KIIE_FAIL;
-    long respCode = 0;
+    json_t* reqHeaders = NULL;
+    kii_http_result_t httpRet = KIIHR_FAIL;
+    kii_int_t respCode = 0;
     kii_char_t* respBodyStr = NULL;
     json_t* respBodyJson = NULL;
     kii_error_t error;
@@ -2073,39 +2073,50 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
 
     M_KII_DEBUG(prv_log("mqtt endpoint url: %s", url));
     /* Prepare Headers */
-    reqHeaders = prv_common_request_headers(app, access_token, NULL);
+    reqHeaders = prv_create_header_json_object(app, access_token, NULL);
     if (reqHeaders == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
     }
 
-    exeCurlRet = prv_execute_curl(app->curl_easy,
-                                  url,
-                                  GET,
-                                  NULL,
-                                  reqHeaders,
-                                  &respCode,
-                                  &respBodyStr,
-                                  NULL,
-                                  &error);
-    if (exeCurlRet != KIIE_OK) {
-        if (error.status_code == 503) {
-            json_t* retryAfterJson = NULL;
-            respBodyJson = json_loads(respBodyStr, 0, &jErr);
-            if (respBodyJson == NULL) {
-                ret = KIIE_LOWMEMORY;
-                goto ON_EXIT;
-            } else {
-                int retryAfterInt = 0;
-                retryAfterJson = json_object_get(respBodyJson, "retryAfter");
-                retryAfterInt = (int)json_integer_value(retryAfterJson);
-                if (retryAfterInt) {
-                    *out_retry_after_in_second = retryAfterInt;
+    httpRet = prv_kii_http_execute("GET", url, reqHeaders, NULL,
+            &respCode, NULL, &respBodyStr);
+    switch (httpRet) {
+        case KIIHR_OK:
+            break;
+        case KIIHR_FAIL:
+            if (respCode == 503) {
+                json_t* retryAfterJson = NULL;
+                respBodyJson = json_loads(respBodyStr, 0, &jErr);
+                if (respBodyJson == NULL) {
+                    ret = KIIE_LOWMEMORY;
+                    goto ON_EXIT;
+                } else {
+                    int retryAfterInt = 0;
+                    retryAfterJson = json_object_get(respBodyJson,
+                            "retryAfter");
+                    retryAfterInt = (int)json_integer_value(retryAfterJson);
+                    if (retryAfterInt) {
+                        *out_retry_after_in_second = retryAfterInt;
+                    }
                 }
             }
-        }
-        ret = exeCurlRet;
-        goto ON_EXIT;
+            ret = prv_parse_response_error_code(respCode, respBodyStr, &error);
+            goto ON_EXIT;
+        case KIIHR_LOWMEMORY:
+            ret = KIIE_LOWMEMORY;
+            goto ON_EXIT;
+        case KIIHR_RESPWRITE:
+            ret = KIIE_RESPWRITE;
+            goto ON_EXIT;
+        case KIIHR_CONNECTION:
+            prv_kii_set_info_in_error(&error, 0, KII_ECODE_CONNECTION);
+            ret = KIIE_FAIL;
+            goto ON_EXIT;
+        default:
+            /* programming error. */
+            M_KII_ASSERT(0);
+            break;
     }
 
     /* Parse body */
@@ -2171,7 +2182,7 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
 ON_EXIT:
     M_KII_FREE_NULLIFY(url);
     M_KII_FREE_NULLIFY(respBodyStr);
-    curl_slist_free_all(reqHeaders);
+    json_decref(reqHeaders);
     json_decref(respBodyJson);
     prv_kii_set_last_error(app, ret, &error);
 
