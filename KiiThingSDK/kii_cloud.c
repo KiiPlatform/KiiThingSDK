@@ -1676,10 +1676,11 @@ kii_error_code_t kii_subscribe_topic(kii_app_t app,
     const kii_char_t* thingId = topic->kii_thing_id;
     const kii_char_t* topicName = topic->topic_name;
     kii_char_t* url = NULL;
-    struct curl_slist* reqHeaders = NULL;
+    json_t* reqHeaders = NULL;
     kii_error_t error;
+    kii_http_result_t httpRet = KIIHR_FAIL;
     kii_error_code_t ret = KIIE_FAIL;
-    long respStatus = 0;
+    kii_int_t respStatus = 0;
     kii_char_t* respBodyStr = NULL;
 
     kii_memset(&error, 0, sizeof(kii_error_t));
@@ -1702,29 +1703,46 @@ kii_error_code_t kii_subscribe_topic(kii_app_t app,
     }
 
     /* Prepare headers */
-    reqHeaders = prv_common_request_headers(app, access_token, NULL);
+    reqHeaders = prv_create_header_json_object(app, access_token, NULL);
     if (reqHeaders == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
     }
 
-    ret = prv_execute_curl(app->curl_easy,
-                     url,
-                     POST,
-                     NULL,
-                     reqHeaders,
-                     &respStatus,
-                     &respBodyStr,
-                     NULL,
-                     &error);
-    if (respStatus == 409) {
-        /* topic is already subscribed. */
-        ret = KIIE_OK;
+    httpRet = prv_kii_http_execute("POST", url, reqHeaders, NULL,
+            &respStatus, NULL, &respBodyStr);
+    switch (httpRet) {
+        case KIIHR_OK:
+            ret = KIIE_OK;
+            break;
+        case KIIHR_FAIL:
+            if (respStatus == 409) {
+                /* topic is already subscribed. */
+                ret = KIIE_OK;
+            } else {
+                ret = prv_parse_response_error_code(respStatus, respBodyStr,
+                        &error);
+            }
+            goto ON_EXIT;
+        case KIIHR_LOWMEMORY:
+            ret = KIIE_LOWMEMORY;
+            goto ON_EXIT;
+        case KIIHR_RESPWRITE:
+            ret = KIIE_RESPWRITE;
+            goto ON_EXIT;
+        case KIIHR_CONNECTION:
+            prv_kii_set_info_in_error(&error, 0, KII_ECODE_CONNECTION);
+            ret = KIIE_FAIL;
+            goto ON_EXIT;
+        default:
+            /* programming error. */
+            M_KII_ASSERT(0);
+            break;
     }
 
 ON_EXIT:
     M_KII_FREE_NULLIFY(url);
-    curl_slist_free_all(reqHeaders);
+    json_decref(reqHeaders);
     M_KII_FREE_NULLIFY(respBodyStr);
     prv_kii_set_last_error(app, ret, &error);
 
