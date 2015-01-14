@@ -569,51 +569,55 @@ kii_error_code_t kii_register_thing(kii_app_t app,
             &respCode, NULL, &respData);
     switch (httpRet) {
         case KIIHR_OK:
-            /* Check response code */
-            {
-                json_error_t jErr;
-                respJson = json_loads(respData, 0, &jErr);
-
-                if (respJson == NULL) {
-                    ret = KIIE_LOWMEMORY;
-                    goto ON_EXIT;
-                } else {
-                    const kii_char_t* accessToken = json_string_value(
-                            json_object_get(respJson, "_accessToken"));
-                    const kii_char_t* thingId = json_string_value(
-                            json_object_get(respJson, "_thingID"));
-                    if (accessToken != NULL && thingId != NULL) {
-                        ret = KIIE_OK;
-                        *out_access_token = kii_strdup(accessToken);
-                        *out_thing = (kii_thing_t)prv_kii_init_thing(thingId);
-                        if (*out_access_token == NULL || *out_thing == NULL) {
-                            M_KII_FREE_NULLIFY(*out_access_token);
-                            M_KII_FREE_NULLIFY(*out_thing);
-                            ret = KIIE_LOWMEMORY;
-                            goto ON_EXIT;
-                        }
-                    } else {
-                        prv_kii_set_info_in_error(&err, respCode,
-                                KII_ECODE_PARSE);
-                        ret = KIIE_FAIL;
-                        goto ON_EXIT;
-                    }
-                }
-            }
             break;
         case KIIHR_FAIL:
             ret = prv_parse_response_error_code(respCode, respData, &err);
-            break;
+            goto ON_EXIT;
         case KIIHR_LOWMEMORY:
             ret = KIIE_LOWMEMORY;
-            break;
+            goto ON_EXIT;
         case KIIHR_RESPWRITE:
             ret = KIIE_RESPWRITE;
-            break;
+            goto ON_EXIT;
         case KIIHR_CONNECTION:
             prv_kii_set_info_in_error(&err, 0, KII_ECODE_CONNECTION);
             ret = KIIE_FAIL;
+            goto ON_EXIT;
+        default:
+            /* programming error. */
+            M_KII_ASSERT(0);
             break;
+    }
+
+    /* Check response code */
+    {
+        json_error_t jErr;
+        respJson = json_loads(respData, 0, &jErr);
+
+        if (respJson == NULL) {
+            ret = KIIE_LOWMEMORY;
+            goto ON_EXIT;
+        } else {
+            const kii_char_t* accessToken =
+                json_string_value(json_object_get(respJson, "_accessToken"));
+            const kii_char_t* thingId =
+                json_string_value(json_object_get(respJson, "_thingID"));
+            if (accessToken != NULL && thingId != NULL) {
+                ret = KIIE_OK;
+                *out_access_token = kii_strdup(accessToken);
+                *out_thing = (kii_thing_t)prv_kii_init_thing(thingId);
+                if (*out_access_token == NULL || *out_thing == NULL) {
+                    M_KII_FREE_NULLIFY(*out_access_token);
+                    M_KII_FREE_NULLIFY(*out_thing);
+                    ret = KIIE_LOWMEMORY;
+                    goto ON_EXIT;
+                }
+            } else {
+                prv_kii_set_info_in_error(&err, respCode, KII_ECODE_PARSE);
+                ret = KIIE_FAIL;
+                goto ON_EXIT;
+            }
+        }
     }
     
 ON_EXIT:
@@ -717,63 +721,65 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
             &respCode, &respHdr, &respData);
     switch (httpRet) {
         case KIIHR_OK:
-            /* Check response header */
-            if (out_etag != NULL && respHdr != NULL) {
-                const kii_char_t* etag = json_string_value(
-                        json_object_get(respHdr, "etag"));
-                if (etag != NULL) {
-                    *out_etag = kii_strdup(etag);
-                    if (*out_etag == NULL) {
-                        ret = KIIE_LOWMEMORY;
-                        goto ON_EXIT;
-                    }
-                } else {
-                    prv_kii_set_info_in_error(&err, respCode,
-                            KII_ECODE_PARSE);
-                    ret = KIIE_FAIL;
-                    goto ON_EXIT;
-                }
-            }
-
-            /* Check response data */
-            if (out_object_id != NULL) {
-                json_error_t jErr;
-                respJson = json_loads(respData, 0, &jErr);
-                if (respJson == NULL) {
-                    ret = KIIE_LOWMEMORY;
-                    goto ON_EXIT;
-                } else  {
-                    const kii_char_t* objectID = json_string_value(
-                            json_object_get(respJson, "objectID"));
-                    if (objectID != NULL) {
-                        *out_object_id = kii_strdup(objectID);
-                        ret = (*out_object_id != NULL) ? KIIE_OK :
-                            KIIE_LOWMEMORY;
-                        goto ON_EXIT;
-                    } else {
-                        prv_kii_set_info_in_error(&err, respCode,
-                                KII_ECODE_PARSE);
-                        ret = KIIE_FAIL;
-                        goto ON_EXIT;
-                    }
-                }
-            } else {
-                ret = KIIE_OK;
-            }
             break;
         case KIIHR_FAIL:
             ret = prv_parse_response_error_code(respCode, respData, &err);
-            break;
+            goto ON_EXIT;
         case KIIHR_LOWMEMORY:
             ret = KIIE_LOWMEMORY;
-            break;
+            goto ON_EXIT;
         case KIIHR_RESPWRITE:
             ret = KIIE_RESPWRITE;
-            break;
+            goto ON_EXIT;
         case KIIHR_CONNECTION:
             prv_kii_set_info_in_error(&err, 0, KII_ECODE_CONNECTION);
             ret = KIIE_FAIL;
+            goto ON_EXIT;
+        default:
+            /* programming error. */
+            M_KII_ASSERT(0);
             break;
+    }
+
+    /* Check response header */
+    if (out_etag != NULL && respHdr != NULL) {
+        const kii_char_t* etag = json_string_value(json_object_get(respHdr, "etag"));
+        if (etag != NULL) {
+            *out_etag = kii_strdup(etag);
+            if (*out_etag == NULL) {
+                ret = KIIE_LOWMEMORY;
+                goto ON_EXIT;
+            }
+        } else {
+            prv_kii_set_info_in_error(&err, respCode, KII_ECODE_PARSE);
+            ret = KIIE_FAIL;
+            goto ON_EXIT;
+        }
+    }
+
+    /* Check response data */
+    if (out_object_id != NULL) {
+        json_error_t jErr;
+        respJson = json_loads(respData, 0, &jErr);
+        if (respJson == NULL) {
+            ret = KIIE_LOWMEMORY;
+            goto ON_EXIT;
+        } else  {
+            const kii_char_t* objectID = json_string_value(json_object_get(respJson,
+                    "objectID"));
+            if (objectID != NULL) {
+                *out_object_id = kii_strdup(objectID);
+                ret = (*out_object_id != NULL) ? KIIE_OK : KIIE_LOWMEMORY;
+                goto ON_EXIT;
+            } else {
+                prv_kii_set_info_in_error(&err, respCode, KII_ECODE_PARSE);
+                ret = KIIE_FAIL;
+                goto ON_EXIT;
+            }
+        }
+    } else {
+        ret = KIIE_OK;
+        goto ON_EXIT;
     }
 
 ON_EXIT:
@@ -853,39 +859,43 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
             &respCode, &respHdr, &respData);
     switch (httpRet) {
         case KIIHR_OK:
-            /* Check response header */
-            if (out_etag != NULL && respHdr != NULL) {
-                const kii_char_t* etag = json_string_value(
-                        json_object_get(respHdr, "etag"));
-                if (etag != NULL) {
-                    *out_etag = kii_strdup(etag);
-                    if (*out_etag == NULL) {
-                        ret = KIIE_LOWMEMORY;
-                        goto ON_EXIT;
-                    }
-                    ret = KIIE_OK;
-                } else {
-                    prv_kii_set_info_in_error(&err, (int)respCode,
-                            KII_ECODE_PARSE);
-                    ret = KIIE_FAIL;
-                }
-            } else {
-                ret = KIIE_OK;
-            }
             break;
         case KIIHR_FAIL:
             ret = prv_parse_response_error_code(respCode, respData, &err);
-            break;
+            goto ON_EXIT;
         case KIIHR_LOWMEMORY:
             ret = KIIE_LOWMEMORY;
-            break;
+            goto ON_EXIT;
         case KIIHR_RESPWRITE:
             ret = KIIE_RESPWRITE;
-            break;
+            goto ON_EXIT;
         case KIIHR_CONNECTION:
             prv_kii_set_info_in_error(&err, 0, KII_ECODE_CONNECTION);
             ret = KIIE_FAIL;
+            goto ON_EXIT;
+        default:
+            /* programming error. */
+            M_KII_ASSERT(0);
             break;
+    }
+
+    /* Check response header */
+    if (out_etag != NULL && respHdr != NULL) {
+        const kii_char_t* etag = json_string_value(json_object_get(respHdr,
+                "etag"));
+        if (etag != NULL) {
+            *out_etag = kii_strdup(etag);
+            if (*out_etag == NULL) {
+                ret = KIIE_LOWMEMORY;
+                goto ON_EXIT;
+            }
+            ret = KIIE_OK;
+        } else {
+            prv_kii_set_info_in_error(&err, (int)respCode, KII_ECODE_PARSE);
+            ret = KIIE_FAIL;
+        }
+    } else {
+        ret = KIIE_OK;
     }
 
 ON_EXIT:
