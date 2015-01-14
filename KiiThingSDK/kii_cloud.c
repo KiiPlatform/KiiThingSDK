@@ -1917,12 +1917,12 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
     kii_char_t* url = NULL;
     json_t* reqBodyJson = NULL;
     kii_char_t* reqBodyStr = NULL;
-    struct curl_slist* reqHeaders = NULL;
-    long respCode = 0;
+    json_t* reqHeaders = NULL;
+    kii_int_t respCode = 0;
     kii_char_t* respBodyStr = NULL;
     json_t* respBodyJson = NULL;
     kii_error_t error;
-    kii_error_code_t exeCurlRet = KIIE_FAIL;
+    kii_http_result_t httpRet = KIIHR_FAIL;
     kii_error_code_t ret = KIIE_FAIL;
     json_error_t jErr;
     kii_int_t json_set_result = 0;
@@ -1966,25 +1966,35 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
     }
 
     /* Prepare headers*/
-    reqHeaders = prv_common_request_headers(app, access_token,
+    reqHeaders = prv_create_header_json_object(app, access_token,
             "application/vnd.kii.InstallationCreationRequest+json");
     if (reqHeaders == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
     }
 
-    exeCurlRet = prv_execute_curl(app->curl_easy,
-                                  url,
-                                  POST,
-                                  reqBodyStr,
-                                  reqHeaders,
-                                  &respCode,
-                                  &respBodyStr,
-                                  NULL,
-                                  &error);
-    if (exeCurlRet != KIIE_OK) {
-        ret = exeCurlRet;
-        goto ON_EXIT;
+    httpRet = prv_kii_http_execute("POST", url, reqHeaders, reqBodyStr,
+            &respCode, NULL, &respBodyStr);
+    switch (httpRet) {
+        case KIIHR_OK:
+            break;
+        case KIIHR_FAIL:
+            ret = prv_parse_response_error_code(respCode, respBodyStr, &error);
+            goto ON_EXIT;
+        case KIIHR_LOWMEMORY:
+            ret = KIIE_LOWMEMORY;
+            goto ON_EXIT;
+        case KIIHR_RESPWRITE:
+            ret = KIIE_RESPWRITE;
+            goto ON_EXIT;
+        case KIIHR_CONNECTION:
+            prv_kii_set_info_in_error(&error, 0, KII_ECODE_CONNECTION);
+            ret = KIIE_FAIL;
+            goto ON_EXIT;
+        default:
+            /* programming error. */
+            M_KII_ASSERT(0);
+            break;
     }
 
     /* Parse body */
@@ -2000,7 +2010,7 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
             ret = *out_installation_id != NULL ? KIIE_OK : KIIE_LOWMEMORY;
             goto ON_EXIT;
         } else {
-            prv_kii_set_info_in_error(&error, (int)respCode, KII_ECODE_PARSE);
+            prv_kii_set_info_in_error(&error, respCode, KII_ECODE_PARSE);
             ret = KIIE_FAIL;
             goto ON_EXIT;
         }
@@ -2013,7 +2023,7 @@ ON_EXIT:
     json_decref(reqBodyJson);
     M_KII_FREE_NULLIFY(reqBodyStr);
     M_KII_FREE_NULLIFY(respBodyStr);
-    curl_slist_free_all(reqHeaders);
+    json_decref(reqHeaders);
     prv_kii_set_last_error(app, ret, &error);
 
     return ret;
