@@ -99,8 +99,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2207056E1A67BB2D00D14FA4 /* kii_http_adapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kii_http_adapter.h; sourceTree = "<group>"; };
 		22616C2D1A5FA96F00ADC798 /* kii_prv_http_execute_curl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kii_prv_http_execute_curl.c; sourceTree = "<group>"; };
-		22616C2E1A5FA96F00ADC798 /* kii_prv_http_execute.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kii_prv_http_execute.h; sourceTree = "<group>"; };
 		7410AC9419E27F7B002C9DF1 /* libKiiThingSDK.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libKiiThingSDK.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		7410ACB719E28845002C9DF1 /* KiiThingSDKTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KiiThingSDKTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7410ACBA19E28845002C9DF1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -201,8 +201,8 @@
 				747F3D5619F4D3A800C1372A /* kii_custom.c */,
 				7410AD0719E29B70002C9DF1 /* kii_cloud.h */,
 				7485E61A19E5360000BCA19C /* kii_cloud.c */,
+				2207056E1A67BB2D00D14FA4 /* kii_http_adapter.h */,
 				22616C2D1A5FA96F00ADC798 /* kii_prv_http_execute_curl.c */,
-				22616C2E1A5FA96F00ADC798 /* kii_prv_http_execute.h */,
 				74CD392E1A11BEE600D0F9D4 /* kii_prv_types.h */,
 				B613F69219F50D6100AC5548 /* kii_prv_utils.h */,
 				B613F69119F50D6100AC5548 /* kii_prv_utils.c */,
