@@ -1,8 +1,16 @@
-#include "kii_prv_http_execute.h"
+#include "kii_http_adapter.h"
 
 #include "kii_custom.h"
 #include "kii_prv_utils.h"
 #include "kii_prv_types.h"
+
+typedef enum kii_http_result_t {
+    KIIHR_OK = 0,
+    KIIHR_FAIL,
+    KIIHR_LOWMEMORY,
+    KIIHR_RESPWRITE,
+    KIIHR_CONNECTION
+} kii_http_result_t;
 
 static struct curl_slist* convert_request_headers(
         json_t* request_headers)
@@ -228,12 +236,7 @@ static kii_http_result_t prv_execute_curl(CURL* curl,
             M_KII_DEBUG(prv_log("response: %s", *response_body));
             curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE,
                     response_status_code);
-            if ((200 <= *response_status_code) &&
-                    (*response_status_code < 300)) {
-                return KIIHR_OK;
-            } else {
-                return KIIHR_FAIL;
-            }
+	    return KIIHR_OK;
         case CURLE_WRITE_ERROR:
             return KIIHR_RESPWRITE;
         default:
@@ -241,14 +244,15 @@ static kii_http_result_t prv_execute_curl(CURL* curl,
     }
 }
 
-kii_http_result_t prv_kii_http_execute(
+kii_bool_t kii_http_execute(
         const kii_char_t* http_method,
         const kii_char_t* url,
         json_t* request_headers,
         const kii_char_t* request_body,
         kii_int_t* status_code,
         json_t** response_headers,
-        kii_char_t** response_body)
+        kii_char_t** response_body,
+	kii_int_t* adapter_error_code)
 {
     kii_http_result_t ret = KIIHR_FAIL;
     prv_kii_req_method_t method;
@@ -284,10 +288,11 @@ kii_http_result_t prv_kii_http_execute(
     ret = prv_execute_curl(curl, url, method, request_body, headers,
             &http_status, response_body, response_headers);
     *status_code = (kii_int_t)http_status;
+    *adapter_error_code = ret;
 
 ON_EXIT:
     curl_slist_free_all(headers);
     curl_easy_cleanup(curl);
-    return ret;
+    return (ret == KIIHR_OK) ? KII_TRUE : KII_FALSE;
 }
 
