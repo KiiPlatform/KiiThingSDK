@@ -4,13 +4,15 @@
 #include "kii_prv_utils.h"
 #include "kii_prv_types.h"
 
-typedef enum kii_http_result_t {
-    KIIHR_OK = 0,
-    KIIHR_FAIL,
-    KIIHR_LOWMEMORY,
-    KIIHR_RESPWRITE,
-    KIIHR_CONNECTION
-} kii_http_result_t;
+typedef enum adapter_error_code_t {
+    AEC_OK = 0,
+    AEC_FAIL,
+    AEC_CURL,
+    AEC_LOWMEMORY
+} adapter_error_code_t;
+
+static adapter_error_code_t adapter_error_code;
+static CURLcode curl_error_code;
 
 static struct curl_slist* convert_request_headers(
         json_t* request_headers)
@@ -151,7 +153,7 @@ typedef enum {
     HEAD
 } prv_kii_req_method_t;
 
-static kii_http_result_t prv_execute_curl(CURL* curl,
+static adapter_error_code_t prv_execute_curl(CURL* curl,
         const kii_char_t* url,
         prv_kii_req_method_t method,
         const kii_char_t* request_body,
@@ -160,8 +162,6 @@ static kii_http_result_t prv_execute_curl(CURL* curl,
         kii_char_t** response_body,
         json_t** response_headers)
 {
-    CURLcode curlCode = CURLE_COULDNT_CONNECT; /* set error code as default. */
-
     M_KII_ASSERT(curl != NULL);
     M_KII_ASSERT(url != NULL);
     M_KII_ASSERT(request_headers != NULL);
@@ -170,6 +170,8 @@ static kii_http_result_t prv_execute_curl(CURL* curl,
     M_KII_DEBUG(prv_log("request url: %s", url));
     M_KII_DEBUG(prv_log("request method: %d", method));
     M_KII_DEBUG(prv_log("request body: %s", request_body));
+
+    curl_error_code = CURLE_COULDNT_CONNECT; /* set error code as default. */
 
     /* reset previous session setting. */
     curl_easy_reset(curl);
@@ -192,7 +194,7 @@ static kii_http_result_t prv_execute_curl(CURL* curl,
             request_headers = curl_slist_append(request_headers,
                     "X-HTTP-METHOD-OVERRIDE: PATCH");
             if (request_headers == NULL) {
-                return KIIHR_LOWMEMORY;
+                return AEC_LOWMEMORY;
             }
             if (request_body != NULL) {
                 curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
@@ -215,7 +217,7 @@ static kii_http_result_t prv_execute_curl(CURL* curl,
             break;
         default:
             M_KII_ASSERT(0); /* programing error */
-            return KIIHR_FAIL;
+            return AEC_FAIL;
     }
 
     M_KII_DEBUG(prv_log_req_heder(request_headers));
@@ -230,17 +232,15 @@ static kii_http_result_t prv_execute_curl(CURL* curl,
         curl_easy_setopt(curl, CURLOPT_HEADERDATA, response_headers);
     }
 
-    curlCode = curl_easy_perform(curl);
-    switch (curlCode) {
+    curl_error_code = curl_easy_perform(curl);
+    switch (curl_error_code) {
         case CURLE_OK:
             M_KII_DEBUG(prv_log("response: %s", *response_body));
             curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE,
                     response_status_code);
-	    return KIIHR_OK;
-        case CURLE_WRITE_ERROR:
-            return KIIHR_RESPWRITE;
+            return AEC_OK;
         default:
-            return KIIHR_CONNECTION;
+            return AEC_CURL;
     }
 }
 
@@ -251,10 +251,9 @@ kii_bool_t kii_http_execute(
         const kii_char_t* request_body,
         kii_int_t* status_code,
         json_t** response_headers,
-        kii_char_t** response_body,
-	kii_int_t* adapter_error_code)
+        kii_char_t** response_body)
 {
-    kii_http_result_t ret = KIIHR_FAIL;
+    adapter_error_code_t ret = AEC_FAIL;
     prv_kii_req_method_t method;
     struct curl_slist* headers = NULL;
     long http_status = 0;
@@ -273,13 +272,13 @@ kii_bool_t kii_http_execute(
     } else if (kii_strncmp(http_method, "PUT", kii_strlen("PUT")) == 0) {
         method = PUT;
     } else {
-        ret = KIIHR_FAIL;
+        ret = AEC_FAIL;
         goto ON_EXIT;
     }
 
     headers = convert_request_headers(request_headers);
     if (headers == NULL) {
-        ret = KIIHR_LOWMEMORY;
+        ret = AEC_LOWMEMORY;
         goto ON_EXIT;
     }
 
@@ -288,11 +287,12 @@ kii_bool_t kii_http_execute(
     ret = prv_execute_curl(curl, url, method, request_body, headers,
             &http_status, response_body, response_headers);
     *status_code = (kii_int_t)http_status;
-    *adapter_error_code = ret;
 
 ON_EXIT:
     curl_slist_free_all(headers);
     curl_easy_cleanup(curl);
-    return (ret == KIIHR_OK) ? KII_TRUE : KII_FALSE;
+
+    adapter_error_code = ret;
+    return (ret == AEC_OK) ? KII_TRUE : KII_FALSE;
 }
 
