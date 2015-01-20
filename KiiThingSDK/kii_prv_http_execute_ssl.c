@@ -28,11 +28,7 @@
 #define HTTP_CONFIG_URLMAXPATH 256
 #define HTTP_EXCONFIG_PRINTBUFFER 1024 /* affect to stack size */
 #define HTTP_EXCONFIG_HEADERMAXCOUNT 1024
-#define HTTP_EXCONFIG_HEADERLINEMAXSIZE 1024
-
-#ifndef HTTP_CUSTOM_TYPE
-typedef unsigned char http_uint8_t;
-#endif
+#define HTTP_EXCONFIG_HEADERLINEBLOCKSIZE 256
 
 typedef enum {
     HTTP_RESULT_OK = 0,
@@ -135,7 +131,6 @@ socket_connect(
         sock = -2;
         goto END_FUNC;
     }
-    //address = 0xadc275f8;
     service = getservbyname("https", "tcp");
     /* create and connect socket to host */
     for (p_addr = (struct in_addr**)entry->h_addr_list;
@@ -171,7 +166,7 @@ END_FUNC:
 static void
 ssl_write(
         SSL* ssl,
-        const http_uint8_t* ptr,
+        const kii_char_t* ptr,
         kii_int_t len,
         kii_int_t binary)
 {
@@ -192,7 +187,7 @@ ssl_reqhdr_printf(
     retval = vsnprintf(buf, sizeof(buf), fmt, list);
     va_end(list);
     /* FIXME: compare retval with sizeof(buf) */
-    ssl_write(ssl, (http_uint8_t*)buf, retval, 0);
+    ssl_write(ssl, (kii_char_t*)buf, retval, 0);
     return retval;
 }
 
@@ -220,7 +215,7 @@ ssl_readbyte(SSL* ssl)
     }
     /* read a byte from socket */
     {
-        http_uint8_t buf[1];
+        kii_char_t buf[1];
         kii_int_t len;
         len = SSL_read(ssl, buf, 1);
         if (len != 1)
@@ -234,16 +229,17 @@ ssl_readbyte(SSL* ssl)
 static kii_int_t
 ssl_resphdr_readline(
         SSL* ssl,
-        http_uint8_t* bufptr,
-        kii_int_t buflen)
+        kii_char_t** bufptr)
 {
     kii_int_t retval = -3; /* means too small buffer */
     kii_int_t index = 0;
-    memset(bufptr, 0, buflen);
+    kii_int_t buflen = HTTP_EXCONFIG_HEADERLINEBLOCKSIZE;
+    *bufptr = kii_malloc(sizeof(kii_char_t) * buflen);
+    memset(*bufptr, 0, sizeof(kii_char_t) * buflen);
     while (1)
     {
         kii_int_t d1;
-        http_uint8_t d;
+        kii_char_t d;
         d1 = ssl_readbyte(ssl);
         if (d1 < 0)
         {
@@ -276,16 +272,32 @@ ssl_resphdr_readline(
             }
             else if (index + 1 < buflen)
             {
-                bufptr[index++] = (http_uint8_t)d1;
-                bufptr[index++] = (http_uint8_t)d2;
+                (*bufptr)[index++] = (kii_char_t)d1;
+                (*bufptr)[index++] = (kii_char_t)d2;
             }
             else
-                break; /* too small buffer */
+            {
+                /* too small buffer */
+                buflen += HTTP_EXCONFIG_HEADERLINEBLOCKSIZE;
+                *bufptr = kii_realloc(*bufptr, sizeof(kii_char_t) * buflen);
+                (*bufptr)[index++] = (kii_char_t)d1;
+                (*bufptr)[index++] = (kii_char_t)d2;
+            }
         }
         else if (index < buflen)
-            bufptr[index++] = (http_uint8_t)d1;
+            (*bufptr)[index++] = (kii_char_t)d1;
         else
-            break; /* too small buffer */
+        {
+            /* too small buffer */
+            buflen += HTTP_EXCONFIG_HEADERLINEBLOCKSIZE;
+            *bufptr = kii_realloc(*bufptr, sizeof(kii_char_t) * buflen);
+            (*bufptr)[index++] = (kii_char_t)d1;
+        }
+    }
+    if (retval <= 0)
+    {
+        M_KII_FREE_NULLIFY(*bufptr);
+        *bufptr = NULL;
     }
     return retval;
 }
@@ -296,8 +308,7 @@ ssl_send_request(
         const kii_char_t* method,
         const http_url_t* url,
         json_t* request_headers,
-        const http_uint8_t* req_bufptr,
-        kii_int_t req_buflen)
+        const kii_char_t* req_bufptr)
 {
     /* output HTTP request header to ssl socket */
     kii_int_t with_data = 0;
@@ -305,9 +316,13 @@ ssl_send_request(
     const kii_char_t* str_host = NULL;
     const char* header_key = NULL;
     json_t* header_value = NULL;
+    kii_int_t req_buflen = 0;
 
     if (req_bufptr != NULL)
+    {
         with_data = 1;
+        req_buflen = (kii_int_t)kii_strlen(req_bufptr);
+    }
     /* FIXME: consider HTTP PROXY */
     str_target = url->path;
     str_host = url->host;
@@ -318,6 +333,8 @@ ssl_send_request(
     {
         ssl_reqhdr_printf(ssl, "%s:%s\r\n", header_key,
                 json_string_value(header_value));
+        M_KII_DEBUG(prv_log("req header: %s:%s", header_key,
+                    json_string_value(header_value)));
     }
     /* FIXME: implement send proxy authorization information */
     ssl_reqhdr_printf(ssl, "Connection:close\r\n");
@@ -341,9 +358,7 @@ ssl_recv_response(
         json_t** response_headers)
 {
     http_result_t retval = HTTP_RESULT_OK;
-    kii_int_t sc = 0;
     kii_int_t bodylen = -1;
-    kii_char_t line[HTTP_EXCONFIG_HEADERLINEMAXSIZE];
 
     /* receive and parse HTTP response header */
     {
@@ -351,30 +366,37 @@ ssl_recv_response(
         /* fetch HTTP status code */
         for (count = 0; count < HTTP_EXCONFIG_HEADERMAXCOUNT; ++count)
         {
+            kii_char_t* line = NULL;
             kii_int_t len;
-            len = ssl_resphdr_readline(ssl, line,
-                    HTTP_EXCONFIG_HEADERLINEMAXSIZE);
+            len = ssl_resphdr_readline(ssl, &line);
             if (len < 0)
             {
                 /* FIXME: convert to socket read error */
                 retval = HTTP_RESULT_ERROR_RECEIVING;
+                M_KII_FREE_NULLIFY(line);
                 goto END_FUNC;
             }
             else if (len == 0)
+            {
+                M_KII_FREE_NULLIFY(line);
                 continue;
+            }
             if (strncmp((char*)line, "HTTP/1.1 ", 9) != 0)
             {
                 retval = HTTP_RESULT_ERROR_RESPONSEHEADER;
+                M_KII_FREE_NULLIFY(line);
                 goto END_FUNC;
             }
             else if (!isdigit((int)line[9]))
             {
                 retval = HTTP_RESULT_ERROR_RESPONSEHEADER;
+                M_KII_FREE_NULLIFY(line);
                 goto END_FUNC;
             }
             else
             {
                 *status = atoi((char*)&line[9]);
+                M_KII_FREE_NULLIFY(line);
                 if (*status == 100)
                     continue;
                 else
@@ -390,21 +412,27 @@ ssl_recv_response(
         for (count = 0; count < HTTP_EXCONFIG_HEADERMAXCOUNT; ++count)
         {
             int i;
+            kii_char_t* line = NULL;
             kii_int_t len;
-            len = ssl_resphdr_readline(ssl, line,
-                    HTTP_EXCONFIG_HEADERLINEMAXSIZE);
-            for (i = 0; line[i] != '\0' && line[i] != ':'; ++i) {
-                line[i] = (char)kii_tolower(line[i]);
-            }
+            len = ssl_resphdr_readline(ssl, &line);
             if (len < 0)
             {
                 /* FIXME: convert to socket read error */
                 retval = HTTP_RESULT_ERROR_RECEIVING;
+                M_KII_FREE_NULLIFY(line);
                 goto END_FUNC;
             }
             else if (len == 0)
+            {
+                M_KII_FREE_NULLIFY(line);
                 break;
-            else if (strncmp((char*)line, "content-length:", 15) == 0)
+            }
+
+            M_KII_DEBUG(prv_log("resp header: %s", line));
+            for (i = 0; line[i] != '\0' && line[i] != ':'; ++i) {
+                line[i] = (char)kii_tolower(line[i]);
+            }
+            if (strncmp((char*)line, "content-length:", 15) == 0)
             {
                 /* FIXME: more strict check */
                 bodylen = atoi((char*)&line[15]);
@@ -418,18 +446,20 @@ ssl_recv_response(
                             json_string(&line[5])) != 0)
                 {
                     retval = HTTP_RESULT_ERROR_RESPONSEHEADER;
+                    M_KII_FREE_NULLIFY(line);
                     goto END_FUNC;
                 }
             }
             /* FIXME: parse other properties */
+            M_KII_FREE_NULLIFY(line);
         }
     }
     /* receive HTTP response body */
     if (response_body != NULL)
     {
-        http_uint8_t* wptr;
-        http_uint8_t* end;
-        *response_body = kii_malloc(sizeof(kii_char_t) * bodylen);
+        kii_char_t* wptr;
+        kii_char_t* end;
+        *response_body = kii_malloc(sizeof(kii_char_t) * (bodylen + 1));
         wptr = *response_body;
         end = wptr + bodylen;
         for (; wptr < end; ++wptr)
@@ -442,8 +472,10 @@ ssl_recv_response(
                 retval = HTTP_RESULT_ERROR_RECEIVING;
                 goto END_FUNC;
             }
-            *wptr = (http_uint8_t)d;
+            *wptr = (kii_char_t)d;
         }
+        (*response_body)[bodylen] = '\0';
+        M_KII_DEBUG(prv_log("response: %s", *response_body));
     }
 END_FUNC:
     return retval;
@@ -501,7 +533,7 @@ static http_result_t
 request(const kii_char_t* method,
         const kii_char_t* urlstr,
         json_t* request_headers,
-        const http_uint8_t* req_bufptr,
+        const kii_char_t* request_body,
         kii_int_t* status_code,
         json_t** response_headers,
         kii_char_t** response_body)
@@ -511,6 +543,11 @@ request(const kii_char_t* method,
     kii_int_t sock = 0;
     SSL_CTX* ctx = NULL;
     SSL* ssl = NULL;
+
+    M_KII_DEBUG(prv_log("request url: %s", urlstr));
+    M_KII_DEBUG(prv_log("request method: %s", method));
+    M_KII_DEBUG(prv_log("request body: %s", request_body));
+
     if (!parse_url(&url, urlstr))
     {
         retval = HTTP_RESULT_ERROR_URLSYNTAX;
@@ -529,8 +566,7 @@ request(const kii_char_t* method,
         goto END_FUNC;
     }
     /* output HTTP request header to socket */
-    retval = ssl_send_request(ssl, method, &url, request_headers, req_bufptr,
-            strlen(req_bufptr));
+    retval = ssl_send_request(ssl, method, &url, request_headers, request_body);
     if (retval != HTTP_RESULT_OK)
     {
         goto END_FUNC;
