@@ -23,7 +23,9 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		22616C2F1A5FA96F00ADC798 /* kii_prv_http_execute_curl.c in Sources */ = {isa = PBXBuildFile; fileRef = 22616C2D1A5FA96F00ADC798 /* kii_prv_http_execute_curl.c */; };
+		2292B9611A6FA686006BE4F0 /* openssl.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2292B9601A6FA686006BE4F0 /* openssl.framework */; };
+		2292B9631A6FA6A7006BE4F0 /* kii_prv_http_execute_ssl.c in Sources */ = {isa = PBXBuildFile; fileRef = 2292B9621A6FA6A7006BE4F0 /* kii_prv_http_execute_ssl.c */; };
+		2292B9641A6FA711006BE4F0 /* openssl.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2292B9601A6FA686006BE4F0 /* openssl.framework */; };
 		7410ACFF19E29622002C9DF1 /* libcurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7410ACFA19E29622002C9DF1 /* libcurl.a */; };
 		7410AD0019E29622002C9DF1 /* libcurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7410ACFA19E29622002C9DF1 /* libcurl.a */; };
 		7410AD0219E29A21002C9DF1 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7410AD0119E29A21002C9DF1 /* libz.dylib */; };
@@ -100,7 +102,8 @@
 
 /* Begin PBXFileReference section */
 		2207056E1A67BB2D00D14FA4 /* kii_http_adapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kii_http_adapter.h; sourceTree = "<group>"; };
-		22616C2D1A5FA96F00ADC798 /* kii_prv_http_execute_curl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kii_prv_http_execute_curl.c; sourceTree = "<group>"; };
+		2292B9601A6FA686006BE4F0 /* openssl.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = openssl.framework; path = KiiThingSDK/openssl.framework; sourceTree = "<group>"; };
+		2292B9621A6FA6A7006BE4F0 /* kii_prv_http_execute_ssl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kii_prv_http_execute_ssl.c; sourceTree = "<group>"; };
 		7410AC9419E27F7B002C9DF1 /* libKiiThingSDK.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libKiiThingSDK.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		7410ACB719E28845002C9DF1 /* KiiThingSDKTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KiiThingSDKTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7410ACBA19E28845002C9DF1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -153,6 +156,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7410AD0419E29A32002C9DF1 /* Security.framework in Frameworks */,
+				2292B9611A6FA686006BE4F0 /* openssl.framework in Frameworks */,
 				7410AD0219E29A21002C9DF1 /* libz.dylib in Frameworks */,
 				7410ACFF19E29622002C9DF1 /* libcurl.a in Frameworks */,
 			);
@@ -162,6 +166,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2292B9641A6FA711006BE4F0 /* openssl.framework in Frameworks */,
 				747F3B8B19EFCB3C00C1372A /* libz.dylib in Frameworks */,
 				74DB969719EFAFE3008FF61E /* libKiiThingSDK.a in Frameworks */,
 				7410AD0619E29A60002C9DF1 /* Security.framework in Frameworks */,
@@ -175,6 +180,7 @@
 		7410AC8B19E27F7B002C9DF1 = {
 			isa = PBXGroup;
 			children = (
+				2292B9601A6FA686006BE4F0 /* openssl.framework */,
 				74DB969619EFAFE3008FF61E /* libKiiThingSDK.a */,
 				7410AD0319E29A32002C9DF1 /* Security.framework */,
 				7410AD0119E29A21002C9DF1 /* libz.dylib */,
@@ -202,7 +208,7 @@
 				7410AD0719E29B70002C9DF1 /* kii_cloud.h */,
 				7485E61A19E5360000BCA19C /* kii_cloud.c */,
 				2207056E1A67BB2D00D14FA4 /* kii_http_adapter.h */,
-				22616C2D1A5FA96F00ADC798 /* kii_prv_http_execute_curl.c */,
+				2292B9621A6FA6A7006BE4F0 /* kii_prv_http_execute_ssl.c */,
 				74CD392E1A11BEE600D0F9D4 /* kii_prv_types.h */,
 				B613F69219F50D6100AC5548 /* kii_prv_utils.h */,
 				B613F69119F50D6100AC5548 /* kii_prv_utils.c */,
@@ -391,13 +397,13 @@
 				7416A5B219E3C42A007DCC45 /* load.c in Sources */,
 				7416A5BA19E3C42A007DCC45 /* strconv.c in Sources */,
 				7416A5B619E3C42A007DCC45 /* pack_unpack.c in Sources */,
+				2292B9631A6FA6A7006BE4F0 /* kii_prv_http_execute_ssl.c in Sources */,
 				B613F69319F50D6100AC5548 /* kii_prv_utils.c in Sources */,
 				7416A5AC19E3C42A007DCC45 /* error.c in Sources */,
 				747F3D5819F4D3A800C1372A /* kii_custom.c in Sources */,
 				7416A5B019E3C42A007DCC45 /* hashtable_seed.c in Sources */,
 				7416A5AA19E3C42A007DCC45 /* dump.c in Sources */,
 				7416A5BE19E3C42A007DCC45 /* value.c in Sources */,
-				22616C2F1A5FA96F00ADC798 /* kii_prv_http_execute_curl.c in Sources */,
 				7416A5B419E3C42A007DCC45 /* memory.c in Sources */,
 				7416A5BC19E3C42A007DCC45 /* utf.c in Sources */,
 				7416A5AE19E3C42A007DCC45 /* hashtable.c in Sources */,
@@ -520,6 +526,10 @@
 		7410ACA619E27F7B002C9DF1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/KiiThingSDK",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/KiiThingSDK/extlibs",
@@ -534,6 +544,10 @@
 		7410ACA719E27F7B002C9DF1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/KiiThingSDK",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/KiiThingSDK/extlibs",
@@ -551,6 +565,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
+					"$(PROJECT_DIR)/KiiThingSDK",
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -579,6 +594,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
+					"$(PROJECT_DIR)/KiiThingSDK",
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				INFOPLIST_FILE = KiiThingSDKTests/Info.plist;
