@@ -585,6 +585,17 @@ END_FUNC:
     return retval;
 }
 
+kii_bool_t kii_http_init(void)
+{
+    // Nothing to implement.
+    return KII_TRUE;
+}
+
+void kii_http_cleanup(void)
+{
+    // Nothing to implement.
+}
+
 kii_bool_t kii_http_execute(
         const kii_char_t* http_method,
         const kii_char_t* url,

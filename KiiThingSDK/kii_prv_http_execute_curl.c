@@ -244,6 +244,17 @@ static adapter_error_code_t prv_execute_curl(CURL* curl,
     }
 }
 
+kii_bool_t kii_http_init(void)
+{
+    CURLcode r = curl_global_init(CURL_GLOBAL_ALL);
+    return ((r == CURLE_OK) ? KII_TRUE : KII_FALSE);
+}
+
+void kii_http_cleanup(void)
+{
+    curl_global_cleanup();
+}
+
 kii_bool_t kii_http_execute(
         const kii_char_t* http_method,
         const kii_char_t* url,

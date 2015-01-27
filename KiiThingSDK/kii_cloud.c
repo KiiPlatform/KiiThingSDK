@@ -12,13 +12,13 @@
 
 kii_error_code_t kii_global_init(void)
 {
-    CURLcode r = curl_global_init(CURL_GLOBAL_ALL);
-    return ((r == CURLE_OK) ? KIIE_OK : KIIE_FAIL);
+    kii_bool_t r = kii_http_init();
+    return ((r == KII_TRUE) ? KIIE_OK : KIIE_FAIL);
 }
 
 void kii_global_cleanup(void)
 {
-    curl_global_cleanup();
+    kii_http_cleanup();
 }
 
 void kii_dispose_kii_char(kii_char_t* char_ptr)
