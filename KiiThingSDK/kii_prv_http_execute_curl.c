@@ -14,6 +14,14 @@ typedef enum adapter_error_code_t {
 static adapter_error_code_t adapter_error_code;
 static CURLcode curl_error_code;
 
+static void prv_log_req_heder(struct curl_slist* header)
+{
+    while (header != NULL) {
+        prv_log("req header: %s", header->data);
+        header = header->next;
+    }
+}
+
 static struct curl_slist* convert_request_headers(
         json_t* request_headers)
 {
