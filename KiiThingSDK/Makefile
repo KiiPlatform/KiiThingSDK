@@ -1,5 +1,7 @@
 all: build doc
 
+all_with_openssl: build_with_openssl doc
+
 doc:
 	doxygen doxyfile
 
