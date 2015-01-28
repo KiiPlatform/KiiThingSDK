@@ -243,7 +243,7 @@ kii_thing_t kii_thing_deserialize(const kii_char_t* serialized_thing)
     return (kii_thing_t) prv_kii_init_thing(serialized_thing);
 }
 
-static kii_error_code_t prepare_register_thing_request_data(
+static kii_error_code_t prv_prepare_register_thing_request_data(
         const kii_char_t* vendor_thing_id,
         const kii_char_t* thing_password,
         const kii_char_t* opt_thing_type,
@@ -282,7 +282,7 @@ ON_EXIT:
     return ret;
 }
 
-static kii_error_code_t parse_register_thing_response(
+static kii_error_code_t prv_parse_register_thing_response(
         kii_int_t respCode,
         const kii_char_t* respData,
         kii_thing_t* out_thing,
@@ -370,23 +370,17 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     }
     
     /* prepare request data */
-    ret = prepare_register_thing_request_data(vendor_thing_id, thing_password,
-            opt_thing_type, user_data, &reqStr);
+    ret = prv_prepare_register_thing_request_data(vendor_thing_id,
+            thing_password, opt_thing_type, user_data, &reqStr);
     if (ret == KIIE_OK) {
-        exeCurlRet = prv_execute_curl(app->curl_easy, reqUrl, POST,
-                reqStr, headers, &respCode, &respData, NULL, &err);
-        if (exeCurlRet != KIIE_OK) {
-            ret = exeCurlRet;
-            goto ON_EXIT;
+        if (kii_http_execute("POST", reqUrl, headers, reqStr, &respCode, NULL,
+                        &respData) == KII_FALSE) {
+            ret = KIIE_ADAPTER;
+            goto ON_EXIT; 
         }
-
-    if (kii_http_execute("POST", reqUrl, headers, reqStr, &respCode, NULL,
-                &respData) == KII_FALSE) {
-        ret = KIIE_ADAPTER;
-        goto ON_EXIT; 
     }
 
-    ret = parse_register_thing_response(respCode, respData, out_thing,
+    ret = prv_parse_register_thing_response(respCode, respData, out_thing,
             out_access_token, &err);
 ON_EXIT:
     json_decref(headers);
@@ -429,7 +423,7 @@ kii_bucket_t kii_init_thing_bucket(const kii_thing_t thing,
     return retval;
 }
 
-static kii_error_code_t parse_create_new_object_response(
+static kii_error_code_t prv_parse_create_new_object_response(
         kii_int_t respCode,
         const kii_char_t* respData,
         const json_t* respHdr,
@@ -549,7 +543,7 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
         goto ON_EXIT; 
     }
 
-    ret = parse_create_new_object_response(respCode, respData, respHdr,
+    ret = prv_parse_create_new_object_response(respCode, respData, respHdr,
             out_object_id, out_etag, &err);
 
 ON_EXIT:
@@ -564,7 +558,7 @@ ON_EXIT:
     return ret;
 }
 
-static kii_error_code_t parse_create_new_object_with_id_response(
+static kii_error_code_t prv_parse_create_new_object_with_id_response(
         kii_int_t respCode,
         const kii_char_t* respData,
         const json_t* respHdr,
@@ -663,8 +657,8 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
         goto ON_EXIT; 
     }
 
-    ret = parse_create_new_object_with_id_response(respCode, respData, respHdr,
-            out_etag, &err);
+    ret = prv_parse_create_new_object_with_id_response(respCode, respData,
+            respHdr, out_etag, &err);
 
 ON_EXIT:
     M_KII_FREE_NULLIFY(reqUrl);
@@ -678,7 +672,7 @@ ON_EXIT:
     return ret;
 }
 
-static kii_error_code_t parse_patch_object_response(
+static kii_error_code_t prv_parse_patch_object_response(
         kii_int_t respCode,
         kii_char_t* respData,
         const json_t* respHdr,
@@ -785,7 +779,7 @@ kii_error_code_t kii_patch_object(kii_app_t app,
         goto ON_EXIT; 
     }
 
-    ret = parse_patch_object_response(respCode, respData, respHdr, out_etag,
+    ret = prv_parse_patch_object_response(respCode, respData, respHdr, out_etag,
             &err);
 
 ON_EXIT:
@@ -801,7 +795,7 @@ ON_EXIT:
     return ret;
 }
 
-static kii_error_code_t parse_replace_object_response(
+static kii_error_code_t prv_parse_replace_object_response(
         kii_int_t respCode,
         kii_char_t* respData,
         const json_t* respHdr,
@@ -901,9 +895,8 @@ kii_error_code_t kii_replace_object(kii_app_t app,
         goto ON_EXIT; 
     }
 
-    ret = parse_replace_object_response(respCode, respData, respHdr, out_etag,
-            &err);
-
+    ret = prv_parse_replace_object_response(respCode, respData, respHdr,
+            out_etag, &err);
 ON_EXIT:
     kii_dispose_kii_char(reqUrl);
     json_decref(headers);
@@ -916,7 +909,7 @@ ON_EXIT:
     return ret;
 }
 
-static kii_error_code_t parse_get_object_response(
+static kii_error_code_t prv_parse_get_object_response(
         kii_int_t respCode,
         const json_t* respHdr,
         const kii_char_t* respData,
@@ -1011,7 +1004,7 @@ kii_error_code_t kii_get_object(kii_app_t app,
         goto ON_EXIT; 
     }
 
-    ret = parse_get_object_response(respCode, respHdr, respData, out_contents,
+    ret = prv_parse_get_object_response(respCode, respHdr, respData, out_contents,
             out_etag, &err);
 
 ON_EXIT:
@@ -1566,7 +1559,7 @@ ON_EXIT:
     return ret;
 }
 
-static kii_error_code_t prepare_install_thing_push_request_data(
+static kii_error_code_t prv_prepare_install_thing_push_request_data(
         kii_bool_t development,
         kii_char_t** out_string)
 {
@@ -1596,7 +1589,7 @@ ON_EXIT:
     return ret;
 }
 
-static kii_error_code_t parse_install_thing_push_response(
+static kii_error_code_t prv_parse_install_thing_push_response(
         kii_int_t respCode,
         const kii_char_t* respBodyStr,
         kii_char_t** out_installation_id,
@@ -1660,7 +1653,7 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
     }
     
     /* Prepare body */
-    ret = prepare_install_thing_push_request_data(development, &reqBodyStr);
+    ret = prv_prepare_install_thing_push_request_data(development, &reqBodyStr);
     if (ret != KIIE_OK) {
         goto ON_EXIT;
     }
@@ -1679,7 +1672,7 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
         goto ON_EXIT; 
     }
 
-    ret = parse_install_thing_push_response(respCode, respBodyStr,
+    ret = prv_parse_install_thing_push_response(respCode, respBodyStr,
             out_installation_id, &error);
 
 ON_EXIT:
@@ -1692,7 +1685,9 @@ ON_EXIT:
     return ret;
 }
 
-static kii_error_code_t parse_endpoint(
+
+static kii_error_code_t prv_parse_endpoint(
+        kii_int_t respCode,
         const kii_char_t* respBodyStr,
         kii_mqtt_endpoint_t** out_endpoint,
         kii_uint_t* out_retry_after_in_second,
@@ -1834,7 +1829,7 @@ kii_error_code_t kii_get_mqtt_endpoint(kii_app_t app,
     }
 
     /* Parse body */
-    ret = parse_endpoint(respCode, respBodyStr, out_endpoint,
+    ret = prv_parse_endpoint(respCode, respBodyStr, out_endpoint,
             out_retry_after_in_second, &error);
 
 ON_EXIT:
