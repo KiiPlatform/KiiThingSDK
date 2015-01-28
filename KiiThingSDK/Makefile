@@ -1,4 +1,5 @@
 SOURCES = $(wildcard *.c)
+HEADERS = $(wildcard *.h)
 LDFLAGS =
 CFLAGS = -shared -fPIC
 INCLUDE = -I jansson
@@ -25,7 +26,7 @@ build: build_jansson
 
 archive: clean
 	mkdir -p kii_sources/httpclient
-	cp $(SOURCES) kii_sources
+	cp $(SOURCES) $(HEADERS) kii_sources
 	cp $(HTTPCLIENT_SOURCE) kii_sources/httpclient
 	tar -czf libkii.tar.gz kii_sources
 	rm -rf kii_sources
