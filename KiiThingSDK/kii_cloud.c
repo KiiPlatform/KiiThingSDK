@@ -769,12 +769,7 @@ kii_error_code_t kii_patch_object(kii_app_t app,
     }
 
     if (kii_http_execute("PATCH", reqUrl, headers, reqStr, &respCode, &respHdr,
-                &respData) == KII_TRUE) {
-        if (respCode < 200 || respCode >= 300) {
-            ret = prv_parse_response_error_code(respCode, respData, &err);
-            goto ON_EXIT;
-        }
-    } else {
+                &respData) == KII_FALSE) {
         ret = KIIE_ADAPTER;
         goto ON_EXIT; 
     }
