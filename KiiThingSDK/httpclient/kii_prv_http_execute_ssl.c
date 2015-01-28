@@ -1,4 +1,7 @@
-#include "kii_http_adapter.h"
+#include "../kii_http_adapter.h"
+#include "../kii_custom.h"
+#include "../kii_prv_utils.h"
+#include "../kii_prv_types.h"
 
 #include <assert.h>
 #include <ctype.h>
@@ -18,10 +21,6 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/rand.h>
-
-#include "kii_custom.h"
-#include "kii_prv_utils.h"
-#include "kii_prv_types.h"
 
 #define SOCKET_CLOSE(s) close(s)
 #define HTTP_CONFIG_DEFAULTPORT 80

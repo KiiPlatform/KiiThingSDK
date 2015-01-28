@@ -23,7 +23,6 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		22616C2F1A5FA96F00ADC798 /* kii_prv_http_execute_curl.c in Sources */ = {isa = PBXBuildFile; fileRef = 22616C2D1A5FA96F00ADC798 /* kii_prv_http_execute_curl.c */; };
 		7410ACFF19E29622002C9DF1 /* libcurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7410ACFA19E29622002C9DF1 /* libcurl.a */; };
 		7410AD0019E29622002C9DF1 /* libcurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7410ACFA19E29622002C9DF1 /* libcurl.a */; };
 		7410AD0219E29A21002C9DF1 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7410AD0119E29A21002C9DF1 /* libz.dylib */; };
@@ -53,6 +52,7 @@
 		7416A5BF19E3C42A007DCC45 /* value.c in Sources */ = {isa = PBXBuildFile; fileRef = 7416A5A919E3C42A007DCC45 /* value.c */; };
 		7418A92319E526E700A85634 /* kii_cloud.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7410AD0719E29B70002C9DF1 /* kii_cloud.h */; };
 		7418A92419E527C700A85634 /* kii_cloud.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7410AD0719E29B70002C9DF1 /* kii_cloud.h */; };
+		742C89591A789AD8004CB808 /* kii_prv_http_execute_curl.c in Sources */ = {isa = PBXBuildFile; fileRef = 742C89571A789AD8004CB808 /* kii_prv_http_execute_curl.c */; };
 		74778B361A14798B0079C179 /* URLBuilderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 74778B351A14798B0079C179 /* URLBuilderTest.m */; };
 		747F3B8B19EFCB3C00C1372A /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7410AD0119E29A21002C9DF1 /* libz.dylib */; };
 		747F3D5519F0FD8A00C1372A /* ThingSDKBasicTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 747F3D5419F0FD8A00C1372A /* ThingSDKBasicTests.m */; };
@@ -100,7 +100,6 @@
 
 /* Begin PBXFileReference section */
 		2207056E1A67BB2D00D14FA4 /* kii_http_adapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kii_http_adapter.h; sourceTree = "<group>"; };
-		22616C2D1A5FA96F00ADC798 /* kii_prv_http_execute_curl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kii_prv_http_execute_curl.c; sourceTree = "<group>"; };
 		7410AC9419E27F7B002C9DF1 /* libKiiThingSDK.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libKiiThingSDK.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		7410ACB719E28845002C9DF1 /* KiiThingSDKTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KiiThingSDKTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7410ACBA19E28845002C9DF1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -135,6 +134,7 @@
 		7416A5A719E3C42A007DCC45 /* utf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = utf.c; sourceTree = "<group>"; };
 		7416A5A819E3C42A007DCC45 /* utf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utf.h; sourceTree = "<group>"; };
 		7416A5A919E3C42A007DCC45 /* value.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = value.c; sourceTree = "<group>"; };
+		742C89571A789AD8004CB808 /* kii_prv_http_execute_curl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kii_prv_http_execute_curl.c; sourceTree = "<group>"; };
 		74778B351A14798B0079C179 /* URLBuilderTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = URLBuilderTest.m; sourceTree = "<group>"; };
 		747F3D5419F0FD8A00C1372A /* ThingSDKBasicTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = ThingSDKBasicTests.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		747F3D5619F4D3A800C1372A /* kii_custom.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = kii_custom.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
@@ -196,13 +196,13 @@
 		7410AC9619E27F7B002C9DF1 /* KiiThingSDK */ = {
 			isa = PBXGroup;
 			children = (
+				742C89561A789AD8004CB808 /* httpclient */,
 				7416A59719E3C42A007DCC45 /* jansson */,
 				7410ACF419E29622002C9DF1 /* curl */,
 				747F3D5619F4D3A800C1372A /* kii_custom.c */,
 				7410AD0719E29B70002C9DF1 /* kii_cloud.h */,
 				7485E61A19E5360000BCA19C /* kii_cloud.c */,
 				2207056E1A67BB2D00D14FA4 /* kii_http_adapter.h */,
-				22616C2D1A5FA96F00ADC798 /* kii_prv_http_execute_curl.c */,
 				74CD392E1A11BEE600D0F9D4 /* kii_prv_types.h */,
 				B613F69219F50D6100AC5548 /* kii_prv_utils.h */,
 				B613F69119F50D6100AC5548 /* kii_prv_utils.c */,
@@ -270,6 +270,14 @@
 				7416A5A919E3C42A007DCC45 /* value.c */,
 			);
 			path = jansson;
+			sourceTree = "<group>";
+		};
+		742C89561A789AD8004CB808 /* httpclient */ = {
+			isa = PBXGroup;
+			children = (
+				742C89571A789AD8004CB808 /* kii_prv_http_execute_curl.c */,
+			);
+			path = httpclient;
 			sourceTree = "<group>";
 		};
 		74778B341A14798B0079C179 /* small-tests */ = {
@@ -397,7 +405,7 @@
 				7416A5B019E3C42A007DCC45 /* hashtable_seed.c in Sources */,
 				7416A5AA19E3C42A007DCC45 /* dump.c in Sources */,
 				7416A5BE19E3C42A007DCC45 /* value.c in Sources */,
-				22616C2F1A5FA96F00ADC798 /* kii_prv_http_execute_curl.c in Sources */,
+				742C89591A789AD8004CB808 /* kii_prv_http_execute_curl.c in Sources */,
 				7416A5B419E3C42A007DCC45 /* memory.c in Sources */,
 				7416A5BC19E3C42A007DCC45 /* utf.c in Sources */,
 				7416A5AE19E3C42A007DCC45 /* hashtable.c in Sources */,
