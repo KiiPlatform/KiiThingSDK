@@ -801,6 +801,41 @@ ON_EXIT:
     return ret;
 }
 
+kii_error_code_t parse_replace_object_response(
+        kii_int_t respCode,
+        kii_char_t* respData,
+        const json_t* respHdr,
+        kii_char_t** out_etag,
+        kii_error_t* err)
+{
+    kii_error_code_t ret = KIIE_FAIL;
+
+    if (respCode < 200 || respCode >= 300) {
+        return prv_parse_response_error_code(respCode, respData, err);
+    }
+
+    /* Check response header */
+    if (out_etag != NULL && respHdr != NULL) {
+        const kii_char_t* etag = json_string_value(json_object_get(respHdr,
+                        "etag"));
+        if (etag != NULL) {
+            *out_etag = kii_strdup(etag);
+            if (*out_etag == NULL) {
+                ret = KIIE_LOWMEMORY;
+            } else {
+                ret = KIIE_OK;
+            }
+        } else {
+            prv_kii_set_info_in_error(err, (int)respCode, KII_ECODE_PARSE);
+            ret = KIIE_FAIL;
+        }
+    } else {
+        ret = KIIE_OK;
+    }
+
+    return ret;
+}
+
 kii_error_code_t kii_replace_object(kii_app_t app,
                                     const kii_char_t* access_token,
                                     const kii_bucket_t bucket,
@@ -854,7 +889,6 @@ kii_error_code_t kii_replace_object(kii_app_t app,
             goto ON_EXIT;
         }
     }
-
     reqStr = json_dumps(replace_contents, 0);
     if (reqStr == NULL) {
         ret = KIIE_LOWMEMORY;
@@ -862,34 +896,13 @@ kii_error_code_t kii_replace_object(kii_app_t app,
     }
 
     if (kii_http_execute("PUT", reqUrl, headers, reqStr, &respCode, &respHdr,
-                &respData) == KII_TRUE) {
-        if (respCode < 200 || respCode >= 300) {
-            ret = prv_parse_response_error_code(respCode, respData, &err);
-            goto ON_EXIT;
-        }
-    } else {
+                &respData) == KII_FALSE) {
         ret = KIIE_ADAPTER;
         goto ON_EXIT; 
     }
 
-    /* Check response header */
-    if (out_etag != NULL && respHdr != NULL) {
-        const char* etag = json_string_value(json_object_get(respHdr,
-                "etag"));
-        if (etag != NULL) {
-            *out_etag = kii_strdup(etag);
-            if (*out_etag == NULL) {
-                ret = KIIE_LOWMEMORY;
-                goto ON_EXIT;
-            }
-            ret = KIIE_OK;
-        } else {
-            prv_kii_set_info_in_error(&err, respCode, KII_ECODE_PARSE);
-            ret = KIIE_FAIL;
-        }
-    } else {
-        ret = KIIE_OK;
-    }
+    ret = parse_replace_object_response(respCode, respData, respHdr, out_etag,
+            &err);
 
 ON_EXIT:
     kii_dispose_kii_char(reqUrl);
