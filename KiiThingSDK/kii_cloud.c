@@ -1564,22 +1564,85 @@ ON_EXIT:
     return ret;
 }
 
+kii_error_code_t prepare_install_thing_push_request_data(
+        kii_bool_t development,
+        kii_char_t** out_string)
+{
+    kii_error_code_t ret = KIIE_FAIL;
+    json_t* reqJson = NULL;
+    kii_int_t json_set_result = 0;
+
+    reqJson = json_object();
+    if (reqJson == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+    json_set_result = 0;
+    json_set_result |= json_object_set_new(reqJson, "deviceType",
+            json_string("MQTT"));
+    json_set_result |= json_object_set_new(reqJson, "development",
+            json_boolean(development));
+    if (json_set_result != 0) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+    *out_string = json_dumps(reqJson, 0);
+    if (*out_string == NULL) {
+        ret = KIIE_LOWMEMORY;
+    } else {
+        ret = KIIE_OK;
+    }
+
+ON_EXIT:
+    json_decref(reqJson);
+    return ret;
+}
+
+kii_error_code_t parse_install_thing_push_response(
+        kii_int_t respCode,
+        const kii_char_t* respBodyStr,
+        kii_char_t** out_installation_id,
+        kii_error_t* error)
+{
+    kii_error_code_t ret = KIIE_FAIL;
+    json_t* respBodyJson = NULL;
+    json_error_t jErr;
+
+    if (respCode < 200 || respCode >= 300) {
+      return prv_parse_response_error_code(respCode, respBodyStr, error);
+    }
+
+    /* Parse body */
+    respBodyJson = json_loads(respBodyStr, 0, &jErr);
+    if (respBodyJson == NULL) {
+        ret = KIIE_LOWMEMORY;
+    } else {
+        json_t* installIDJson = json_object_get(respBodyJson, "installationID");
+        if (installIDJson != NULL) {
+            *out_installation_id = kii_strdup(json_string_value(installIDJson));
+            ret = *out_installation_id != NULL ? KIIE_OK : KIIE_LOWMEMORY;
+        } else {
+            prv_kii_set_info_in_error(error, (int)respCode, KII_ECODE_PARSE);
+            ret = KIIE_FAIL;
+        }
+    }
+
+    json_decref(respBodyJson);
+    return ret;
+}
+
 kii_error_code_t kii_install_thing_push(kii_app_t app,
                                         const kii_char_t* access_token,
                                         kii_bool_t development,
                                         kii_char_t** out_installation_id)
 {
     kii_char_t* url = NULL;
-    json_t* reqBodyJson = NULL;
     kii_char_t* reqBodyStr = NULL;
     json_t* reqHeaders = NULL;
     kii_int_t respCode = 0;
     kii_char_t* respBodyStr = NULL;
-    json_t* respBodyJson = NULL;
     kii_error_t error;
     kii_error_code_t ret = KIIE_FAIL;
-    json_error_t jErr;
-    kii_int_t json_set_result = 0;
     
     M_KII_ASSERT(app != NULL);
     M_KII_ASSERT(access_token != NULL);
@@ -1599,23 +1662,8 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
     }
     
     /* Prepare body */
-    reqBodyJson = json_object();
-    if (reqBodyJson == NULL) {
-        ret = KIIE_LOWMEMORY;
-        goto ON_EXIT;
-    }
-    json_set_result = 0;
-    json_set_result |= json_object_set_new(reqBodyJson, "deviceType",
-            json_string("MQTT"));
-    json_set_result |= json_object_set_new(reqBodyJson, "development",
-            json_boolean(development));
-    if (json_set_result != 0) {
-        ret = KIIE_LOWMEMORY;
-        goto ON_EXIT;
-    }
-    reqBodyStr = json_dumps(reqBodyJson, 0);
-    if (reqBodyStr == NULL) {
-        ret = KIIE_LOWMEMORY;
+    ret = prepare_install_thing_push_request_data(development, &reqBodyStr);
+    if (ret != KIIE_OK) {
         goto ON_EXIT;
     }
 
@@ -1628,40 +1676,16 @@ kii_error_code_t kii_install_thing_push(kii_app_t app,
     }
 
     if (kii_http_execute("POST", url, reqHeaders, reqBodyStr, &respCode, NULL,
-                &respBodyStr) == KII_TRUE) {
-        if (respCode < 200 || respCode >= 300) {
-            ret = prv_parse_response_error_code(respCode, respBodyStr, &error);
-            goto ON_EXIT;
-        }
-    } else {
+                &respBodyStr) == KII_FALSE) {
         ret = KIIE_ADAPTER;
         goto ON_EXIT; 
     }
 
-    /* Parse body */
-    respBodyJson = json_loads(respBodyStr, 0, &jErr);
-    if (respBodyJson == NULL) {
-        ret = KIIE_LOWMEMORY;
-        goto ON_EXIT;
-    } else {
-        json_t* installIDJson = NULL;
-        installIDJson = json_object_get(respBodyJson, "installationID");
-        if (installIDJson != NULL) {
-            *out_installation_id = kii_strdup(json_string_value(installIDJson));
-            ret = *out_installation_id != NULL ? KIIE_OK : KIIE_LOWMEMORY;
-            goto ON_EXIT;
-        } else {
-            prv_kii_set_info_in_error(&error, respCode, KII_ECODE_PARSE);
-            ret = KIIE_FAIL;
-            goto ON_EXIT;
-        }
-    }
-
+    ret = parse_install_thing_push_response(respCode, respBodyStr,
+            out_installation_id, &error);
 
 ON_EXIT:
-    json_decref(respBodyJson);
     M_KII_FREE_NULLIFY(url);
-    json_decref(reqBodyJson);
     M_KII_FREE_NULLIFY(reqBodyStr);
     M_KII_FREE_NULLIFY(respBodyStr);
     json_decref(reqHeaders);
