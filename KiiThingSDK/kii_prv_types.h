@@ -16,7 +16,6 @@ typedef struct prv_kii_app_t {
     kii_char_t* app_id;
     kii_char_t* app_key;
     kii_char_t* site_url;
-    CURL* curl_easy;
     kii_error_code_t last_result;
     kii_error_t last_error;
 } prv_kii_app_t;

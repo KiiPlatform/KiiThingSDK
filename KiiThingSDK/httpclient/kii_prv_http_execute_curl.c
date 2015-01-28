@@ -1,8 +1,13 @@
-#include "kii_http_adapter.h"
+#include "../kii_http_adapter.h"
+#include "../kii_custom.h"
+#include "../kii_prv_utils.h"
+#include "../kii_prv_types.h"
 
-#include "kii_custom.h"
-#include "kii_prv_utils.h"
-#include "kii_prv_types.h"
+#ifdef XCODE
+#include "curl.h"
+#else
+#include <curl/curl.h>
+#endif
 
 typedef enum adapter_error_code_t {
     AEC_OK = 0,
@@ -13,6 +18,14 @@ typedef enum adapter_error_code_t {
 
 static adapter_error_code_t adapter_error_code;
 static CURLcode curl_error_code;
+
+static void prv_log_req_heder(struct curl_slist* header)
+{
+    while (header != NULL) {
+        prv_log("req header: %s", header->data);
+        header = header->next;
+    }
+}
 
 static struct curl_slist* convert_request_headers(
         json_t* request_headers)
@@ -242,6 +255,17 @@ static adapter_error_code_t prv_execute_curl(CURL* curl,
         default:
             return AEC_CURL;
     }
+}
+
+kii_bool_t kii_http_init(void)
+{
+    CURLcode r = curl_global_init(CURL_GLOBAL_ALL);
+    return ((r == CURLE_OK) ? KII_TRUE : KII_FALSE);
+}
+
+void kii_http_cleanup(void)
+{
+    curl_global_cleanup();
 }
 
 kii_bool_t kii_http_execute(

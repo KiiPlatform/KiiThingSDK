@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+kii_bool_t kii_http_init(void);
+void kii_http_cleanup(void);
 kii_bool_t kii_http_execute(
         const kii_char_t* http_method,
         const kii_char_t* url,

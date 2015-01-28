@@ -5,12 +5,6 @@
   Copyright (c) 2014 Kii. All rights reserved.
 */
 
-#ifdef XCODE
-#include "curl.h"
-#else
-#include <curl/curl.h>
-#endif
-
 #include "kii_custom.h"
 #include "kii_http_adapter.h"
 #include "kii_prv_utils.h"
@@ -18,13 +12,13 @@
 
 kii_error_code_t kii_global_init(void)
 {
-    CURLcode r = curl_global_init(CURL_GLOBAL_ALL);
-    return ((r == CURLE_OK) ? KIIE_OK : KIIE_FAIL);
+    kii_bool_t r = kii_http_init();
+    return ((r == KII_TRUE) ? KIIE_OK : KIIE_FAIL);
 }
 
 void kii_global_cleanup(void)
 {
-    curl_global_cleanup();
+    kii_http_cleanup();
 }
 
 void kii_dispose_kii_char(kii_char_t* char_ptr)
@@ -77,15 +71,7 @@ kii_app_t kii_init_app(const kii_char_t* app_id,
         M_KII_FREE_NULLIFY(app);
         return app;
     }
-    
-    app->curl_easy = curl_easy_init();
-    if (app->curl_easy == NULL) {
-        M_KII_FREE_NULLIFY(app->app_id);
-        M_KII_FREE_NULLIFY(app->app_key);
-        M_KII_FREE_NULLIFY(app->site_url);
-        M_KII_FREE_NULLIFY(app);
-        return app;
-    }
+
     return app;
 }
 
@@ -140,8 +126,6 @@ void kii_dispose_app(kii_app_t app)
     M_KII_FREE_NULLIFY(app->app_id);
     M_KII_FREE_NULLIFY(app->app_key);
     M_KII_FREE_NULLIFY(app->site_url);
-    curl_easy_cleanup(app->curl_easy);
-    app->curl_easy = NULL;
     M_KII_FREE_NULLIFY(app);
 }
 
@@ -168,238 +152,6 @@ void kii_dispose_mqtt_endpoint(kii_mqtt_endpoint_t* endpoint)
     endpoint->port_tcp = 0;
     endpoint->port_ssl = 0;
     M_KII_FREE_NULLIFY(endpoint);
-}
-
-static size_t callbackWrite(char* ptr,
-                            size_t size,
-                            size_t nmemb,
-                            kii_char_t** respData)
-{
-    size_t dataLen = size * nmemb;
-    if (dataLen == 0) {
-        return 0;
-    }
-    if (*respData == NULL) { /* First time. */
-        *respData = kii_malloc(dataLen+1);
-        if (respData == NULL) {
-            return 0;
-        }
-        kii_memcpy(*respData, ptr, dataLen);
-        (*respData)[dataLen] = '\0';
-    } else {
-        size_t lastLen = kii_strlen(*respData);
-        size_t newLen = lastLen + dataLen;
-        kii_char_t* concat = kii_realloc(*respData, newLen + 1);
-        if (concat == NULL) {
-            return 0;
-        }
-        kii_strncat(concat, ptr, dataLen);
-        *respData = concat;
-    }
-    return dataLen;
-}
-
-static size_t callback_header(
-        char *buffer,
-        size_t size,
-        size_t nitems,
-        void *userdata)
-{
-    const char ETAG[] = "etag";
-    size_t len = size * nitems;
-    size_t ret = len;
-    kii_char_t* line = kii_malloc(len + 1);
-
-    M_KII_ASSERT(userdata != NULL);
-
-    if (line == NULL) {
-        return 0;
-    }
-
-    {
-        int i = 0;
-        kii_memcpy(line, buffer, len);
-        line[len] = '\0';
-        M_KII_DEBUG(prv_log_no_LF("resp header: %s", line));
-        /* Field name becomes upper case. */
-        for (i = 0; line[i] != '\0' && line[i] != ':'; ++i) {
-            line[i] = (char)kii_tolower(line[i]);
-        }
-    }
-
-    /* check http header name. */
-    if (kii_strncmp(line, ETAG, kii_strlen(ETAG)) == 0) {
-        json_t** json = userdata;
-        int i = 0;
-        kii_char_t* value = line;
-
-        /* change line feed code lasting end of this array to '\0'. */
-        for (i = (int)len; i >= 0; --i) {
-            if (line[i] == '\0') {
-                continue;
-            } else if (line[i] == '\r' || line[i] == '\n') {
-                line[i] = '\0';
-            } else {
-                break;
-            }
-        }
-
-        /* skip until ":". */
-        while (*value != ':') {
-            ++value;
-        }
-        /* skip ':' */
-        ++value;
-        /* skip spaces. */
-        while (*value == ' ') {
-            ++value;
-        }
-
-        if (*json == NULL) {
-            *json = json_object();
-            if (*json == NULL) {
-                ret = 0;
-                goto ON_EXIT;
-            }
-        }
-        if (json_object_set_new(*json, ETAG, json_string(value)) != 0) {
-            ret = 0;
-            goto ON_EXIT;
-        }
-    }
-
-ON_EXIT:
-    M_KII_FREE_NULLIFY(line);
-    return ret;
-}
-
-typedef enum {
-    POST,
-    PUT,
-    PATCH,
-    DELETE,
-    GET,
-    HEAD
-} prv_kii_req_method_t;
-
-kii_error_code_t prv_execute_curl(CURL* curl,
-                                  const kii_char_t* url,
-                                  prv_kii_req_method_t method,
-                                  const kii_char_t* request_body,
-                                  struct curl_slist* request_headers,
-                                  long* response_status_code,
-                                  kii_char_t** response_body,
-                                  json_t** response_headers,
-                                  kii_error_t* error)
-{
-    CURLcode curlCode = CURLE_COULDNT_CONNECT; /* set error code as default. */
-
-    M_KII_ASSERT(curl != NULL);
-    M_KII_ASSERT(url != NULL);
-    M_KII_ASSERT(request_headers != NULL);
-    M_KII_ASSERT(response_status_code != NULL);
-    M_KII_ASSERT(error != NULL);
-
-    M_KII_DEBUG(prv_log("request url: %s", url));
-    M_KII_DEBUG(prv_log("request method: %d", method));
-    M_KII_DEBUG(prv_log("request body: %s", request_body));
-
-    /* reset previous session setting. */
-    curl_easy_reset(curl);
-
-    switch (method) {
-        case POST:
-            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
-            if (request_body == NULL || kii_strlen(request_body) == 0) {
-                curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, 0);
-            }
-            break;
-        case PUT:
-            curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
-            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
-            if (request_body == NULL || kii_strlen(request_body) == 0) {
-                curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, 0);
-            }
-            break;
-        case PATCH:
-            request_headers = curl_slist_append(request_headers,
-                    "X-HTTP-METHOD-OVERRIDE: PATCH");
-            if (request_headers == NULL) {
-                return KIIE_LOWMEMORY;
-            }
-            if (request_body != NULL) {
-                curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
-            }
-            break;
-        case DELETE:
-            M_KII_ASSERT(request_body == NULL);
-            curl_easy_setopt(curl,CURLOPT_CUSTOMREQUEST,"DELETE");
-            break;
-        case GET:
-            curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);
-            if (request_body != NULL) {
-                curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body);
-            }
-            break;
-        case HEAD:
-            M_KII_ASSERT(request_body == NULL);
-            curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "HEAD");
-            curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
-            break;
-        default:
-            M_KII_ASSERT(0); /* programing error */
-            return KIIE_FAIL;
-    }
-
-    M_KII_DEBUG(prv_log_req_heder(request_headers));
-
-    curl_easy_setopt(curl, CURLOPT_URL, url);
-    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, request_headers);
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callbackWrite);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, response_body);
-    if (response_headers != NULL) {
-        curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, callback_header);
-        *response_headers = NULL;
-        curl_easy_setopt(curl, CURLOPT_HEADERDATA, response_headers);
-    }
-
-    curlCode = curl_easy_perform(curl);
-    switch (curlCode) {
-        case CURLE_OK:
-            M_KII_DEBUG(prv_log("response: %s", *response_body));
-            curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE,
-                    response_status_code);
-            if ((200 <= *response_status_code) &&
-                    (*response_status_code < 300)) {
-                return KIIE_OK;
-            } else {
-                const kii_char_t* error_code = NULL;
-                json_t* errJson = NULL;
-                json_t* errorCodeJson = NULL;
-                if (*response_body != NULL) {
-                    json_error_t jErr;
-                    errJson = json_loads(*response_body, 0, &jErr);
-                    if (errJson == NULL) {
-                        return KIIE_LOWMEMORY;
-                    }
-                }
-                errorCodeJson = json_object_get(errJson, "errorCode");
-                if (errorCodeJson != NULL) {
-                    error_code = json_string_value(errorCodeJson);
-                } else {
-                    error_code = *response_body;
-                }
-                prv_kii_set_info_in_error(error, (int)(*response_status_code),
-                        error_code);
-                json_decref(errJson);
-                return KIIE_FAIL;
-            }
-        case CURLE_WRITE_ERROR:
-            return KIIE_RESPWRITE;
-        default:
-            prv_kii_set_info_in_error(error, 0, KII_ECODE_CONNECTION);
-            return KIIE_FAIL;
-    }
 }
 
 json_t* prv_create_common_header_json_object(
@@ -514,7 +266,6 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     M_KII_ASSERT(kii_strlen(app->app_id)>0);
     M_KII_ASSERT(kii_strlen(app->app_key)>0);
     M_KII_ASSERT(kii_strlen(app->site_url)>0);
-    M_KII_ASSERT(app->curl_easy != NULL);
     M_KII_ASSERT(vendor_thing_id != NULL);
     M_KII_ASSERT(thing_password != NULL);
     M_KII_ASSERT(out_thing !=NULL);
@@ -670,7 +421,6 @@ kii_error_code_t kii_create_new_object(kii_app_t app,
     M_KII_ASSERT(kii_strlen(app->app_id)>0);
     M_KII_ASSERT(kii_strlen(app->app_key)>0);
     M_KII_ASSERT(kii_strlen(app->site_url)>0);
-    M_KII_ASSERT(app->curl_easy != NULL);
     M_KII_ASSERT(bucket != NULL);
     M_KII_ASSERT(kii_strlen(bucket->kii_thing_id) > 0);
     M_KII_ASSERT(kii_strlen(bucket->bucket_name) > 0);
@@ -787,7 +537,6 @@ kii_error_code_t kii_create_new_object_with_id(kii_app_t app,
     M_KII_ASSERT(kii_strlen(app->app_id)>0);
     M_KII_ASSERT(kii_strlen(app->app_key)>0);
     M_KII_ASSERT(kii_strlen(app->site_url)>0);
-    M_KII_ASSERT(app->curl_easy != NULL);
     M_KII_ASSERT(bucket != NULL);
     M_KII_ASSERT(kii_strlen(bucket->kii_thing_id) > 0);
     M_KII_ASSERT(kii_strlen(bucket->bucket_name) > 0);
@@ -890,7 +639,6 @@ kii_error_code_t kii_patch_object(kii_app_t app,
     M_KII_ASSERT(kii_strlen(app->app_id)>0);
     M_KII_ASSERT(kii_strlen(app->app_key)>0);
     M_KII_ASSERT(kii_strlen(app->site_url)>0);
-    M_KII_ASSERT(app->curl_easy != NULL);
     M_KII_ASSERT(bucket != NULL);
     M_KII_ASSERT(kii_strlen(bucket->kii_thing_id) > 0);
     M_KII_ASSERT(kii_strlen(bucket->bucket_name) > 0);
@@ -994,7 +742,6 @@ kii_error_code_t kii_replace_object(kii_app_t app,
     M_KII_ASSERT(kii_strlen(app->app_id)>0);
     M_KII_ASSERT(kii_strlen(app->app_key)>0);
     M_KII_ASSERT(kii_strlen(app->site_url)>0);
-    M_KII_ASSERT(app->curl_easy != NULL);
     M_KII_ASSERT(bucket != NULL);
     M_KII_ASSERT(kii_strlen(bucket->kii_thing_id) > 0);
     M_KII_ASSERT(kii_strlen(bucket->bucket_name) > 0);
@@ -1096,7 +843,6 @@ kii_error_code_t kii_get_object(kii_app_t app,
     M_KII_ASSERT(kii_strlen(app->app_id)>0);
     M_KII_ASSERT(kii_strlen(app->app_key)>0);
     M_KII_ASSERT(kii_strlen(app->site_url)>0);
-    M_KII_ASSERT(app->curl_easy != NULL);
     M_KII_ASSERT(bucket != NULL);
     M_KII_ASSERT(object_id != NULL);
     M_KII_ASSERT(out_contents != NULL);
@@ -1181,7 +927,6 @@ kii_error_code_t kii_delete_object(kii_app_t app,
     M_KII_ASSERT(kii_strlen(app->app_id)>0);
     M_KII_ASSERT(kii_strlen(app->app_key)>0);
     M_KII_ASSERT(kii_strlen(app->site_url)>0);
-    M_KII_ASSERT(app->curl_easy != NULL);
     M_KII_ASSERT(bucket != NULL);
     M_KII_ASSERT(object_id != NULL);
 
