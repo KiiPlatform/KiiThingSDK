@@ -1,5 +1,11 @@
 #include "kii_http_adapter.h"
 
+#ifdef XCODE
+#include "curl.h"
+#else
+#include <curl/curl.h>
+#endif
+
 #include "kii_custom.h"
 #include "kii_prv_utils.h"
 #include "kii_prv_types.h"

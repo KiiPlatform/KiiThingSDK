@@ -10,12 +10,6 @@
 
 #include <stdio.h>
 
-#ifdef XCODE
-#include "curl.h"
-#else
-#include <curl/curl.h>
-#endif
-
 #include "kii_custom.h"
 
 #ifdef __cplusplus
