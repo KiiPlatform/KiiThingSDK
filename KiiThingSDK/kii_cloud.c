@@ -372,12 +372,13 @@ kii_error_code_t kii_register_thing(kii_app_t app,
     /* prepare request data */
     ret = prv_prepare_register_thing_request_data(vendor_thing_id,
             thing_password, opt_thing_type, user_data, &reqStr);
-    if (ret == KIIE_OK) {
-        if (kii_http_execute("POST", reqUrl, headers, reqStr, &respCode, NULL,
-                        &respData) == KII_FALSE) {
-            ret = KIIE_ADAPTER;
-            goto ON_EXIT; 
-        }
+    if (ret != KIIE_OK) {
+        goto ON_EXIT;
+    }
+    if (kii_http_execute("POST", reqUrl, headers, reqStr, &respCode, NULL,
+                    &respData) == KII_FALSE) {
+        ret = KIIE_ADAPTER;
+        goto ON_EXIT;
     }
 
     ret = prv_parse_register_thing_response(respCode, respData, out_thing,
@@ -688,7 +689,7 @@ static kii_error_code_t prv_parse_patch_object_response(
     /* Check response header */
     if (out_etag != NULL && respHdr != NULL) {
         const kii_char_t* etag = json_string_value(json_object_get(respHdr,
-                        "etag"));
+                "etag"));
         if (etag != NULL) {
             *out_etag = kii_strdup(etag);
             if (*out_etag == NULL) {
