@@ -3,7 +3,7 @@ HEADERS = $(wildcard *.h)
 LDFLAGS =
 CFLAGS = -shared -fPIC
 INCLUDE = -I jansson
-LIBS = -l jansson
+LIBS = -L jansson -l jansson
 ifdef USE_CURL
 	HTTPCLIENT_SOURCE = httpclient/kii_prv_http_execute_curl.c
 	INCLUDE += -I curl
