@@ -48,6 +48,20 @@ typedef struct {
 
 static http_result_t http_error_code;
 
+static kii_char_t*
+skip_spaces(kii_char_t* line)
+{
+    int i = 0;
+    for (i = 0; line[i] != '\0'; ++i)
+    {
+        if (line[i] != ' ')
+        {
+            break;
+        }
+    }
+    return &line[i];
+}
+
 static kii_int_t
 parse_url(
         http_url_t* url,
@@ -214,7 +228,7 @@ ssl_readbyte(SSL* ssl)
     }
     /* read a byte from socket */
     {
-        kii_char_t buf[1];
+        uint8_t buf[1];
         kii_int_t len;
         len = SSL_read(ssl, buf, 1);
         if (len != 1)
@@ -444,7 +458,7 @@ ssl_recv_response(
             if (strncmp((char*)line, "content-length:", 15) == 0)
             {
                 /* FIXME: more strict check */
-                bodylen = atoi((char*)&line[15]);
+                bodylen = atoi((char*)skip_spaces(&line[15]));
             }
             else if (response_headers != NULL &&
                     strncmp((char*)line, "etag:", 5) == 0)
@@ -452,7 +466,7 @@ ssl_recv_response(
                 if (*response_headers == NULL)
                     *response_headers = json_object();
                 if (json_object_set_new(*response_headers, "etag",
-                            json_string(&line[5])) != 0)
+                            json_string(skip_spaces(&line[5]))) != 0)
                 {
                     retval = HTTP_RESULT_ERROR_RESPONSEHEADER;
                     M_KII_FREE_NULLIFY(line);
