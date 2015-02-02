@@ -267,6 +267,16 @@ ssl_resphdr_readline(
             if (d2 == '\n')
             {
                 retval = index;
+                if (index + 1 < buflen)
+                {
+                    (*bufptr)[index + 1] = '\0';
+                }
+                else
+                {
+                    *bufptr = kii_realloc(*bufptr,
+                            sizeof(kii_char_t) * (buflen + 1));
+                    (*bufptr)[index + 1] = '\0';
+                }
                 break;
             }
             else if (index + 1 < buflen)
