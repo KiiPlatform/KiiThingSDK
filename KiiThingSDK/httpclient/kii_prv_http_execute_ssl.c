@@ -478,7 +478,7 @@ ssl_recv_response(
         }
     }
     /* receive HTTP response body */
-    if (response_body != NULL)
+    if (response_body != NULL && bodylen > 0)
     {
         kii_char_t* wptr;
         kii_char_t* end;
