@@ -282,6 +282,57 @@ ON_EXIT:
     return ret;
 }
 
+static kii_error_code_t
+prv_prepare_authenticate_thing_request_data(const kii_char_t* vendor_thing_id,
+                                            const kii_char_t* thing_password,
+                                            kii_char_t** out_string)
+{
+    kii_error_code_t ret = KIIE_FAIL;
+    json_t* reqJson = NULL;
+    kii_int_t json_set_result = 0;
+    kii_char_t* qualified_thing_id = NULL;
+    kii_char_t* prefix = "VENDOR_THING_ID:";
+    size_t qualified_thing_id_size;
+
+    qualified_thing_id_size =
+        kii_strlen(vendor_thing_id) + kii_strlen(prefix) + 1;
+    qualified_thing_id =
+        kii_malloc(kii_strlen(vendor_thing_id) + kii_strlen(prefix) + 1);
+    if (qualified_thing_id == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+    qualified_thing_id[qualified_thing_id_size-1] = '\0';
+    kii_strncat(qualified_thing_id, prefix, qualified_thing_id_size);
+    kii_strncat(qualified_thing_id, vendor_thing_id, qualified_thing_id_size);
+
+    reqJson = json_object();
+    if (reqJson == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+
+    json_set_result = 0;
+    json_set_result |= json_object_set_new(reqJson, "username",
+                                           json_string(qualified_thing_id));
+    json_set_result |= json_object_set_new(reqJson, "password",
+                                           json_string(thing_password));
+
+    if (json_set_result != 0) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+    
+    *out_string = json_dumps(reqJson, 0);
+    ret = (*out_string == NULL) ? KIIE_LOWMEMORY : KIIE_OK;
+    
+ON_EXIT:
+    kii_free(qualified_thing_id);
+    json_decref(reqJson);
+    
+    return ret;
+}
+
 static kii_error_code_t prv_parse_register_thing_response(
         kii_int_t respCode,
         const kii_char_t* respData,
@@ -394,6 +445,115 @@ ON_EXIT:
     return ret;
 }
 
+static kii_error_code_t
+prv_parse_authenticate_thing_response(
+                                      kii_int_t respCode,
+                                      const kii_char_t* respData,
+                                      kii_thing_t* out_thing,
+                                      kii_char_t** out_access_token,
+                                      kii_error_t* err)
+{
+    kii_error_code_t ret = KIIE_FAIL;
+    json_t* respJson = NULL;
+    json_error_t jErr;
+
+    if (respCode < 200 || respCode >= 300) {
+        ret = prv_parse_response_error_code(respCode, respData, err);
+        goto ON_EXIT;
+    }
+
+    respJson = json_loads(respData, 0, &jErr);
+
+    if (respJson == NULL) {
+        ret = KIIE_LOWMEMORY;
+    } else {
+        const kii_char_t* accessToken =
+            json_string_value(json_object_get(respJson, "access_token"));
+        const kii_char_t* thingId =
+            json_string_value(json_object_get(respJson, "id"));
+        if (accessToken != NULL && thingId != NULL) {
+            ret = KIIE_OK;
+            *out_access_token = kii_strdup(accessToken);
+            *out_thing = (kii_thing_t)prv_kii_init_thing(thingId);
+            if (*out_access_token == NULL || *out_thing == NULL) {
+                M_KII_FREE_NULLIFY(*out_access_token);
+                M_KII_FREE_NULLIFY(*out_thing);
+                ret = KIIE_LOWMEMORY;
+            }
+        } else {
+            prv_kii_set_info_in_error(err, (int)respCode, KII_ECODE_PARSE);
+            ret = KIIE_FAIL;
+        }
+    }
+ON_EXIT:
+    json_decref(respJson);
+    return ret;
+}
+
+kii_error_code_t kii_authenticate_thing(kii_app_t app,
+                                        const kii_char_t* vendor_thing_id,
+                                        const kii_char_t* thing_password,
+                                        kii_thing_t* out_thing,
+                                        kii_char_t** out_access_token)
+{
+    kii_char_t *reqUrl = NULL;
+    json_t* headers = NULL;
+    kii_char_t* reqStr = NULL;
+    kii_int_t respCode = 0;
+    kii_char_t* respData = NULL;
+    kii_error_t err;
+    kii_error_code_t ret = KIIE_FAIL;
+
+    M_KII_ASSERT(app != NULL);
+    M_KII_ASSERT(kii_strlen(app->app_id)>0);
+    M_KII_ASSERT(kii_strlen(app->app_key)>0);
+    M_KII_ASSERT(kii_strlen(app->site_url)>0);
+    M_KII_ASSERT(vendor_thing_id != NULL);
+    M_KII_ASSERT(thing_password != NULL);
+    M_KII_ASSERT(out_thing != NULL);
+
+    kii_memset(&err, 0, sizeof(kii_error_t));
+
+    /* prepare URL */
+    reqUrl = prv_build_url(app->site_url, "oauth2", "token", NULL);
+    if (reqUrl == NULL) {
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+
+    /* prepare headers */
+    headers = prv_create_common_header_json_object(app, NULL,
+                                                   "application/json");
+    if (headers == NULL) {;
+        ret = KIIE_LOWMEMORY;
+        goto ON_EXIT;
+    }
+
+    /* prepare request data */
+    ret = prv_prepare_authenticate_thing_request_data(vendor_thing_id,
+                                                      thing_password,
+                                                      &reqStr);
+    if (ret != KIIE_OK) {
+        goto ON_EXIT;
+    }
+    if (kii_http_execute("POST", reqUrl, headers, reqStr, &respCode, NULL,
+                         &respData) == KII_FALSE) {
+        ret = KIIE_ADAPTER;
+        goto ON_EXIT;
+    }
+
+    ret = prv_parse_authenticate_thing_response(respCode, respData, out_thing,
+                                            out_access_token, &err);
+ON_EXIT:
+    json_decref(headers);
+    M_KII_FREE_NULLIFY(reqStr);
+    M_KII_FREE_NULLIFY(respData);
+    M_KII_FREE_NULLIFY(reqUrl);
+    
+    prv_kii_set_last_error(app, ret, &err);
+    
+    return ret;
+}
 
 kii_bucket_t kii_init_thing_bucket(const kii_thing_t thing,
                                    const kii_char_t* bucket_name)

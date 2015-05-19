@@ -239,6 +239,24 @@ kii_error_code_t kii_register_thing(kii_app_t app,
                                     kii_thing_t* out_thing,
                                     kii_char_t** out_access_token);
 
+/** Authenticate thing
+ * This api performes the entire request in a blocking manner
+ * and returns when done, or if it failed.
+ * @param [in] app kii application uses this thing.
+ * @param [in] vendor_thing_id identifier of the thing given by vendor.
+ * should be unique in application.
+ * @param [in] thing_password thing password used on registration.
+ * @param [out] out_thing authenticated thing instance.
+ * @param [out] out_access_token access token of the thing.
+ * @return KIIE_OK if succeeded. Otherwise failed. you can check details by
+ * calling kii_get_last_error(kii_app_t).
+ */
+kii_error_code_t kii_authenticate_thing(kii_app_t app,
+                                        const kii_char_t* vendor_thing_id,
+                                        const kii_char_t* thing_password,
+                                        kii_thing_t* out_thing,
+                                        kii_char_t** out_access_token);
+
 /** Init thing scope bucket.
  * @param [in] thing registered thing instance
  * @param [in] bucket_name name of the bucket to be initialized.
