@@ -68,8 +68,3 @@ sudo make install
 ### How to use it?
 Please refer to
 https://github.com/KiiCorp/KiiThingSDK/blob/master/KiiThingSDKTests/ThingSDKBasicTests.m
-
-
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/KiiCorp/kiithingsdk/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
