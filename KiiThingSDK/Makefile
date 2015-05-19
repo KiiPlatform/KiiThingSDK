@@ -1,3 +1,18 @@
+SOURCES = $(wildcard *.c)
+HEADERS = $(wildcard *.h)
+LDFLAGS =
+CFLAGS = -shared -fPIC
+INCLUDE = -I jansson
+LIBS = -L jansson -l jansson
+ifdef USE_CURL
+	HTTPCLIENT_SOURCE = httpclient/kii_prv_http_execute_curl.c
+	INCLUDE += -I curl
+	LIBS += -l curl
+else
+	HTTPCLIENT_SOURCE = httpclient/kii_prv_http_execute_ssl.c
+	LIBS += -l ssl -l crypto
+endif
+
 all: build doc
 
 doc:
@@ -7,12 +22,12 @@ build_jansson:
 	$(MAKE) -C jansson
 
 build: build_jansson
-	gcc -shared -fPIC kii_cloud.c kii_custom.c kii_prv_utils.c -L jansson -I curl -I jansson -l jansson -l curl -o libkii.so
+	gcc $(CFLAGS) $(SOURCES) $(HTTPCLIENT_SOURCE) $(INCLUDE) $(LIBS) -o libkii.so
 
-ARCHIVE_FILES = kii_cloud.h kii_cloud.c kii_custom.h kii_custom.c kii_prv_utils.h kii_prv_utils.c kii_prv_types.h
 archive: clean
-	mkdir kii_sources
-	cp $(ARCHIVE_FILES) kii_sources
+	mkdir -p kii_sources/httpclient
+	cp $(SOURCES) $(HEADERS) kii_sources
+	cp $(HTTPCLIENT_SOURCE) kii_sources/httpclient
 	tar -czf libkii.tar.gz kii_sources
 	rm -rf kii_sources
 

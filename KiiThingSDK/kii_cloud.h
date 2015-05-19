@@ -8,7 +8,12 @@
 #ifndef KiiThingSDK_kii_cloud_h
 #define KiiThingSDK_kii_cloud_h
 
-#include "jansson.h"
+#ifdef XCODE
+    #include "jansson.h"
+#else 
+    #include <jansson.h>
+#endif
+
 #include <assert.h>
 
 #ifdef __cplusplus
@@ -50,7 +55,8 @@ typedef enum kii_error_code_t {
     KIIE_OK = 0,
     KIIE_FAIL,
     KIIE_LOWMEMORY,
-    KIIE_RESPWRITE
+    KIIE_RESPWRITE,
+    KIIE_ADAPTER
 } kii_error_code_t;
 
 /** Represents application.
