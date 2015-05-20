@@ -291,18 +291,18 @@ prv_prepare_authenticate_thing_request_data(const kii_char_t* vendor_thing_id,
     json_t* reqJson = NULL;
     kii_int_t json_set_result = 0;
     kii_char_t* qualified_thing_id = NULL;
-    kii_char_t* prefix = "VENDOR_THING_ID:";
+    const kii_char_t* prefix = "VENDOR_THING_ID:";
     size_t qualified_thing_id_size;
 
     qualified_thing_id_size =
         kii_strlen(vendor_thing_id) + kii_strlen(prefix) + 1;
     qualified_thing_id =
-        kii_malloc(kii_strlen(vendor_thing_id) + kii_strlen(prefix) + 1);
+        kii_malloc(qualified_thing_id_size + 1);
     if (qualified_thing_id == NULL) {
         ret = KIIE_LOWMEMORY;
         goto ON_EXIT;
     }
-    qualified_thing_id[qualified_thing_id_size-1] = '\0';
+    qualified_thing_id[0] = '\0';
     kii_strncat(qualified_thing_id, prefix, qualified_thing_id_size);
     kii_strncat(qualified_thing_id, vendor_thing_id, qualified_thing_id_size);
 
@@ -509,8 +509,10 @@ kii_error_code_t kii_authenticate_thing(kii_app_t app,
     M_KII_ASSERT(kii_strlen(app->app_key)>0);
     M_KII_ASSERT(kii_strlen(app->site_url)>0);
     M_KII_ASSERT(vendor_thing_id != NULL);
+    M_KII_ASSERT(kii_strlen(vendor_thing_id)>0);
     M_KII_ASSERT(thing_password != NULL);
-    M_KII_ASSERT(out_thing != NULL);
+    M_KII_ASSERT(kii_strlen(thing_password)>0);
+    M_KII_ASSERT(out_thing != NULLgit 
 
     kii_memset(&err, 0, sizeof(kii_error_t));
 
