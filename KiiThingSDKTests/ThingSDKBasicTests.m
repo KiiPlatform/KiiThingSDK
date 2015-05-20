@@ -31,8 +31,10 @@ static const char* APPKEY = "e45fcc2d31d6aca675af639bc5f04a26";
 static const char* BASEURL = "https://api-development-jp.internal.kii.com/api";
 
 // Pre registered thing.
-static const char* ACCESS_TOKEN = "t6cV3HB65osoG9i0Yndkphk75F7XdswTt8KvL874-wY";
-static const char* REGISTERED_THING_TID = "th.53ae324be5a0-f808-4e11-d106-0241b0da";
+static const char* ACCESS_TOKEN = "f_YQD3MhKTSO--hcr-Wj4c7pvbLH4cWHWD4Gwcs2f_Y";
+static const char* REGISTERED_THING_TID = "th.53ae324be5a0-8ddb-4e11-2fdf-050accf2";
+static const char* REGISTERED_THING_VID = "6572AD49-0068-4B7D-8955-743B0735D559";
+static const char* REGISTERED_THING_PASSWORD = "pass1234";
 static const char* REGISTERED_THING_FAIL_ID = "96AAF4E6-0E30-472A-A3EC-902C914CBAB7";
 static const char* REGISTERED_THING_TOPIC = "myTopic";
 
@@ -49,8 +51,8 @@ static const char* REGISTERED_THING_TOPIC = "myTopic";
     char* kiiThingId = NULL;
     kii_error_code_t ret = kii_register_thing(app,
                                               thing_id,
-                                              "THERMOMETER",
-                                              "1234", NULL,
+                                              "pass1234",
+                                              "THERMOMETER", NULL,
                                               &myThing,
                                               &accessToken);
     /* TODO examin myThing */
@@ -66,6 +68,31 @@ static const char* REGISTERED_THING_TOPIC = "myTopic";
     kii_dispose_app(app);
     kii_dispose_kii_char(accessToken);
     kii_dispose_kii_char(kiiThingId);
+    kii_dispose_thing(myThing);
+}
+
+- (void)testAuthenticateThing {
+    kii_app_t app = kii_init_app(APPID,
+                                 APPKEY,
+                                 BASEURL);
+    char* accessToken = NULL;
+    kii_thing_t myThing = NULL;
+    kii_error_code_t ret =
+            kii_authenticate_thing(app,
+                                   REGISTERED_THING_VID,
+                                   REGISTERED_THING_PASSWORD,
+                                   &myThing,
+                                   &accessToken);
+    if (ret != KIIE_OK) {
+        kii_error_t* err = kii_get_last_error(app);
+        NSLog(@"code: %s", err->error_code);
+        NSLog(@"resp code: %d", err->status_code);
+    }
+    XCTAssertEqual(ret, KIIE_OK, @"authentication failed");
+    XCTAssertTrue(strlen(accessToken) > 0, @"access token invalid");
+
+    kii_dispose_app(app);
+    kii_dispose_kii_char(accessToken);
     kii_dispose_thing(myThing);
 }
 
