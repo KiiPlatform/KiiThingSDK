@@ -512,7 +512,7 @@ kii_error_code_t kii_authenticate_thing(kii_app_t app,
     M_KII_ASSERT(kii_strlen(vendor_thing_id)>0);
     M_KII_ASSERT(thing_password != NULL);
     M_KII_ASSERT(kii_strlen(thing_password)>0);
-    M_KII_ASSERT(out_thing != NULLgit 
+    M_KII_ASSERT(out_thing != NULL)
 
     kii_memset(&err, 0, sizeof(kii_error_t));
 
