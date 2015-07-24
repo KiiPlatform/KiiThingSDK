@@ -1,6 +1,7 @@
 SOURCES = $(wildcard *.c)
 HEADERS = $(wildcard *.h)
 LDFLAGS =
+CC = gcc
 CFLAGS = -shared -fPIC
 INCLUDE = -I jansson
 LIBS = -L jansson -l jansson
@@ -22,7 +23,7 @@ build_jansson:
 	$(MAKE) -C jansson
 
 build: build_jansson
-	gcc $(CFLAGS) $(SOURCES) $(HTTPCLIENT_SOURCE) $(INCLUDE) $(LIBS) -o libkii.so
+	$(CC) $(CFLAGS) $(SOURCES) $(HTTPCLIENT_SOURCE) $(INCLUDE) $(LIBS) -o libkii.so
 
 archive: clean
 	mkdir -p kii_sources/httpclient
